@@ -7,9 +7,9 @@
 ## Current Status
 
 **Active Phase:** 1 - Project Setup & Infrastructure
-**Active Plan:** 01-04 (completed)
-**Last Action:** Completed 01-04-PLAN.md - R2 Storage Service
-**Next Action:** Continue with Plan 01-05
+**Active Plan:** 01-03 (completed)
+**Last Action:** Completed 01-03-PLAN.md - Database Schema & Migrations
+**Next Action:** Continue with Plan 01-04 (R2 Storage Service)
 
 ---
 
@@ -32,7 +32,7 @@
 
 | Phase | Name | Status | Progress | Plans |
 |-------|------|--------|----------|-------|
-| 1 | Project Setup & Infrastructure | In Progress | 80% | 4/5 |
+| 1 | Project Setup & Infrastructure | In Progress | 60% | 3/5 |
 | 2 | Authentication System | Pending | 0% | 0/0 |
 | 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
 | 4 | Template Management | Pending | 0% | 0/0 |
@@ -79,6 +79,9 @@
 | 2026-01-24 | Tenant-scoped object keys | Storage isolation at key level | Format: {tenant_id}/photos/{uuid}.{ext} |
 | 2026-01-24 | Presigned URLs for uploads | Client-side upload without proxying | 1-hour expiry for security |
 | 2026-01-24 | Singleton storage service | Shared boto3 client instance | get_storage_service() factory pattern |
+| 2026-01-24 | Use declared_attr for conditional tenant_id | Clean inheritance without separate base classes | Tenant model excluded from multi-tenant pattern |
+| 2026-01-24 | Text columns for location (Phase 1) | Defer PostGIS geometry to later phase | Faster Phase 1, migration path preserved |
+| 2026-01-24 | Manual initial migration | Ensure PostGIS extension created first | Explicit control over migration order |
 
 ### Active TODOs
 
@@ -86,7 +89,7 @@
 
 ### Current Blockers
 
-- R2 credentials needed for photo upload (after deployment) - see 01-04-SUMMARY.md User Setup section
+- DATABASE_URL environment variable needed before running migrations - see 01-03-SUMMARY.md
 
 ---
 
@@ -97,7 +100,7 @@
 - **2026-01-24:** Roadmap created (10 phases, comprehensive depth)
 - **2026-01-24:** Completed 01-01-PLAN.md - Frontend initialization with React + Vite + TypeScript + Tailwind CSS v4
 - **2026-01-24:** Completed 01-02-PLAN.md - Backend initialization with FastAPI + SQLAlchemy
-- **2026-01-24:** Completed 01-04-PLAN.md - R2 Storage Service with boto3 and presigned URLs
+- **2026-01-24:** Completed 01-03-PLAN.md - Database Schema & Migrations with Alembic + 6 core tables
 
 ---
 
@@ -111,8 +114,8 @@
 
 **Current session context:**
 - Executing Phase 1 plans
-- Completed: 01-01 (frontend), 01-02 (backend), 01-04 (storage)
-- Next: Plan 01-05 (next in phase)
+- Completed: 01-01 (frontend), 01-02 (backend), 01-03 (database)
+- Next: Plan 01-04 (R2 storage service)
 
 ---
 
