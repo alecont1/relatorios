@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -11,7 +11,7 @@ class Base(DeclarativeBase):
 
     Provides common columns for all models:
     - id: Primary key (UUID)
-    - tenant_id: Multi-tenant support (indexed)
+    - tenant_id: Multi-tenant support (indexed) - except for Tenant model
     - created_at: Timestamp of creation
     - updated_at: Timestamp of last update
 
@@ -25,11 +25,17 @@ class Base(DeclarativeBase):
         server_default=func.gen_random_uuid()
     )
 
-    # Multi-tenant support
-    tenant_id: Mapped[uuid.UUID] = mapped_column(
-        index=True,
-        nullable=False
-    )
+    # Multi-tenant support - conditionally added
+    @declared_attr
+    def tenant_id(cls) -> Mapped[uuid.UUID]:
+        """Add tenant_id to all tables except tenants."""
+        if cls.__name__ == "Tenant":
+            # Tenant table doesn't have tenant_id
+            return None  # type: ignore
+        return mapped_column(
+            index=True,
+            nullable=False
+        )
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
