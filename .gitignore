@@ -32,5 +32,3 @@ htmlcov/
 # Logs
 *.log
 
-# Planning artifacts
-.planning/
