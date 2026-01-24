@@ -6,10 +6,10 @@
 
 ## Current Status
 
-**Active Phase:** 1 - Project Setup & Infrastructure
-**Active Plan:** 01-03 (completed)
-**Last Action:** Completed 01-03-PLAN.md - Database Schema & Migrations
-**Next Action:** Continue with Plan 01-04 (R2 Storage Service)
+**Active Phase:** 1 - Project Setup & Infrastructure (COMPLETE)
+**Active Plan:** 01-05 (completed)
+**Last Action:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
+**Next Action:** Begin Phase 2 - Authentication System
 
 ---
 
@@ -32,7 +32,7 @@
 
 | Phase | Name | Status | Progress | Plans |
 |-------|------|--------|----------|-------|
-| 1 | Project Setup & Infrastructure | In Progress | 60% | 3/5 |
+| 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
 | 2 | Authentication System | Pending | 0% | 0/0 |
 | 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
 | 4 | Template Management | Pending | 0% | 0/0 |
@@ -43,20 +43,24 @@
 | 9 | Digital Signatures | Pending | 0% | 0/0 |
 | 10 | Mobile UX & Polish | Pending | 0% | 0/0 |
 
-**Overall Progress:** 0/10 phases (0%)
+**Overall Progress:** 1/10 phases (10%)
+
+**Phase 1 Summary:**
+█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 10%
 
 ---
 
 ## Performance Metrics
 
 **Project Started:** 2026-01-24
-**Phases Completed:** 0/10
+**Phases Completed:** 1/10
 **Total Requirements:** 48
 **Requirements Completed:** 0/48 (0%)
 
 **Velocity:**
-- Plans per day: N/A (not started)
-- Requirements per day: N/A (not started)
+- Phase 1 duration: ~30 minutes (5 plans)
+- Plans per day: 5 (Phase 1 completed in single session)
+- Requirements per day: N/A (Phase 1 is infrastructure, no v1 requirements)
 
 ---
 
@@ -82,6 +86,11 @@
 | 2026-01-24 | Use declared_attr for conditional tenant_id | Clean inheritance without separate base classes | Tenant model excluded from multi-tenant pattern |
 | 2026-01-24 | Text columns for location (Phase 1) | Defer PostGIS geometry to later phase | Faster Phase 1, migration path preserved |
 | 2026-01-24 | Manual initial migration | Ensure PostGIS extension created first | Explicit control over migration order |
+| 2026-01-24 | Vercel SPA fallback route | React Router works on refresh | All routes fallback to /index.html |
+| 2026-01-24 | Railway health check at /api/v1/health | Auto-restart on service failure | 30s timeout, ON_FAILURE restart policy |
+| 2026-01-24 | GitHub Actions parallel jobs | Faster CI feedback | Frontend and backend tests run independently |
+| 2026-01-24 | SQLite for CI backend tests | Avoid PostgreSQL service in CI | sqlite+aiosqlite:///test.db for unit tests |
+| 2026-01-24 | Monorepo working-directory in CI | Correct context for npm/pip commands | frontend/ and backend/ roots specified |
 
 ### Active TODOs
 
@@ -89,7 +98,11 @@
 
 ### Current Blockers
 
-- DATABASE_URL environment variable needed before running migrations - see 01-03-SUMMARY.md
+- External services setup required before Phase 2 - see 01-USER-SETUP.md
+  - Vercel project must be created and linked to repository
+  - Railway project must be created with PostgreSQL and Redis services
+  - Cloudflare R2 bucket must be created with API credentials
+  - Environment variables must be configured on each platform
 
 ---
 
@@ -101,6 +114,9 @@
 - **2026-01-24:** Completed 01-01-PLAN.md - Frontend initialization with React + Vite + TypeScript + Tailwind CSS v4
 - **2026-01-24:** Completed 01-02-PLAN.md - Backend initialization with FastAPI + SQLAlchemy
 - **2026-01-24:** Completed 01-03-PLAN.md - Database Schema & Migrations with Alembic + 6 core tables
+- **2026-01-24:** Completed 01-04-PLAN.md - R2 Storage Service with boto3 + presigned URLs
+- **2026-01-24:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
+- **2026-01-24:** **Phase 1 Complete** - All infrastructure setup finished (5 plans in ~30 minutes)
 
 ---
 
@@ -113,9 +129,10 @@
 4. Check PROJECT.md for core value and constraints
 
 **Current session context:**
-- Executing Phase 1 plans
-- Completed: 01-01 (frontend), 01-02 (backend), 01-03 (database)
-- Next: Plan 01-04 (R2 storage service)
+- Phase 1 complete (5/5 plans finished)
+- Completed: 01-01 (frontend), 01-02 (backend), 01-03 (database), 01-04 (storage), 01-05 (deployment)
+- Next: Begin Phase 2 - Authentication System (after external services setup)
+- User action required: Complete 01-USER-SETUP.md before proceeding
 
 ---
 
