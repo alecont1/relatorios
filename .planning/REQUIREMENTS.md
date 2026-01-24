@@ -130,63 +130,63 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| AUTH-05 | TBD | Pending |
-| TNNT-01 | TBD | Pending |
-| TNNT-02 | TBD | Pending |
-| TNNT-03 | TBD | Pending |
-| TNNT-04 | TBD | Pending |
-| TNNT-05 | TBD | Pending |
-| TMPL-01 | TBD | Pending |
-| TMPL-02 | TBD | Pending |
-| TMPL-03 | TBD | Pending |
-| TMPL-04 | TBD | Pending |
-| TMPL-05 | TBD | Pending |
-| TMPL-06 | TBD | Pending |
-| TMPL-07 | TBD | Pending |
-| TMPL-08 | TBD | Pending |
-| TMPL-09 | TBD | Pending |
-| TMPL-10 | TBD | Pending |
-| TMPL-11 | TBD | Pending |
-| REPT-01 | TBD | Pending |
-| REPT-02 | TBD | Pending |
-| REPT-03 | TBD | Pending |
-| REPT-04 | TBD | Pending |
-| REPT-05 | TBD | Pending |
-| REPT-06 | TBD | Pending |
-| REPT-07 | TBD | Pending |
-| REPT-08 | TBD | Pending |
-| PHOT-01 | TBD | Pending |
-| PHOT-02 | TBD | Pending |
-| PHOT-03 | TBD | Pending |
-| PHOT-04 | TBD | Pending |
-| PHOT-05 | TBD | Pending |
-| PHOT-06 | TBD | Pending |
-| PHOT-07 | TBD | Pending |
-| PHOT-08 | TBD | Pending |
-| PHOT-09 | TBD | Pending |
-| PDF-01 | TBD | Pending |
-| PDF-02 | TBD | Pending |
-| PDF-03 | TBD | Pending |
-| PDF-04 | TBD | Pending |
-| PDF-05 | TBD | Pending |
-| PDF-06 | TBD | Pending |
-| PDF-07 | TBD | Pending |
-| SIGN-01 | TBD | Pending |
-| SIGN-02 | TBD | Pending |
-| SIGN-03 | TBD | Pending |
-| MOBX-01 | TBD | Pending |
-| MOBX-02 | TBD | Pending |
-| MOBX-03 | TBD | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| TNNT-01 | Phase 3 | Pending |
+| TNNT-02 | Phase 3 | Pending |
+| TNNT-03 | Phase 3 | Pending |
+| TNNT-04 | Phase 3 | Pending |
+| TNNT-05 | Phase 3 | Pending |
+| TMPL-01 | Phase 4 | Pending |
+| TMPL-02 | Phase 4 | Pending |
+| TMPL-03 | Phase 4 | Pending |
+| TMPL-04 | Phase 4 | Pending |
+| TMPL-05 | Phase 4 | Pending |
+| TMPL-06 | Phase 5 | Pending |
+| TMPL-07 | Phase 5 | Pending |
+| TMPL-08 | Phase 5 | Pending |
+| TMPL-09 | Phase 5 | Pending |
+| TMPL-10 | Phase 5 | Pending |
+| TMPL-11 | Phase 5 | Pending |
+| REPT-01 | Phase 6 | Pending |
+| REPT-02 | Phase 6 | Pending |
+| REPT-03 | Phase 6 | Pending |
+| REPT-04 | Phase 6 | Pending |
+| REPT-05 | Phase 6 | Pending |
+| REPT-06 | Phase 6 | Pending |
+| REPT-07 | Phase 6 | Pending |
+| REPT-08 | Phase 6 | Pending |
+| PHOT-01 | Phase 7 | Pending |
+| PHOT-02 | Phase 7 | Pending |
+| PHOT-03 | Phase 7 | Pending |
+| PHOT-04 | Phase 7 | Pending |
+| PHOT-05 | Phase 7 | Pending |
+| PHOT-06 | Phase 7 | Pending |
+| PHOT-07 | Phase 7 | Pending |
+| PHOT-08 | Phase 7 | Pending |
+| PHOT-09 | Phase 7 | Pending |
+| PDF-01 | Phase 8 | Pending |
+| PDF-02 | Phase 8 | Pending |
+| PDF-03 | Phase 8 | Pending |
+| PDF-04 | Phase 8 | Pending |
+| PDF-05 | Phase 8 | Pending |
+| PDF-06 | Phase 8 | Pending |
+| PDF-07 | Phase 8 | Pending |
+| SIGN-01 | Phase 9 | Pending |
+| SIGN-02 | Phase 9 | Pending |
+| SIGN-03 | Phase 9 | Pending |
+| MOBX-01 | Phase 10 | Pending |
+| MOBX-02 | Phase 10 | Pending |
+| MOBX-03 | Phase 10 | Pending |
 
 **Coverage:**
 - v1 requirements: 48 total
-- Mapped to phases: 0
-- Unmapped: 48
+- Mapped to phases: 48 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-24*
-*Last updated: 2026-01-24 after initial definition*
+*Last updated: 2026-01-24 after roadmap creation*
