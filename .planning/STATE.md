@@ -7,9 +7,9 @@
 ## Current Status
 
 **Active Phase:** 1 - Project Setup & Infrastructure
-**Active Plan:** 01-01 (completed)
-**Last Action:** Completed 01-01-PLAN.md - Frontend initialization with React + Vite
-**Next Action:** Continue with Plan 01-02 (Backend initialization)
+**Active Plan:** 01-04 (completed)
+**Last Action:** Completed 01-04-PLAN.md - R2 Storage Service
+**Next Action:** Continue with Plan 01-05
 
 ---
 
@@ -32,7 +32,7 @@
 
 | Phase | Name | Status | Progress | Plans |
 |-------|------|--------|----------|-------|
-| 1 | Project Setup & Infrastructure | In Progress | 20% | 1/5 |
+| 1 | Project Setup & Infrastructure | In Progress | 80% | 4/5 |
 | 2 | Authentication System | Pending | 0% | 0/0 |
 | 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
 | 4 | Template Management | Pending | 0% | 0/0 |
@@ -75,6 +75,10 @@
 | 2026-01-24 | React 18 over React 19 | Broader ecosystem compatibility | Better library support currently |
 | 2026-01-24 | React Query mobile defaults | staleTime 5min, refetchOnWindowFocus false | Optimized for mobile PWA behavior |
 | 2026-01-24 | Path alias @/* for imports | Cleaner imports across frontend | Configured in vite.config.ts and tsconfig |
+| 2026-01-24 | Boto3 S3-compatible API for R2 | Mature library over custom HTTP | StorageService uses boto3 client |
+| 2026-01-24 | Tenant-scoped object keys | Storage isolation at key level | Format: {tenant_id}/photos/{uuid}.{ext} |
+| 2026-01-24 | Presigned URLs for uploads | Client-side upload without proxying | 1-hour expiry for security |
+| 2026-01-24 | Singleton storage service | Shared boto3 client instance | get_storage_service() factory pattern |
 
 ### Active TODOs
 
@@ -82,7 +86,7 @@
 
 ### Current Blockers
 
-(None)
+- R2 credentials needed for photo upload (after deployment) - see 01-04-SUMMARY.md User Setup section
 
 ---
 
@@ -92,6 +96,8 @@
 - **2026-01-24:** Requirements defined (48 v1 requirements across 8 categories)
 - **2026-01-24:** Roadmap created (10 phases, comprehensive depth)
 - **2026-01-24:** Completed 01-01-PLAN.md - Frontend initialization with React + Vite + TypeScript + Tailwind CSS v4
+- **2026-01-24:** Completed 01-02-PLAN.md - Backend initialization with FastAPI + SQLAlchemy
+- **2026-01-24:** Completed 01-04-PLAN.md - R2 Storage Service with boto3 and presigned URLs
 
 ---
 
@@ -105,8 +111,8 @@
 
 **Current session context:**
 - Executing Phase 1 plans
-- Completed: 01-01 (frontend initialization)
-- Next: Plan 01-02 (backend initialization)
+- Completed: 01-01 (frontend), 01-02 (backend), 01-04 (storage)
+- Next: Plan 01-05 (next in phase)
 
 ---
 
