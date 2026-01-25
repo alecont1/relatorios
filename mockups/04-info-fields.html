@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Informacoes do Projeto</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="mockup-badge">04 - Campos de Informacao</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-icon" onclick="window.location.href='03-select-template.html'" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </div>
+      <div class="header-title">Inspecao Predial</div>
+      <div style="width: 24px;"></div>
+    </div>
+
+    <div class="screen" style="padding-top: 0;">
+      <div class="container">
+
+        <!-- Step Indicator -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--success); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div style="flex: 1; height: 2px; background: var(--primary);"></div>
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">2</div>
+          <div style="flex: 1; height: 2px; background: var(--border);"></div>
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">3</div>
+        </div>
+
+        <h2 class="page-title">Informacoes do Projeto</h2>
+        <p class="page-subtitle">Preencha os dados do cliente e projeto</p>
+
+        <form>
+          <div class="section">
+            <div class="section-title">Dados do Cliente</div>
+
+            <div class="form-group">
+              <label class="form-label">Nome do Cliente *</label>
+              <input type="text" class="form-input" placeholder="Ex: Construtora ABC" value="Construtora ABC Ltda">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">CNPJ/CPF</label>
+              <input type="text" class="form-input" placeholder="00.000.000/0001-00" value="12.345.678/0001-90">
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Dados do Projeto</div>
+
+            <div class="form-group">
+              <label class="form-label">Nome do Projeto *</label>
+              <input type="text" class="form-input" placeholder="Ex: Torre Empresarial Norte" value="Torre Empresarial Norte">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Endereco *</label>
+              <input type="text" class="form-input" placeholder="Rua, numero, bairro" value="Av. Paulista, 1000 - Bela Vista">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cidade/UF *</label>
+              <input type="text" class="form-input" placeholder="Cidade - UF" value="Sao Paulo - SP">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Data da Vistoria *</label>
+              <input type="date" class="form-input" value="2026-01-25">
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Responsavel</div>
+
+            <div class="form-group">
+              <label class="form-label">Tecnico Responsavel</label>
+              <div class="form-input" style="background: var(--background); color: var(--text-secondary);">
+                Joao Silva (logado)
+              </div>
+            </div>
+          </div>
+
+          <div style="padding-bottom: 20px;">
+            <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='05-checklist.html'">
+              Iniciar Checklist
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="03-select-template.html">Anterior: Selecionar Template</a> | <a href="05-checklist.html">Proxima: Checklist</a></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Preview da Foto</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="mockup-badge">06b - Preview da Foto Capturada</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-icon" onclick="window.location.href='06-photo-capture.html'" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </div>
+      <div class="header-title">Preview da Foto</div>
+      <div style="width: 24px;"></div>
+    </div>
+
+    <div class="screen" style="padding-top: 0; background: #0f172a;">
+
+      <!-- Photo with Watermark -->
+      <div style="position: relative; width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #334155 0%, #1e293b 100%);">
+        <!-- Simulated photo content -->
+        <div style="position: absolute; top: 30%; left: 20%; width: 60%; height: 40%; background: linear-gradient(45deg, #475569, #64748b); border-radius: 4px; transform: rotate(-2deg);"></div>
+        <div style="position: absolute; top: 35%; left: 25%; width: 50%; height: 2px; background: #ef4444;"></div>
+        <div style="position: absolute; top: 40%; left: 30%; width: 40%; height: 2px; background: #ef4444;"></div>
+
+        <!-- Watermark Overlay -->
+        <div class="watermark-overlay">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+              <div class="watermark-logo" style="display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: var(--primary);">LOGO</div>
+              <div style="margin-top: 6px;">
+                <div style="font-weight: 500;">25/01/2026 09:41:32</div>
+                <div style="opacity: 0.8;">Av. Paulista, 1000</div>
+                <div style="opacity: 0.8;">Sao Paulo - SP</div>
+              </div>
+            </div>
+            <div style="text-align: right; font-size: 10px; opacity: 0.8;">
+              <div>-23.5614, -46.6559</div>
+              <div>Precisao: 5m</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo Metadata -->
+      <div style="padding: 20px; background: white;">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Metadados da Foto</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Data/Hora</div>
+            <div style="font-size: 14px; font-weight: 500;">25/01/2026 09:41:32</div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Precisao GPS</div>
+            <div style="font-size: 14px; font-weight: 500;">5 metros</div>
+          </div>
+          <div style="grid-column: span 2;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Coordenadas</div>
+            <div style="font-size: 14px; font-weight: 500;">-23.5614, -46.6559</div>
+          </div>
+          <div style="grid-column: span 2;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Endereco</div>
+            <div style="font-size: 14px; font-weight: 500;">Av. Paulista, 1000 - Bela Vista, Sao Paulo - SP</div>
+          </div>
+        </div>
+
+        <div style="background: #fef3c7; border-radius: 8px; padding: 12px; margin-top: 16px; display: flex; gap: 8px; align-items: flex-start;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" style="flex-shrink: 0;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <div style="font-size: 13px; color: #92400e;">
+            <strong>Nota:</strong> Os metadados de GPS e data/hora sao capturados automaticamente e nao podem ser alterados.
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label class="form-label">Legenda (opcional)</label>
+          <input type="text" class="form-input" placeholder="Descreva a foto..." value="Fissura horizontal no 3o andar - face norte">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button class="btn btn-secondary" style="flex: 1;" onclick="window.location.href='06-photo-capture.html'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Descartar
+          </button>
+          <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='05-checklist.html'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Salvar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="06-photo-capture.html">Anterior: Captura</a> | <a href="05-checklist.html">Voltar ao Checklist</a></p>
+  </div>
+</body>
+</html>

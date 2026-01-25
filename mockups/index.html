@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Mockups de Telas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      min-height: 100vh;
+      color: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0 auto 24px;
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .flow-section {
+      margin-bottom: 48px;
+    }
+
+    .flow-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #64748b;
+      margin-bottom: 20px;
+      padding-left: 8px;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .screen-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: white;
+      display: block;
+    }
+
+    .screen-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(59, 130, 246, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .screen-number {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .screen-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .screen-description {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .screen-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border-radius: 12px;
+    }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #475569;
+    }
+
+    .user-flow {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 20px 0;
+    }
+
+    .flow-step {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .flow-connector {
+      color: #475569;
+      font-size: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #64748b;
+      font-size: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .screens-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .flow-diagram {
+        flex-direction: column;
+      }
+
+      .flow-connector {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">SH</div>
+      <h1>SmartHand</h1>
+      <p class="subtitle">
+        Mockups de telas do sistema de relatorios de campo inteligentes.
+        Clique em qualquer tela para visualizar o mockup interativo.
+      </p>
+    </header>
+
+    <!-- User Flow Diagram -->
+    <div class="user-flow">
+      <div class="flow-title">Fluxo Principal do Usuario</div>
+      <div class="flow-diagram">
+        <div class="flow-step">Login</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Dashboard</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Novo Relatorio</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Template</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Info Projeto</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Checklist + Fotos</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">Assinaturas</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step">PDF</div>
+      </div>
+    </div>
+
+    <!-- Authentication -->
+    <section class="flow-section">
+      <div class="flow-title">Autenticacao</div>
+      <div class="screens-grid">
+        <a href="01-login.html" class="screen-card">
+          <div class="screen-number">01</div>
+          <h3 class="screen-title">Login</h3>
+          <p class="screen-description">
+            Tela de autenticacao com email e senha. Entrada no sistema com JWT token.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">JWT</span>
+            <span class="tag">Multi-tenant</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Flow -->
+    <section class="flow-section">
+      <div class="flow-title">Fluxo de Relatorios</div>
+      <div class="screens-grid">
+        <a href="02-dashboard.html" class="screen-card">
+          <div class="screen-number">02</div>
+          <h3 class="screen-title">Dashboard</h3>
+          <p class="screen-description">
+            Lista de relatorios com filtros por status. Acesso rapido para criar novo ou continuar rascunhos.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Filtros</span>
+            <span class="tag">Status</span>
+            <span class="tag">FAB</span>
+          </div>
+        </a>
+
+        <a href="03-select-template.html" class="screen-card">
+          <div class="screen-number">03</div>
+          <h3 class="screen-title">Selecao de Template</h3>
+          <p class="screen-description">
+            Escolha do tipo de relatorio a ser criado. Templates pre-configurados por categoria.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Templates</span>
+            <span class="tag">Categorias</span>
+          </div>
+        </a>
+
+        <a href="04-info-fields.html" class="screen-card">
+          <div class="screen-number">04</div>
+          <h3 class="screen-title">Informacoes do Projeto</h3>
+          <p class="screen-description">
+            Preenchimento de dados do cliente e projeto antes de iniciar o checklist.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Formulario</span>
+            <span class="tag">Metadados</span>
+          </div>
+        </a>
+
+        <a href="05-checklist.html" class="screen-card">
+          <div class="screen-number">05</div>
+          <h3 class="screen-title">Formulario Checklist</h3>
+          <p class="screen-description">
+            Checklist dinamico com opcoes OK/NOK/N.A., comentarios e captura de fotos por item.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Checklist</span>
+            <span class="tag">Auto-save</span>
+            <span class="tag">Bilingue</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Photo Capture -->
+    <section class="flow-section">
+      <div class="flow-title">Captura de Fotos</div>
+      <div class="screens-grid">
+        <a href="06-photo-capture.html" class="screen-card">
+          <div class="screen-number">06</div>
+          <h3 class="screen-title">Camera com GPS</h3>
+          <p class="screen-description">
+            Interface de camera com captura automatica de GPS, timestamp e preview de watermark.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">GPS</span>
+            <span class="tag">Watermark</span>
+            <span class="tag">Timestamp</span>
+          </div>
+        </a>
+
+        <a href="06b-photo-preview.html" class="screen-card">
+          <div class="screen-number">06b</div>
+          <h3 class="screen-title">Preview da Foto</h3>
+          <p class="screen-description">
+            Visualizacao da foto capturada com metadados de GPS e opcao de adicionar legenda.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Metadados</span>
+            <span class="tag">Geocoding</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Finalization -->
+    <section class="flow-section">
+      <div class="flow-title">Finalizacao</div>
+      <div class="screens-grid">
+        <a href="07-signature.html" class="screen-card">
+          <div class="screen-number">07</div>
+          <h3 class="screen-title">Assinaturas Digitais</h3>
+          <p class="screen-description">
+            Coleta de assinaturas por papel (tecnico, responsavel, cliente) com canvas touch.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">Touch Canvas</span>
+            <span class="tag">Multiplas</span>
+          </div>
+        </a>
+
+        <a href="08-report-detail.html" class="screen-card">
+          <div class="screen-number">08</div>
+          <h3 class="screen-title">Detalhe e PDF</h3>
+          <p class="screen-description">
+            Visualizacao completa do relatorio com preview do PDF e opcao de download.
+          </p>
+          <div class="screen-tags">
+            <span class="tag">PDF</span>
+            <span class="tag">Download</span>
+            <span class="tag">Preview</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>SmartHand - Mockups de Interface v1.0</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      Abra cada tela no navegador para ver o mockup interativo em formato mobile.
+    </p>
+  </footer>
+</body>
+</html>

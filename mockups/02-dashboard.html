@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="mockup-badge">02 - Dashboard de Relatorios</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: bold;">SH</div>
+      <div class="header-title">Meus Relatorios</div>
+      <div class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="tab-filters">
+      <div class="tab-filter active">Todos</div>
+      <div class="tab-filter">Rascunho</div>
+      <div class="tab-filter">Em Progresso</div>
+      <div class="tab-filter">Concluidos</div>
+    </div>
+
+    <div class="screen" style="padding: 0 16px 100px; padding-top: 0;">
+
+      <!-- Report Card 1 - Em progresso -->
+      <div class="card" onclick="window.location.href='05-checklist.html'" style="cursor: pointer;">
+        <div class="card-header">
+          <span class="card-title">Inspecao Estrutural #142</span>
+          <span class="badge badge-progress">Em Progresso</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+          Cliente: Construtora ABC<br>
+          Projeto: Torre Empresarial Norte
+        </p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 65%;"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">65% concluido - 13 de 20 itens</p>
+      </div>
+
+      <!-- Report Card 2 - Rascunho -->
+      <div class="card" style="cursor: pointer;">
+        <div class="card-header">
+          <span class="card-title">Vistoria Tecnica #143</span>
+          <span class="badge badge-draft">Rascunho</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+          Cliente: Incorporadora XYZ<br>
+          Projeto: Residencial Jardins
+        </p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 15%;"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">15% concluido - 3 de 20 itens</p>
+      </div>
+
+      <!-- Report Card 3 - Concluido -->
+      <div class="card" onclick="window.location.href='08-report-detail.html'" style="cursor: pointer;">
+        <div class="card-header">
+          <span class="card-title">Inspecao Predial #141</span>
+          <span class="badge badge-completed">Concluido</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+          Cliente: Condominio Parque<br>
+          Projeto: Bloco A - Fachada
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span style="font-size: 12px; color: var(--success);">PDF gerado em 22/01/2026</span>
+        </div>
+      </div>
+
+      <!-- Report Card 4 - Concluido -->
+      <div class="card" style="cursor: pointer;">
+        <div class="card-header">
+          <span class="card-title">Laudo Tecnico #140</span>
+          <span class="badge badge-completed">Concluido</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+          Cliente: Shopping Center Sul<br>
+          Projeto: Area de Estacionamento
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span style="font-size: 12px; color: var(--success);">PDF gerado em 20/01/2026</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAB Button -->
+    <div class="fab" onclick="window.location.href='03-select-template.html'" style="cursor: pointer;">
+      +
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8" fill="none" stroke="white" stroke-width="1"/>
+        </svg>
+        <span>Relatorios</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Perfil</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Config</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="01-login.html">Anterior: Login</a> | <a href="03-select-template.html">Proxima: Selecionar Template</a></p>
+  </div>
+</body>
+</html>

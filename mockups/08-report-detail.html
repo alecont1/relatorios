@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Detalhe do Relatorio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="mockup-badge">08 - Detalhe e Download PDF</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-icon" onclick="window.location.href='02-dashboard.html'" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </div>
+      <div class="header-title">Relatorio #142</div>
+      <div class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="screen" style="padding-top: 0; padding-bottom: 100px;">
+
+      <!-- Status Banner -->
+      <div style="background: #dcfce7; padding: 16px 20px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 600; color: #166534;">Relatorio Concluido</div>
+          <div style="font-size: 13px; color: #166534;">PDF gerado em 25/01/2026 as 10:15</div>
+        </div>
+      </div>
+
+      <div class="container">
+
+        <!-- PDF Preview Card -->
+        <div class="section">
+          <div class="section-title">Preview do PDF</div>
+          <div class="pdf-preview" style="font-size: 10px;">
+            <div class="pdf-header">
+              <div class="pdf-logo"></div>
+              <div class="pdf-title">
+                RELATORIO DE<br>INSPECAO PREDIAL<br>
+                <span style="font-size: 9px; font-weight: normal;">#142</span>
+              </div>
+            </div>
+
+            <div class="pdf-section">
+              <div class="pdf-section-title">DADOS DO PROJETO</div>
+              <table class="pdf-table">
+                <tr>
+                  <td style="width: 30%; background: #f8fafc;"><strong>Cliente</strong></td>
+                  <td>Construtora ABC Ltda</td>
+                </tr>
+                <tr>
+                  <td style="background: #f8fafc;"><strong>Projeto</strong></td>
+                  <td>Torre Empresarial Norte</td>
+                </tr>
+                <tr>
+                  <td style="background: #f8fafc;"><strong>Data</strong></td>
+                  <td>25/01/2026</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="pdf-section">
+              <div class="pdf-section-title">CHECKLIST - FACHADA</div>
+              <table class="pdf-table">
+                <tr>
+                  <td style="width: 60%;">Revestimento externo</td>
+                  <td style="text-align: center; background: #dcfce7; color: #166534; font-weight: bold;">OK</td>
+                </tr>
+                <tr>
+                  <td>Trincas ou fissuras</td>
+                  <td style="text-align: center; background: #fee2e2; color: #991b1b; font-weight: bold;">NOK</td>
+                </tr>
+                <tr>
+                  <td>Juntas de dilatacao</td>
+                  <td style="text-align: center; background: #dcfce7; color: #166534; font-weight: bold;">OK</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="text-align: center; padding: 8px; color: var(--text-secondary); font-size: 9px;">
+              ... continua ...
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Info -->
+        <div class="section">
+          <div class="section-title">Informacoes</div>
+          <div class="card">
+            <div style="display: grid; gap: 12px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Template</span>
+                <span style="font-weight: 500;">Inspecao Predial</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Cliente</span>
+                <span style="font-weight: 500;">Construtora ABC</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Projeto</span>
+                <span style="font-weight: 500;">Torre Empresarial Norte</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Data</span>
+                <span style="font-weight: 500;">25/01/2026</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Tecnico</span>
+                <span style="font-weight: 500;">Joao Silva</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photos Summary -->
+        <div class="section">
+          <div class="section-title">Fotos (8)</div>
+          <div class="photo-grid">
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+            <div class="photo-item"><div class="photo-placeholder"></div></div>
+          </div>
+        </div>
+
+        <!-- Signatures Summary -->
+        <div class="section">
+          <div class="section-title">Assinaturas (3/3)</div>
+          <div class="card">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 500;">Tecnico Executor</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">Joao Silva</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 500;">Responsavel Tecnico</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">Eng. Maria Santos</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 500;">Cliente</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">Carlos Oliveira</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); padding: 16px 20px; padding-bottom: 30px;">
+      <button class="btn btn-primary btn-block">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Baixar PDF
+      </button>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="07-signature.html">Anterior: Assinaturas</a> | <a href="02-dashboard.html">Voltar ao Dashboard</a></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,629 @@
+/* SmartHand - Mockup Styles */
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #64748b;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Mobile Frame */
+.mobile-frame {
+  width: 375px;
+  height: 812px;
+  background: var(--surface);
+  border-radius: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  margin: 40px auto;
+  position: relative;
+  border: 12px solid #1a1a1a;
+}
+
+.mobile-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 30px;
+  background: #1a1a1a;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+.screen {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-top: 40px;
+}
+
+/* Status Bar */
+.status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  padding-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 50;
+  background: var(--surface);
+}
+
+.status-bar-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Header */
+.header {
+  background: var(--primary);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.header-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Buttons */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  background: var(--surface);
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-progress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Progress Bar */
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+/* Checklist Items */
+.checklist-item {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  background: var(--surface);
+}
+
+.checklist-question {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.checklist-options {
+  display: flex;
+  gap: 8px;
+}
+
+.option-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-btn.selected-ok {
+  background: #dcfce7;
+  border-color: var(--success);
+  color: #166534;
+}
+
+.option-btn.selected-nok {
+  background: #fee2e2;
+  border-color: var(--danger);
+  color: #991b1b;
+}
+
+.option-btn.selected-na {
+  background: #f3f4f6;
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+/* Photo Grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.photo-item {
+  aspect-ratio: 1;
+  background: var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.photo-placeholder {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  width: 100%;
+  height: 100%;
+}
+
+.add-photo {
+  border: 2px dashed var(--border);
+  background: var(--background);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Signature Area */
+.signature-area {
+  height: 150px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.signature-preview {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+/* Page Title */
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* List Items */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.list-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-content {
+  flex: 1;
+}
+
+.list-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.list-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Container */
+.container {
+  padding: 20px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* FAB Button */
+.fab {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  font-size: 28px;
+}
+
+/* Mockup Info Badge */
+.mockup-badge {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #1a1a1a;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1000;
+}
+
+/* Watermark Preview */
+.watermark-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: white;
+  padding: 12px;
+  font-size: 11px;
+}
+
+.watermark-logo {
+  width: 60px;
+  height: 20px;
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* Camera View */
+.camera-view {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  height: 100%;
+  position: relative;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+.shutter-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid rgba(255,255,255,0.3);
+}
+
+.camera-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tab Filters */
+.tab-filters {
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px;
+  overflow-x: auto;
+}
+
+.tab-filter {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--background);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.tab-filter.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* PDF Preview */
+.pdf-preview {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+}
+
+.pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.pdf-logo {
+  width: 80px;
+  height: 30px;
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+.pdf-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.pdf-section {
+  margin-bottom: 12px;
+}
+
+.pdf-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.pdf-table {
+  width: 100%;
+  font-size: 10px;
+  border-collapse: collapse;
+}
+
+.pdf-table td {
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+
+/* Login specific */
+.login-logo {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 32px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+}
