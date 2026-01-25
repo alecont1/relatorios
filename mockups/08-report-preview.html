@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Preview do Relatorio</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .preview-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .preview-page {
+      padding: 20px;
+      min-height: 400px;
+      position: relative;
+    }
+    .preview-page::after {
+      content: 'Pagina 1 de 8';
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .pdf-header-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .pdf-logo-preview {
+      width: 100px;
+      height: 35px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .pdf-title-preview {
+      text-align: right;
+    }
+    .pdf-title-preview h1 {
+      font-size: 14px;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+    .pdf-title-preview p {
+      font-size: 10px;
+      color: #64748b;
+    }
+    .pdf-section-preview {
+      margin-bottom: 16px;
+    }
+    .pdf-section-title-preview {
+      font-size: 11px;
+      font-weight: 700;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .pdf-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 10px;
+    }
+    .pdf-info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .pdf-info-label {
+      color: #64748b;
+      font-size: 9px;
+    }
+    .pdf-info-value {
+      color: #1e293b;
+      font-weight: 500;
+    }
+    .pdf-checklist-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 10px;
+    }
+    .pdf-checklist-item:last-child {
+      border-bottom: none;
+    }
+    .pdf-checklist-text {
+      flex: 1;
+      color: #374151;
+    }
+    .pdf-checklist-status {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+    }
+    .pdf-checklist-status.ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .pdf-checklist-status.nok {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .pdf-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .pdf-photo-thumb {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+      border-radius: 4px;
+      position: relative;
+    }
+    .pdf-photo-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 7px;
+      padding: 2px 4px;
+      border-radius: 0 0 4px 4px;
+    }
+    .certificates-preview {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .certificates-preview-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cert-item-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .cert-item-preview:last-child {
+      border-bottom: none;
+    }
+    .cert-icon-mini {
+      width: 24px;
+      height: 24px;
+      background: #2563eb;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+    .page-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+    .page-dot.active {
+      background: #2563eb;
+      width: 24px;
+      border-radius: 4px;
+    }
+    .summary-banner {
+      background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px;
+    }
+    .summary-banner-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: #1e40af;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .summary-stat {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .summary-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .summary-stat-label {
+      font-size: 11px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-badge">08 - Preview do Relatorio</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-icon" onclick="window.location.href='07-signature.html'" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </div>
+      <div class="header-title">Preview do Relatorio</div>
+      <div class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="screen" style="padding-top: 0; padding-bottom: 160px; background: #f1f5f9;">
+
+      <!-- Summary Banner -->
+      <div class="summary-banner">
+        <div class="summary-banner-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Relatorio Pronto!
+        </div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-value" style="color: #16a34a;">19</div>
+            <div class="summary-stat-label">Itens OK</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-value" style="color: #dc2626;">1</div>
+            <div class="summary-stat-label">Itens NOK</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-value" style="color: #2563eb;">8</div>
+            <div class="summary-stat-label">Fotos</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-value" style="color: #7c3aed;">3</div>
+            <div class="summary-stat-label">Certificados</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF Preview -->
+      <div class="preview-container">
+        <div class="preview-page">
+          <!-- Header -->
+          <div class="pdf-header-preview">
+            <div class="pdf-logo-preview">LOGO</div>
+            <div class="pdf-title-preview">
+              <h1>Relatorio de Inspecao Predial</h1>
+              <p>Building Inspection Report</p>
+            </div>
+          </div>
+
+          <!-- Project Info -->
+          <div class="pdf-section-preview">
+            <div class="pdf-section-title-preview">Informacoes do Projeto</div>
+            <div class="pdf-info-grid">
+              <div class="pdf-info-item">
+                <span class="pdf-info-label">Cliente</span>
+                <span class="pdf-info-value">Construtora ABC Ltda</span>
+              </div>
+              <div class="pdf-info-item">
+                <span class="pdf-info-label">Data</span>
+                <span class="pdf-info-value">25/01/2026</span>
+              </div>
+              <div class="pdf-info-item">
+                <span class="pdf-info-label">Projeto</span>
+                <span class="pdf-info-value">Torre Empresarial Norte</span>
+              </div>
+              <div class="pdf-info-item">
+                <span class="pdf-info-label">Tecnico</span>
+                <span class="pdf-info-value">Joao Silva</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist Preview -->
+          <div class="pdf-section-preview">
+            <div class="pdf-section-title-preview">1. Estrutura</div>
+            <div class="pdf-checklist-item">
+              <span class="pdf-checklist-text">Fachada Principal / Main Facade</span>
+              <span class="pdf-checklist-status ok">OK</span>
+            </div>
+            <div class="pdf-checklist-item">
+              <span class="pdf-checklist-text">Pilares e Vigas / Pillars and Beams</span>
+              <span class="pdf-checklist-status ok">OK</span>
+            </div>
+            <div class="pdf-checklist-item">
+              <span class="pdf-checklist-text">Lajes / Floor Slabs</span>
+              <span class="pdf-checklist-status ok">OK</span>
+            </div>
+          </div>
+
+          <!-- Photos Preview -->
+          <div class="pdf-section-preview">
+            <div class="pdf-section-title-preview">Registro Fotografico</div>
+            <div class="pdf-photo-grid">
+              <div class="pdf-photo-thumb">
+                <div class="pdf-photo-caption">09:32 - Av. Paulista</div>
+              </div>
+              <div class="pdf-photo-thumb">
+                <div class="pdf-photo-caption">09:35 - Av. Paulista</div>
+              </div>
+              <div class="pdf-photo-thumb">
+                <div class="pdf-photo-caption">09:41 - Av. Paulista</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Page Indicator -->
+        <div class="page-indicator">
+          <div class="page-dot active"></div>
+          <div class="page-dot"></div>
+          <div class="page-dot"></div>
+          <div class="page-dot"></div>
+          <div class="page-dot"></div>
+        </div>
+      </div>
+
+      <!-- Certificates Attached -->
+      <div style="padding: 0 16px;">
+        <div class="certificates-preview">
+          <div class="certificates-preview-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M9 15l2 2 4-4"/>
+            </svg>
+            3 Certificados Anexados (12 paginas)
+          </div>
+          <div class="cert-item-preview">
+            <div class="cert-icon-mini">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 500;">Multimetro Digital Fluke 87V</div>
+              <div style="color: #64748b; font-size: 9px;">Valido ate 15/01/2027</div>
+            </div>
+          </div>
+          <div class="cert-item-preview">
+            <div class="cert-icon-mini">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 500;">Megometro Megabras MI-2700</div>
+              <div style="color: #64748b; font-size: 9px;">Valido ate 10/12/2026</div>
+            </div>
+          </div>
+          <div class="cert-item-preview">
+            <div class="cert-icon-mini">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 500;">Detector de Tensao Minipa</div>
+              <div style="color: #64748b; font-size: 9px;">Valido ate 05/07/2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Fixed Bottom Actions -->
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 20px 34px; background: white; border-top: 1px solid #e2e8f0; z-index: 10;">
+      <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <button class="btn btn-secondary" style="flex: 1;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Ver PDF
+        </button>
+        <button class="btn btn-secondary" style="flex: 1;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          Compartilhar
+        </button>
+      </div>
+      <button class="btn btn-primary btn-block" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Baixar PDF Completo (8 paginas)
+      </button>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="07-signature.html">Anterior: Assinaturas</a> | <a href="index.html">Voltar ao Inicio</a></p>
+  </div>
+</body>
+</html>

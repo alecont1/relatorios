@@ -95,6 +95,16 @@
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
+    .screen-card.highlight {
+      border: 2px solid #22c55e;
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .screen-card.highlight:hover {
+      border-color: #22c55e;
+      box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+    }
+
     .screen-number {
       width: 32px;
       height: 32px;
@@ -106,6 +116,10 @@
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 16px;
+    }
+
+    .screen-number.green {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     }
 
     .screen-title {
@@ -135,12 +149,9 @@
       border-radius: 12px;
     }
 
-    .flow-arrow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #475569;
+    .tag.new {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
     }
 
     .user-flow {
@@ -153,24 +164,59 @@
     .flow-diagram {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px;
       padding: 20px 0;
     }
 
     .flow-step {
       background: rgba(59, 130, 246, 0.1);
       border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 12px;
       font-weight: 500;
+    }
+
+    .flow-step.new {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    .flow-step.optional {
+      border-style: dashed;
+      opacity: 0.8;
     }
 
     .flow-connector {
       color: #475569;
-      font-size: 20px;
+      font-size: 16px;
+    }
+
+    .flow-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .flow-branch-label {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .new-badge {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-left: 8px;
+      text-transform: uppercase;
     }
 
     footer {
@@ -180,6 +226,58 @@
       font-size: 14px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       margin-top: 40px;
+    }
+
+    .features-highlight {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 48px;
+    }
+
+    .features-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(34, 197, 94, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-text h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .feature-text p {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
     }
 
     @media (max-width: 768px) {
@@ -193,10 +291,12 @@
 
       .flow-diagram {
         flex-direction: column;
+        align-items: flex-start;
       }
 
       .flow-connector {
         transform: rotate(90deg);
+        margin: 4px 0;
       }
     }
   </style>
@@ -212,6 +312,53 @@
       </p>
     </header>
 
+    <!-- New Features Highlight -->
+    <div class="features-highlight">
+      <div class="features-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Novos Recursos que Facilitam a Vida do Tecnico
+      </div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M9 15l2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h4>Certificados Automaticos</h4>
+            <p>Seleciona os certificados de calibracao e eles vao direto pro final do PDF, sem digitar nada.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h4>Modo Rapido (So Fotos)</h4>
+            <p>Checklist ja vem todo preenchido com OK. So precisa tirar as fotos e pronto!</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h4>Preview Completo</h4>
+            <p>Ve exatamente como vai ficar o relatorio antes de gerar o PDF final.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- User Flow Diagram -->
     <div class="user-flow">
       <div class="flow-title">Fluxo Principal do Usuario</div>
@@ -220,15 +367,19 @@
         <span class="flow-connector">→</span>
         <div class="flow-step">Dashboard</div>
         <span class="flow-connector">→</span>
-        <div class="flow-step">Novo Relatorio</div>
-        <span class="flow-connector">→</span>
         <div class="flow-step">Template</div>
         <span class="flow-connector">→</span>
+        <div class="flow-step new">Modo Rapido/Completo</div>
+        <span class="flow-connector">→</span>
         <div class="flow-step">Info Projeto</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step new">Certificados</div>
         <span class="flow-connector">→</span>
         <div class="flow-step">Checklist + Fotos</div>
         <span class="flow-connector">→</span>
         <div class="flow-step">Assinaturas</div>
+        <span class="flow-connector">→</span>
+        <div class="flow-step new">Preview</div>
         <span class="flow-connector">→</span>
         <div class="flow-step">PDF</div>
       </div>
@@ -281,6 +432,19 @@
           </div>
         </a>
 
+        <a href="03b-select-mode.html" class="screen-card highlight">
+          <div class="screen-number green">03b</div>
+          <h3 class="screen-title">Modo de Preenchimento <span class="new-badge">NOVO</span></h3>
+          <p class="screen-description">
+            <strong>Modo Rapido:</strong> Checklist pre-preenchido com OK, so adicionar fotos. <strong>Modo Completo:</strong> Preencher item por item.
+          </p>
+          <div class="screen-tags">
+            <span class="tag new">Modo Rapido</span>
+            <span class="tag new">So Fotos</span>
+            <span class="tag">Economia de Tempo</span>
+          </div>
+        </a>
+
         <a href="04-info-fields.html" class="screen-card">
           <div class="screen-number">04</div>
           <h3 class="screen-title">Informacoes do Projeto</h3>
@@ -290,6 +454,19 @@
           <div class="screen-tags">
             <span class="tag">Formulario</span>
             <span class="tag">Metadados</span>
+          </div>
+        </a>
+
+        <a href="04b-certificates.html" class="screen-card highlight">
+          <div class="screen-number green">04b</div>
+          <h3 class="screen-title">Certificados de Calibracao <span class="new-badge">NOVO</span></h3>
+          <p class="screen-description">
+            Selecione os certificados da base de dados. Eles serao anexados <strong>automaticamente</strong> ao final do relatorio PDF.
+          </p>
+          <div class="screen-tags">
+            <span class="tag new">Anexo Automatico</span>
+            <span class="tag new">Base de Dados</span>
+            <span class="tag">PDF Final</span>
           </div>
         </a>
 
@@ -303,6 +480,19 @@
             <span class="tag">Checklist</span>
             <span class="tag">Auto-save</span>
             <span class="tag">Bilingue</span>
+          </div>
+        </a>
+
+        <a href="05b-checklist-quick.html" class="screen-card highlight">
+          <div class="screen-number green">05b</div>
+          <h3 class="screen-title">Checklist Rapido (So Fotos) <span class="new-badge">NOVO</span></h3>
+          <p class="screen-description">
+            Todos os itens ja marcados como OK. <strong>So precisa adicionar as fotos obrigatorias!</strong> Pode alterar para NOK se necessario.
+          </p>
+          <div class="screen-tags">
+            <span class="tag new">Pre-preenchido</span>
+            <span class="tag new">5 min</span>
+            <span class="tag">Produtividade</span>
           </div>
         </a>
       </div>
@@ -355,16 +545,28 @@
           </div>
         </a>
 
-        <a href="08-report-detail.html" class="screen-card">
-          <div class="screen-number">08</div>
-          <h3 class="screen-title">Detalhe e PDF</h3>
+        <a href="08-report-preview.html" class="screen-card highlight">
+          <div class="screen-number green">08</div>
+          <h3 class="screen-title">Preview do Relatorio <span class="new-badge">NOVO</span></h3>
           <p class="screen-description">
-            Visualizacao completa do relatorio com preview do PDF e opcao de download.
+            Visualizacao completa do relatorio antes de gerar. Mostra resumo, preview do PDF e <strong>certificados anexados</strong>.
+          </p>
+          <div class="screen-tags">
+            <span class="tag new">Preview Completo</span>
+            <span class="tag new">Certificados</span>
+            <span class="tag">Download PDF</span>
+          </div>
+        </a>
+
+        <a href="08-report-detail.html" class="screen-card">
+          <div class="screen-number">08b</div>
+          <h3 class="screen-title">Detalhe do Relatorio</h3>
+          <p class="screen-description">
+            Visualizacao detalhada do relatorio finalizado com todas as informacoes e opcao de download.
           </p>
           <div class="screen-tags">
             <span class="tag">PDF</span>
             <span class="tag">Download</span>
-            <span class="tag">Preview</span>
           </div>
         </a>
       </div>
@@ -372,9 +574,10 @@
   </div>
 
   <footer>
-    <p>SmartHand - Mockups de Interface v1.0</p>
+    <p>SmartHand - Mockups de Interface v1.1</p>
     <p style="margin-top: 8px; font-size: 12px;">
-      Abra cada tela no navegador para ver o mockup interativo em formato mobile.
+      Abra cada tela no navegador para ver o mockup interativo em formato mobile.<br>
+      <strong style="color: #22c55e;">Telas verdes = Novos recursos para facilitar o trabalho do tecnico</strong>
     </p>
   </footer>
 </body>

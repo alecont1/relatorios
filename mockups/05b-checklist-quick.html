@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHand - Checklist Rapido (So Fotos)</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .quick-banner {
+      background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .quick-banner-icon {
+      width: 36px;
+      height: 36px;
+      background: #22c55e;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .quick-banner-text {
+      font-size: 13px;
+      color: #166534;
+      line-height: 1.4;
+    }
+    .quick-banner-text strong {
+      display: block;
+      font-size: 14px;
+    }
+    .photo-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .photo-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .photo-section-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .photo-section-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .photo-section-status.complete {
+      color: #16a34a;
+    }
+    .photo-grid-quick {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .photo-slot {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-slot.empty {
+      background: var(--background);
+      border: 2px dashed var(--border);
+      cursor: pointer;
+    }
+    .photo-slot.required {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+    .photo-slot.filled {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    }
+    .photo-slot .check-overlay {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-ok-badge {
+      background: #dcfce7;
+      color: #166534;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 16px;
+    }
+    .section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .section-divider-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .nok-item {
+      background: #fef2f2;
+      border: 2px solid #fecaca;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .nok-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .nok-badge {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .change-status-btn {
+      font-size: 12px;
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .floating-progress {
+      position: absolute;
+      bottom: 80px;
+      left: 20px;
+      right: 20px;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+    .floating-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .floating-progress-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .floating-progress-count {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-badge">05-B - Checklist Rapido (So Fotos)</div>
+
+  <div class="mobile-frame">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <path d="M1 4h2v8H1V4zm4-2h2v10H5V2zm4-2h2v12H9V0zm4 4h2v8h-2V4zm4 2h2v6h-2V6z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+          <rect x="0" y="0" width="22" height="12" rx="3" stroke="currentColor" fill="none" stroke-width="1"/>
+          <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+          <path d="M23 4v4a2 2 0 000-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+      <div class="header-icon" onclick="window.location.href='03b-select-mode.html'" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </div>
+      <div class="header-title">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Modo Rapido
+        </div>
+      </div>
+      <div style="width: 24px;"></div>
+    </div>
+
+    <div class="screen" style="padding-top: 0; padding-bottom: 200px;">
+      <div class="container">
+
+        <!-- Quick Mode Banner -->
+        <div class="quick-banner">
+          <div class="quick-banner-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="quick-banner-text">
+            <strong>20 itens marcados como OK</strong>
+            Adicione apenas as fotos obrigatorias abaixo
+          </div>
+        </div>
+
+        <!-- Section 1: Estrutura -->
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-text">1. Estrutura</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <!-- Photo Section - Fachada -->
+        <div class="photo-section">
+          <div class="photo-section-header">
+            <div>
+              <div class="photo-section-title">Fachada Principal</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Foto obrigatoria do estado geral</div>
+            </div>
+            <div class="photo-section-status complete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              2/2
+            </div>
+          </div>
+          <div class="photo-grid-quick">
+            <div class="photo-slot filled">
+              <div class="check-overlay">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="photo-slot filled">
+              <div class="check-overlay">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="photo-slot empty" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo Section - Pilares -->
+        <div class="photo-section">
+          <div class="photo-section-header">
+            <div>
+              <div class="photo-section-title">Pilares e Vigas</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Min. 2 fotos | Max. 6 fotos</div>
+            </div>
+            <div class="photo-section-status">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              0/2
+            </div>
+          </div>
+          <div class="photo-grid-quick">
+            <div class="photo-slot empty required" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="photo-slot empty required" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="photo-slot empty" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Instalacoes -->
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-text">2. Instalacoes Eletricas</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <!-- Photo Section - Quadro Eletrico -->
+        <div class="photo-section">
+          <div class="photo-section-header">
+            <div>
+              <div class="photo-section-title">Quadro Geral</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Foto do quadro aberto e fechado</div>
+            </div>
+            <div class="photo-section-status">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              1/2
+            </div>
+          </div>
+          <div class="photo-grid-quick">
+            <div class="photo-slot filled">
+              <div class="check-overlay">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="photo-slot empty required" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="photo-slot empty" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOK Item - can change status if needed -->
+        <div class="nok-item">
+          <div class="nok-item-header">
+            <span style="font-weight: 500; font-size: 14px;">Aterramento</span>
+            <span class="nok-badge">NOK</span>
+          </div>
+          <div style="font-size: 13px; color: #991b1b; margin-bottom: 8px;">
+            Item marcado como nao-conforme
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="change-status-btn">Alterar para OK</span>
+            <span style="font-size: 12px; color: var(--text-secondary);">1 foto adicionada</span>
+          </div>
+        </div>
+
+        <!-- Section 3: Area Externa -->
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-text">3. Area Externa</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <!-- Photo Section - Estacionamento -->
+        <div class="photo-section">
+          <div class="photo-section-header">
+            <div>
+              <div class="photo-section-title">Estacionamento</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Vista geral e sinalizacao</div>
+            </div>
+            <div class="photo-section-status">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              0/1
+            </div>
+          </div>
+          <div class="photo-grid-quick">
+            <div class="photo-slot empty required" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="photo-slot empty" onclick="window.location.href='06-photo-capture.html'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Floating Progress -->
+    <div class="floating-progress">
+      <div class="floating-progress-header">
+        <div class="floating-progress-title">Progresso das Fotos</div>
+        <div class="floating-progress-count">4 de 8 obrigatorias</div>
+      </div>
+      <div class="progress-bar" style="height: 10px; margin-bottom: 12px;">
+        <div class="progress-fill" style="width: 50%; background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);"></div>
+      </div>
+      <button class="btn btn-success btn-block" onclick="window.location.href='07-signature.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Continuar para Assinaturas
+      </button>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #64748b;">
+    <p><a href="03b-select-mode.html">Anterior: Modo</a> | <a href="07-signature.html">Proxima: Assinaturas</a></p>
+  </div>
+</body>
+</html>
