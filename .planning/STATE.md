@@ -96,6 +96,10 @@
 | 2026-01-29 | Lazy import for auth store in axios | Avoid circular dependency | Dynamic import in interceptors |
 | 2026-01-29 | OAuth2PasswordRequestForm format | FastAPI compatibility | Login sends username/password as form data |
 | 2026-01-29 | Token refresh queue mechanism | Handle concurrent requests during refresh | Queue failed requests, retry with new token |
+| 2026-01-29 | JWT tokens include type claim | Differentiate access vs refresh tokens | Payload includes type: "access" or "refresh" |
+| 2026-01-29 | 15-min access / 7-day refresh expiry | Balance security vs user convenience | Configurable via env settings |
+| 2026-01-29 | jwt_secret_key required (no default) | Force secure configuration | Must be set in environment |
+| 2026-01-29 | Error messages in Portuguese | Brazilian user base | "Token invalido ou expirado", etc. |
 
 ### Active TODOs
 
@@ -122,6 +126,7 @@
 - **2026-01-24:** Completed 01-04-PLAN.md - R2 Storage Service with boto3 + presigned URLs
 - **2026-01-24:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
 - **2026-01-24:** **Phase 1 Complete** - All infrastructure setup finished (5 plans in ~30 minutes)
+- **2026-01-29:** Completed 02-01-PLAN.md - Backend Security Core (JWT + Argon2 + FastAPI deps)
 - **2026-01-29:** Completed 02-04-PLAN.md - Frontend Auth Infrastructure (Axios + Zustand auth store + ProtectedRoute)
 
 ---
