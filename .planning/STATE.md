@@ -7,9 +7,9 @@
 ## Current Status
 
 **Active Phase:** 2 - Authentication System (IN PROGRESS)
-**Active Plan:** 02-04 (completed)
-**Last Action:** Completed 02-04-PLAN.md - Frontend Auth Infrastructure
-**Next Action:** Continue with 02-05 (Login UI) or other Phase 2 plans
+**Active Plan:** 02-02 (completed)
+**Last Action:** Completed 02-02-PLAN.md - Auth Endpoints (login, logout, refresh)
+**Next Action:** Continue with 02-03 (User Management) or 02-05 (Login UI)
 
 ---
 
@@ -33,7 +33,7 @@
 | Phase | Name | Status | Progress | Plans |
 |-------|------|--------|----------|-------|
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
-| 2 | Authentication System | In Progress | 25% | 1/4 |
+| 2 | Authentication System | In Progress | 50% | 3/6 |
 | 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
 | 4 | Template Management | Pending | 0% | 0/0 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
@@ -43,10 +43,10 @@
 | 9 | Digital Signatures | Pending | 0% | 0/0 |
 | 10 | Mobile UX & Polish | Pending | 0% | 0/0 |
 
-**Overall Progress:** 1.25/10 phases (~12%)
+**Overall Progress:** 1.5/10 phases (~15%)
 
 **Progress Bar:**
-██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 12%
+██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 15%
 
 ---
 
@@ -100,6 +100,10 @@
 | 2026-01-29 | 15-min access / 7-day refresh expiry | Balance security vs user convenience | Configurable via env settings |
 | 2026-01-29 | jwt_secret_key required (no default) | Force secure configuration | Must be set in environment |
 | 2026-01-29 | Error messages in Portuguese | Brazilian user base | "Token invalido ou expirado", etc. |
+| 2026-01-29 | Rate limiting on login (5/min/IP) | Prevent brute force attacks | SlowAPI decorator on login endpoint |
+| 2026-01-29 | httpOnly cookie for refresh token | XSS protection | Cookie path restricted to /api/v1/auth |
+| 2026-01-29 | Refresh token rotation | Limit stolen token damage | New refresh token issued on each use |
+| 2026-01-29 | Password verify in threadpool | Non-blocking Argon2 | run_in_threadpool for CPU-intensive ops |
 
 ### Active TODOs
 
@@ -127,6 +131,7 @@
 - **2026-01-24:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
 - **2026-01-24:** **Phase 1 Complete** - All infrastructure setup finished (5 plans in ~30 minutes)
 - **2026-01-29:** Completed 02-01-PLAN.md - Backend Security Core (JWT + Argon2 + FastAPI deps)
+- **2026-01-29:** Completed 02-02-PLAN.md - Auth Endpoints (login, logout, refresh with rate limiting)
 - **2026-01-29:** Completed 02-04-PLAN.md - Frontend Auth Infrastructure (Axios + Zustand auth store + ProtectedRoute)
 
 ---
@@ -141,13 +146,13 @@
 
 **Current session context:**
 - Phase 1 complete (5/5 plans finished)
-- Phase 2 in progress: 02-04 completed
-- Completed: 02-04 (frontend auth infrastructure)
-- Next: Continue with 02-05 (Login UI) or other Phase 2 plans
+- Phase 2 in progress: 3/6 plans completed (02-01, 02-02, 02-04)
+- Remaining: 02-03 (User Management), 02-05 (Login UI), 02-06 (TBD)
+- Next: Continue with 02-03 or 02-05
 - User action required: Complete 01-USER-SETUP.md before deploying
 
 **Last session:** 2026-01-29
-**Stopped at:** Completed 02-04-PLAN.md
+**Stopped at:** Completed 02-02-PLAN.md
 **Resume file:** None
 
 ---
