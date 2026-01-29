@@ -34,6 +34,16 @@
 
 **Dependencies:** Phase 1 (needs infrastructure)
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 02-01-PLAN.md - Backend security core (JWT, password hashing, auth dependencies)
+- [ ] 02-02-PLAN.md - Backend auth endpoints (login, logout, refresh)
+- [ ] 02-03-PLAN.md - Backend user CRUD endpoints (create, list, delete)
+- [ ] 02-04-PLAN.md - Frontend auth infrastructure (Axios, store, protected routes)
+- [ ] 02-05-PLAN.md - Frontend login UI (login form, password toggle)
+- [ ] 02-06-PLAN.md - Frontend user management UI (admin creates users)
+
 **Success Criteria:**
 1. User can log in with email and password and receive a JWT token
 2. User session persists across page refreshes with automatic token refresh
@@ -190,7 +200,7 @@
 | Phase | Name | Status | Requirements |
 |-------|------|--------|--------------|
 | 1 | Project Setup & Infrastructure | Complete | Foundation (0 explicit) |
-| 2 | Authentication System | Pending | 5 |
+| 2 | Authentication System | In Progress | 5 |
 | 3 | Multi-Tenant Architecture | Pending | 5 |
 | 4 | Template Management | Pending | 5 |
 | 5 | Template Configuration | Pending | 6 |
