@@ -1,15 +1,15 @@
 # Project State: SmartHand
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-29
 
 ---
 
 ## Current Status
 
-**Active Phase:** 1 - Project Setup & Infrastructure (COMPLETE)
-**Active Plan:** 01-05 (completed)
-**Last Action:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
-**Next Action:** Begin Phase 2 - Authentication System
+**Active Phase:** 2 - Authentication System (IN PROGRESS)
+**Active Plan:** 02-04 (completed)
+**Last Action:** Completed 02-04-PLAN.md - Frontend Auth Infrastructure
+**Next Action:** Continue with 02-05 (Login UI) or other Phase 2 plans
 
 ---
 
@@ -22,7 +22,7 @@
 **Current Focus:** Phase 2 - Authentication System
 
 **Tech Stack:**
-- Frontend: React + Vite + TypeScript + Tailwind CSS + Zustand + React Query + React Hook Form
+- Frontend: React + Vite + TypeScript + Tailwind CSS + Zustand + React Query + React Hook Form + Axios
 - Backend: Python + FastAPI + SQLAlchemy + PostgreSQL (PostGIS) + WeasyPrint
 - Infrastructure: Vercel (frontend), Railway (backend + DB), Cloudflare R2 (storage), Redis (jobs)
 
@@ -33,7 +33,7 @@
 | Phase | Name | Status | Progress | Plans |
 |-------|------|--------|----------|-------|
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
-| 2 | Authentication System | Pending | 0% | 0/0 |
+| 2 | Authentication System | In Progress | 25% | 1/4 |
 | 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
 | 4 | Template Management | Pending | 0% | 0/0 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
@@ -43,10 +43,10 @@
 | 9 | Digital Signatures | Pending | 0% | 0/0 |
 | 10 | Mobile UX & Polish | Pending | 0% | 0/0 |
 
-**Overall Progress:** 1/10 phases (10%)
+**Overall Progress:** 1.25/10 phases (~12%)
 
-**Phase 1 Summary:**
-█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 10%
+**Progress Bar:**
+██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 12%
 
 ---
 
@@ -91,6 +91,11 @@
 | 2026-01-24 | GitHub Actions parallel jobs | Faster CI feedback | Frontend and backend tests run independently |
 | 2026-01-24 | SQLite for CI backend tests | Avoid PostgreSQL service in CI | sqlite+aiosqlite:///test.db for unit tests |
 | 2026-01-24 | Monorepo working-directory in CI | Correct context for npm/pip commands | frontend/ and backend/ roots specified |
+| 2026-01-29 | Access token in memory only | Security - not persisted to localStorage | Recovered via refresh endpoint on page reload |
+| 2026-01-29 | User info persisted to localStorage | Fast rehydration without API call | Zustand partialize middleware |
+| 2026-01-29 | Lazy import for auth store in axios | Avoid circular dependency | Dynamic import in interceptors |
+| 2026-01-29 | OAuth2PasswordRequestForm format | FastAPI compatibility | Login sends username/password as form data |
+| 2026-01-29 | Token refresh queue mechanism | Handle concurrent requests during refresh | Queue failed requests, retry with new token |
 
 ### Active TODOs
 
@@ -117,6 +122,7 @@
 - **2026-01-24:** Completed 01-04-PLAN.md - R2 Storage Service with boto3 + presigned URLs
 - **2026-01-24:** Completed 01-05-PLAN.md - Deployment Configuration & CI/CD
 - **2026-01-24:** **Phase 1 Complete** - All infrastructure setup finished (5 plans in ~30 minutes)
+- **2026-01-29:** Completed 02-04-PLAN.md - Frontend Auth Infrastructure (Axios + Zustand auth store + ProtectedRoute)
 
 ---
 
@@ -130,9 +136,14 @@
 
 **Current session context:**
 - Phase 1 complete (5/5 plans finished)
-- Completed: 01-01 (frontend), 01-02 (backend), 01-03 (database), 01-04 (storage), 01-05 (deployment)
-- Next: Begin Phase 2 - Authentication System (after external services setup)
-- User action required: Complete 01-USER-SETUP.md before proceeding
+- Phase 2 in progress: 02-04 completed
+- Completed: 02-04 (frontend auth infrastructure)
+- Next: Continue with 02-05 (Login UI) or other Phase 2 plans
+- User action required: Complete 01-USER-SETUP.md before deploying
+
+**Last session:** 2026-01-29
+**Stopped at:** Completed 02-04-PLAN.md
+**Resume file:** None
 
 ---
 
