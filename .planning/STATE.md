@@ -1,15 +1,15 @@
 # Project State: SmartHand
 
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-01-31
 
 ---
 
 ## Current Status
 
-**Active Phase:** 3 - Multi-Tenant Architecture (PENDING)
-**Active Plan:** None
-**Last Action:** Completed 02-06-PLAN.md - User Management UI
-**Next Action:** Start Phase 3 planning
+**Active Phase:** 3 - Multi-Tenant Architecture (IN PROGRESS)
+**Active Plan:** 1 of ? in Phase 3
+**Last Action:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation
+**Next Action:** Continue Phase 3 - Multi-Tenant Architecture
 
 ---
 
@@ -34,7 +34,7 @@
 |-------|------|--------|----------|-------|
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
 | 2 | Authentication System | Complete | 100% | 6/6 |
-| 3 | Multi-Tenant Architecture | Pending | 0% | 0/0 |
+| 3 | Multi-Tenant Architecture | In Progress | ~17% | 1/? |
 | 4 | Template Management | Pending | 0% | 0/0 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
 | 6 | Report Core | Pending | 0% | 0/0 |
@@ -104,6 +104,8 @@
 | 2026-01-29 | httpOnly cookie for refresh token | XSS protection | Cookie path restricted to /api/v1/auth |
 | 2026-01-29 | Refresh token rotation | Limit stolen token damage | New refresh token issued on each use |
 | 2026-01-29 | Password verify in threadpool | Non-blocking Argon2 | run_in_threadpool for CPU-intensive ops |
+| 2026-01-31 | Use dependency injection for tenant isolation | Ensure consistent tenant filtering across endpoints | get_tenant_filter dependency returns UUID for query WHERE clauses |
+| 2026-01-31 | Dedicated require_superadmin dependency | Cleaner usage than require_role factory | Specific dependency for superadmin-only routes |
 
 ### Active TODOs
 
@@ -137,6 +139,7 @@
 - **2026-01-30:** Completed 02-05-PLAN.md - Login UI with form validation
 - **2026-01-30:** Completed 02-06-PLAN.md - User Management UI (UserList, CreateUserForm, UsersPage)
 - **2026-01-30:** **Phase 2 Complete** - Full authentication system with user management (6 plans)
+- **2026-01-31:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation (require_superadmin, get_tenant_filter)
 
 ---
 
@@ -151,11 +154,11 @@
 **Current session context:**
 - Phase 1 complete (5/5 plans finished)
 - Phase 2 complete (6/6 plans finished)
-- Next: Start Phase 3 - Multi-Tenant Architecture
+- Phase 3 in progress (1/? plans finished)
 - User action required: Complete 01-USER-SETUP.md before deploying
 
-**Last session:** 2026-01-30
-**Stopped at:** Completed Phase 2
+**Last session:** 2026-01-31
+**Stopped at:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation
 **Resume file:** None
 
 ---
