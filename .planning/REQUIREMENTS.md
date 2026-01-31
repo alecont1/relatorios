@@ -130,16 +130,16 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| AUTH-05 | Phase 2 | Pending |
-| TNNT-01 | Phase 3 | Pending |
-| TNNT-02 | Phase 3 | Pending |
-| TNNT-03 | Phase 3 | Pending |
-| TNNT-04 | Phase 3 | Pending |
-| TNNT-05 | Phase 3 | Pending |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
+| AUTH-04 | Phase 2 | Complete |
+| AUTH-05 | Phase 2 | Complete |
+| TNNT-01 | Phase 3 | Complete |
+| TNNT-02 | Phase 3 | Complete |
+| TNNT-03 | Phase 3 | Complete |
+| TNNT-04 | Phase 3 | Complete |
+| TNNT-05 | Phase 3 | Complete |
 | TMPL-01 | Phase 4 | Pending |
 | TMPL-02 | Phase 4 | Pending |
 | TMPL-03 | Phase 4 | Pending |
