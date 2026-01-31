@@ -61,6 +61,15 @@ Plans:
 
 **Dependencies:** Phase 2 (needs authentication with superadmin role)
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md - Database migration and Tenant model extension (branding/contact fields)
+- [ ] 03-02-PLAN.md - Backend auth dependencies (require_superadmin, get_tenant_filter)
+- [ ] 03-03-PLAN.md - Tenant CRUD API (superadmin endpoints)
+- [ ] 03-04-PLAN.md - Tenant Settings API (admin branding endpoints)
+- [ ] 03-05-PLAN.md - Frontend tenant management and branding UI
+
 **Success Criteria:**
 1. Superadmin can create, edit, and deactivate tenant organizations
 2. All database queries automatically filter by tenant ID (no cross-tenant data leakage)
@@ -200,8 +209,8 @@ Plans:
 | Phase | Name | Status | Requirements |
 |-------|------|--------|--------------|
 | 1 | Project Setup & Infrastructure | Complete | Foundation (0 explicit) |
-| 2 | Authentication System | In Progress | 5 |
-| 3 | Multi-Tenant Architecture | Pending | 5 |
+| 2 | Authentication System | Complete | 5 |
+| 3 | Multi-Tenant Architecture | Planned | 5 |
 | 4 | Template Management | Pending | 5 |
 | 5 | Template Configuration | Pending | 6 |
 | 6 | Report Core | Pending | 8 |
