@@ -88,8 +88,3 @@ class TenantListResponse(BaseModel):
 
     tenants: list[TenantResponse]
     total: int
-    page: int
-    page_size: int
-
-    class Config:
-        from_attributes = True
