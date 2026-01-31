@@ -7,8 +7,8 @@
 ## Current Status
 
 **Active Phase:** 3 - Multi-Tenant Architecture (IN PROGRESS)
-**Active Plan:** Completed 03-01-PLAN.md
-**Last Action:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields
+**Active Plan:** Completed 03-04-PLAN.md
+**Last Action:** Completed 03-04-PLAN.md - Tenant Settings API
 **Next Action:** Continue Phase 3 - Multi-Tenant Architecture
 
 ---
@@ -34,7 +34,7 @@
 |-------|------|--------|----------|-------|
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
 | 2 | Authentication System | Complete | 100% | 6/6 |
-| 3 | Multi-Tenant Architecture | In Progress | ~17% | 2/? |
+| 3 | Multi-Tenant Architecture | In Progress | ~25% | 3/? |
 | 4 | Template Management | Pending | 0% | 0/0 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
 | 6 | Report Core | Pending | 0% | 0/0 |
@@ -110,6 +110,9 @@
 | 2026-01-31 | Hex color validation with normalization | Brand colors must match #RRGGBB format | Pydantic validators ensure valid hex colors, automatically uppercase |
 | 2026-01-31 | Separate TenantBrandingUpdate schema | Dedicated schema for branding-specific updates | Separates branding updates from basic tenant info updates |
 | 2026-01-31 | Logo storage via R2 keys | Logo fields store R2 object keys not URLs | Maintains tenant isolation pattern from Phase 1 |
+| 2026-01-31 | Slug immutability after creation | Prevent R2 object key migrations | Tenant slug cannot be changed via PATCH endpoint |
+| 2026-01-31 | Limited tenant update fields | Only name and is_active via PATCH | Prevents accidental modification of critical fields |
+| 2026-01-31 | Include inactive filter for tenant listing | Allow superadmin to see deactivated tenants | Default false to show only active tenants |
 
 ### Active TODOs
 
@@ -145,6 +148,8 @@
 - **2026-01-30:** **Phase 2 Complete** - Full authentication system with user management (6 plans)
 - **2026-01-31:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation (require_superadmin, get_tenant_filter)
 - **2026-01-31:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields (model extension, Pydantic schemas, Alembic migration)
+- **2026-01-31:** Completed 03-03-PLAN.md - Tenant CRUD API Endpoints (4 endpoints with superadmin protection, slug validation, pagination)
+- **2026-01-31:** Completed 03-04-PLAN.md - Tenant Settings API (branding CRUD, logo upload via R2 presigned URLs)
 
 ---
 
@@ -159,11 +164,11 @@
 **Current session context:**
 - Phase 1 complete (5/5 plans finished)
 - Phase 2 complete (6/6 plans finished)
-- Phase 3 in progress (2/? plans finished)
+- Phase 3 in progress (3/? plans finished)
 - User action required: Complete 01-USER-SETUP.md before deploying
 
 **Last session:** 2026-01-31
-**Stopped at:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields
+**Stopped at:** Completed 03-04-PLAN.md - Tenant Settings API
 **Resume file:** None
 
 ---
