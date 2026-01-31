@@ -8,6 +8,7 @@ This module provides:
 """
 
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -99,3 +100,62 @@ def require_role(*allowed_roles: str):
             )
         return current_user
     return role_checker
+
+
+async def require_superadmin(
+    current_user: Annotated[User, Depends(get_current_user)]
+) -> User:
+    """
+    Dependency to ensure only superadmin users can access a route.
+
+    Usage:
+        @router.post("/tenants")
+        async def create_tenant(
+            user: Annotated[User, Depends(require_superadmin)],
+            tenant_data: TenantCreate
+        ):
+            ...
+
+    Args:
+        current_user: Authenticated user from get_current_user
+
+    Returns:
+        User object if role is superadmin
+
+    Raises:
+        HTTPException 403: If user role is not superadmin
+    """
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado - apenas superadmin"
+        )
+    return current_user
+
+
+async def get_tenant_filter(
+    current_user: Annotated[User, Depends(get_current_user)]
+) -> UUID:
+    """
+    Dependency to get current user's tenant_id for query filtering.
+
+    This ensures tenant data isolation in multi-tenant queries.
+
+    Usage:
+        @router.get("/reports")
+        async def list_reports(
+            tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
+            db: AsyncSession = Depends(get_db)
+        ):
+            result = await db.execute(
+                select(Report).where(Report.tenant_id == tenant_id)
+            )
+            return result.scalars().all()
+
+    Args:
+        current_user: Authenticated user from get_current_user
+
+    Returns:
+        UUID of user's tenant for filtering queries
+    """
+    return current_user.tenant_id
