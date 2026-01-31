@@ -113,6 +113,10 @@
 | 2026-01-31 | Slug immutability after creation | Prevent R2 object key migrations | Tenant slug cannot be changed via PATCH endpoint |
 | 2026-01-31 | Limited tenant update fields | Only name and is_active via PATCH | Prevents accidental modification of critical fields |
 | 2026-01-31 | Include inactive filter for tenant listing | Allow superadmin to see deactivated tenants | Default false to show only active tenants |
+| 2026-01-31 | Two-step logo upload workflow | Request presigned URL → upload to R2 → confirm with object_key | Offloads bandwidth from backend, maintains security with validation |
+| 2026-01-31 | Logo type validation | Restricted to 'primary' or 'secondary' only | Clear logo purpose distinction for branding |
+| 2026-01-31 | Object key prefix validation | Uploaded logos must have tenant_id prefix | Prevents unauthorized cross-tenant logo assignment |
+| 2026-01-31 | Supported logo formats | PNG, JPEG, SVG only | Standard web-compatible image formats for branding |
 
 ### Active TODOs
 
