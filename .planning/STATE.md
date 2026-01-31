@@ -7,8 +7,8 @@
 ## Current Status
 
 **Active Phase:** 3 - Multi-Tenant Architecture (IN PROGRESS)
-**Active Plan:** 1 of ? in Phase 3
-**Last Action:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation
+**Active Plan:** Completed 03-01-PLAN.md
+**Last Action:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields
 **Next Action:** Continue Phase 3 - Multi-Tenant Architecture
 
 ---
@@ -34,7 +34,7 @@
 |-------|------|--------|----------|-------|
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
 | 2 | Authentication System | Complete | 100% | 6/6 |
-| 3 | Multi-Tenant Architecture | In Progress | ~17% | 1/? |
+| 3 | Multi-Tenant Architecture | In Progress | ~17% | 2/? |
 | 4 | Template Management | Pending | 0% | 0/0 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
 | 6 | Report Core | Pending | 0% | 0/0 |
@@ -106,6 +106,10 @@
 | 2026-01-29 | Password verify in threadpool | Non-blocking Argon2 | run_in_threadpool for CPU-intensive ops |
 | 2026-01-31 | Use dependency injection for tenant isolation | Ensure consistent tenant filtering across endpoints | get_tenant_filter dependency returns UUID for query WHERE clauses |
 | 2026-01-31 | Dedicated require_superadmin dependency | Cleaner usage than require_role factory | Specific dependency for superadmin-only routes |
+| 2026-01-31 | All branding and contact fields nullable | Allows tenants to configure branding gradually | Tenant model has optional fields for logos, colors, and contact info |
+| 2026-01-31 | Hex color validation with normalization | Brand colors must match #RRGGBB format | Pydantic validators ensure valid hex colors, automatically uppercase |
+| 2026-01-31 | Separate TenantBrandingUpdate schema | Dedicated schema for branding-specific updates | Separates branding updates from basic tenant info updates |
+| 2026-01-31 | Logo storage via R2 keys | Logo fields store R2 object keys not URLs | Maintains tenant isolation pattern from Phase 1 |
 
 ### Active TODOs
 
@@ -140,6 +144,7 @@
 - **2026-01-30:** Completed 02-06-PLAN.md - User Management UI (UserList, CreateUserForm, UsersPage)
 - **2026-01-30:** **Phase 2 Complete** - Full authentication system with user management (6 plans)
 - **2026-01-31:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation (require_superadmin, get_tenant_filter)
+- **2026-01-31:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields (model extension, Pydantic schemas, Alembic migration)
 
 ---
 
@@ -154,11 +159,11 @@
 **Current session context:**
 - Phase 1 complete (5/5 plans finished)
 - Phase 2 complete (6/6 plans finished)
-- Phase 3 in progress (1/? plans finished)
+- Phase 3 in progress (2/? plans finished)
 - User action required: Complete 01-USER-SETUP.md before deploying
 
 **Last session:** 2026-01-31
-**Stopped at:** Completed 03-02-PLAN.md - Auth Dependencies for Tenant Isolation
+**Stopped at:** Completed 03-01-PLAN.md - Tenant Branding & Contact Fields
 **Resume file:** None
 
 ---
