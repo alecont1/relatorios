@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Upload, X, Image } from 'lucide-react'
+import { Upload, Image } from 'lucide-react'
 import { useLogoUploadUrl, useLogoConfirm } from '../api'
 
 interface Props {

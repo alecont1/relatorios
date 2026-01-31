@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { LogOut, Users, Home } from 'lucide-react';
+import { LogOut, Users, Home, Building2, Settings } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
   useAuthStore,
   useLogout,
 } from '@/features/auth';
+import { useTheme } from '@/features/tenant';
 
 /**
  * Auth initializer component.
@@ -76,6 +77,24 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                     Usuarios
                   </Link>
                 )}
+                {user?.role === 'superadmin' && (
+                  <Link
+                    to="/tenants"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    Tenants
+                  </Link>
+                )}
+                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Configuracoes
+                  </Link>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -126,6 +145,8 @@ function DashboardPage() {
 }
 
 function App() {
+  useTheme();  // Apply tenant branding via CSS variables
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -152,6 +173,26 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
                   <AppLayout>
                     <UsersPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenants"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin']}>
+                  <AppLayout>
+                    <TenantsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                  <AppLayout>
+                    <TenantSettingsPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
