@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+:root {
+  --color-brand-primary: #3B82F6;
+  --color-brand-secondary: #6366F1;
+  --color-brand-accent: #10B981;
+}
