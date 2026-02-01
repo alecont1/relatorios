@@ -81,18 +81,29 @@ Plans:
 
 ## Phase 4: Template Management
 
-**Goal:** Admins can create and manage report templates with basic metadata and lifecycle.
+**Goal:** Admins can create and manage report templates via Excel import with metadata and lifecycle management.
 
-**Requirements:** TMPL-01, TMPL-02, TMPL-03, TMPL-04, TMPL-05
+**Requirements:** TMPL-01, TMPL-02, TMPL-03, TMPL-05 (TMPL-04 deferred)
 
 **Dependencies:** Phase 3 (needs tenant context)
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 04-01-PLAN.md - Database models and migration (Template, TemplateSection, TemplateField)
+- [ ] 04-02-PLAN.md - Excel parser service with validation
+- [ ] 04-03-PLAN.md - Template API endpoints (parse, create, list, get, update)
+- [ ] 04-04-PLAN.md - Frontend template management UI (list, upload, preview)
+- [ ] 04-05-PLAN.md - Integration verification (human testing)
 
 **Success Criteria:**
 1. Admin can create new template with name, code, category, and version number
 2. Admin can edit existing template metadata (name, code, category, version)
 3. Admin can activate or deactivate templates (inactive templates hidden from users)
-4. Templates can be created as global scope (SmartHand) or per-tenant scope
+4. ~~Templates can be created as global scope (SmartHand) or per-tenant scope~~ (DEFERRED)
 5. Template header includes title, reference standards text, and planning requirements text
+
+**Note:** TMPL-04 (global templates) deferred per user decision. All templates are tenant-scoped.
 
 ---
 
@@ -184,7 +195,7 @@ Plans:
 
 **Success Criteria:**
 1. User can draw digital signature on HTML canvas with touch or mouse input
-2. Template defines multiple signature roles (e.g., Técnico Executor, Responsável Técnico) with required flags
+2. Template defines multiple signature roles (e.g., Tecnico Executor, Responsavel Tecnico) with required flags
 3. Captured signatures are saved as PNG images and rendered in PDF footer with role labels
 
 ---
@@ -211,7 +222,7 @@ Plans:
 | 1 | Project Setup & Infrastructure | Complete | Foundation (0 explicit) |
 | 2 | Authentication System | Complete | 5 |
 | 3 | Multi-Tenant Architecture | Complete | 5 |
-| 4 | Template Management | Pending | 5 |
+| 4 | Template Management | In Progress | 4 (1 deferred) |
 | 5 | Template Configuration | Pending | 6 |
 | 6 | Report Core | Pending | 8 |
 | 7 | Photo Capture & Processing | Pending | 9 |
@@ -224,3 +235,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-24*
+*Updated: 2026-01-31 - Phase 4 planned (5 plans)*
