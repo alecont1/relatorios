@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { LogOut, Users, Home, Building2, Settings } from 'lucide-react';
+import { LogOut, Users, Home, Building2, Settings, FileText } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -75,6 +75,15 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                   >
                     <Users className="h-4 w-4" />
                     Usuarios
+                  </Link>
+                )}
+                {canManageUsers && (
+                  <Link
+                    to="/templates"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Templates
                   </Link>
                 )}
                 {user?.role === 'superadmin' && (
@@ -193,6 +202,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
                   <AppLayout>
                     <TenantSettingsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                  <AppLayout>
+                    <TemplatesPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

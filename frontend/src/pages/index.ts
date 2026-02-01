@@ -3,3 +3,4 @@ export { UnauthorizedPage } from './UnauthorizedPage';
 export { UsersPage } from './UsersPage';
 export { TenantsPage } from './TenantsPage';
 export { TenantSettingsPage } from './TenantSettingsPage';
+export { TemplatesPage } from './TemplatesPage';
