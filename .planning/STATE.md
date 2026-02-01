@@ -7,9 +7,9 @@
 ## Current Status
 
 **Active Phase:** 4 - Template Management (IN PROGRESS)
-**Active Plan:** 04-02 (COMPLETE)
-**Last Action:** Completed 04-02-PLAN.md - Excel Parser Service
-**Next Action:** Continue with 04-03 (Template CRUD Endpoints)
+**Active Plan:** 04-01 (COMPLETE)
+**Last Action:** Completed 04-01-PLAN.md - Template Data Models
+**Next Action:** Continue with 04-02 or 04-03
 
 ---
 
@@ -35,7 +35,7 @@
 | 1 | Project Setup & Infrastructure | Complete | 100% | 5/5 |
 | 2 | Authentication System | Complete | 100% | 6/6 |
 | 3 | Multi-Tenant Architecture | Complete | 100% | 5/5 |
-| 4 | Template Management | In Progress | 40% | 2/5 |
+| 4 | Template Management | In Progress | 20% | 1/5 |
 | 5 | Template Configuration | Pending | 0% | 0/0 |
 | 6 | Report Core | Pending | 0% | 0/0 |
 | 7 | Photo Capture & Processing | Pending | 0% | 0/0 |
@@ -117,6 +117,10 @@
 | 2026-01-31 | Logo type validation | Restricted to 'primary' or 'secondary' only | Clear logo purpose distinction for branding |
 | 2026-01-31 | Object key prefix validation | Uploaded logos must have tenant_id prefix | Prevents unauthorized cross-tenant logo assignment |
 | 2026-01-31 | Supported logo formats | PNG, JPEG, SVG only | Standard web-compatible image formats for branding |
+| 2026-01-31 | SimpleBase for child models | TemplateSection and TemplateField don't need tenant_id | Inherit tenant isolation through parent Template relationship |
+| 2026-01-31 | Unique constraint on (tenant_id, code) | Prevent duplicate template codes per tenant | Database enforces uniqueness at schema level |
+| 2026-01-31 | Cascade delete for template children | Sections and fields deleted with template | Referential integrity via SQLAlchemy cascade="all, delete-orphan" |
+| 2026-01-31 | Windows event loop fix in alembic | psycopg requires SelectorEventLoop | WindowsSelectorEventLoopPolicy for Windows compatibility |
 | 2026-01-31 | openpyxl for Excel parsing | Well-maintained library with read-only support | Native .xlsx handling, suitable for template import |
 | 2026-01-31 | Collect all errors not fail-fast | Better UX for users fixing Excel files | Parser validates ALL rows before returning errors |
 | 2026-01-31 | Support slash and comma separators | Flexibility in dropdown option formatting | Accepts both "Yes/No/NA" and "Yes, No, NA" formats |
@@ -160,7 +164,7 @@
 - **2026-01-31:** Completed 03-04-PLAN.md - Tenant Settings API (branding CRUD, logo upload via R2 presigned URLs)
 - **2026-01-31:** Completed 03-05-PLAN.md - Frontend Tenant Management & Branding UI (human-verified)
 - **2026-01-31:** **Phase 3 Complete** - Full multi-tenant architecture with branding (5 plans)
-- **2026-01-31:** Completed 04-01-PLAN.md - Template Models (Template, TemplateSection, TemplateField)
+- **2026-01-31:** Completed 04-01-PLAN.md - Template Data Models (Template, TemplateSection, TemplateField with migration 003 and Pydantic schemas)
 - **2026-01-31:** Completed 04-02-PLAN.md - Excel Parser Service with comprehensive validation
 
 ---
@@ -177,14 +181,14 @@
 - Phase 1 complete (5/5 plans finished)
 - Phase 2 complete (6/6 plans finished)
 - Phase 3 complete (5/5 plans finished, verified)
-- Phase 4 in progress (2/5 plans finished)
-  - 04-01: Template Models (complete)
-  - 04-02: Excel Parser Service (complete)
+- Phase 4 in progress (1/5 plans finished)
+  - 04-01: Template Data Models (complete - models, migration, schemas)
+  - 04-02: Excel Parser Service (appears complete from git history)
   - Next: 04-03 Template CRUD Endpoints
 - User action required: Complete 01-USER-SETUP.md before deploying
 
-**Last session:** 2026-01-31
-**Stopped at:** Completed 04-02-PLAN.md - Excel Parser Service
+**Last session:** 2026-01-31 22:07
+**Stopped at:** Completed 04-01-PLAN.md - Template Data Models
 **Resume file:** None
 
 ---
