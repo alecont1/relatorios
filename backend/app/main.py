@@ -55,9 +55,11 @@ from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.users import router as users_router
 from app.api.v1.routes.tenant_settings import router as tenant_settings_router
 from app.api.v1.routes.tenants import router as tenants_router
+from app.api.v1.routes.templates import router as templates_router
 
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(tenant_settings_router, prefix="/api/v1")
 app.include_router(tenants_router, prefix="/api/v1")
+app.include_router(templates_router, prefix="/api/v1")
