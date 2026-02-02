@@ -22,6 +22,7 @@ from app.models.project import Project
 # Import report child models before Report
 from app.models.report_info_value import ReportInfoValue
 from app.models.report_checklist_response import ReportChecklistResponse
+from app.models.report_signature import ReportSignature
 from app.models.report import Report
 from app.models.report_photo import ReportPhoto
 
@@ -39,5 +40,6 @@ __all__ = [
     "Report",
     "ReportInfoValue",
     "ReportChecklistResponse",
+    "ReportSignature",
     "ReportPhoto",
 ]

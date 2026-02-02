@@ -169,6 +169,11 @@ class PDFService:
 
             pdf.ln(3)
 
+        # Signatures section
+        if report.signatures:
+            pdf.section_title("Assinaturas")
+            self._add_signatures(pdf, report.signatures)
+
         # Generate PDF bytes
         return bytes(pdf.output())
 
@@ -334,6 +339,68 @@ class PDFService:
                     "field": field.get("label", ""),
                 })
         return photos
+
+    def _add_signatures(self, pdf: ReportPDF, signatures) -> None:
+        """Add signatures grid."""
+        pdf.ln(2)
+
+        x_start = 10
+        y_start = pdf.get_y()
+        sig_width = 60
+        sig_height = 30
+        sigs_per_row = 3
+        margin = 5
+
+        for i, sig in enumerate(signatures):
+            col = i % sigs_per_row
+            row = i // sigs_per_row
+
+            x = x_start + col * (sig_width + margin)
+            y = y_start + row * (sig_height + 25)
+
+            # Check if we need a new page
+            if y + sig_height + 25 > pdf.h - 25:
+                pdf.add_page()
+                y_start = pdf.get_y()
+                y = y_start
+
+            # Signature box
+            pdf.set_draw_color(200, 200, 200)
+            pdf.rect(x, y, sig_width, sig_height)
+
+            # Try to add signature image
+            if hasattr(sig, 'file_key') and sig.file_key:
+                try:
+                    # For local storage, construct URL
+                    url = f"uploads/{sig.file_key}"
+                    pdf._add_image_from_url(url, x + 2, y + 2, sig_width - 4)
+                except:
+                    pass
+
+            # Role name
+            pdf.set_xy(x, y + sig_height + 1)
+            pdf.set_font("Helvetica", "B", 8)
+            pdf.set_text_color(0, 0, 0)
+            pdf.cell(sig_width, 4, sig.role_name[:20], align="C")
+
+            # Signer name
+            if sig.signer_name:
+                pdf.set_xy(x, y + sig_height + 5)
+                pdf.set_font("Helvetica", "", 7)
+                pdf.set_text_color(100, 100, 100)
+                pdf.cell(sig_width, 4, sig.signer_name[:25], align="C")
+
+            # Date
+            pdf.set_xy(x, y + sig_height + 9)
+            pdf.set_font("Helvetica", "", 7)
+            pdf.set_text_color(100, 100, 100)
+            signed_date = sig.signed_at.strftime("%d/%m/%Y %H:%M") if sig.signed_at else ""
+            pdf.cell(sig_width, 4, signed_date, align="C")
+
+        # Move cursor after signatures
+        if signatures:
+            last_row = (len(signatures) - 1) // sigs_per_row
+            pdf.set_y(y_start + (last_row + 1) * (sig_height + 28))
 
 
 # Singleton instance

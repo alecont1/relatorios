@@ -25,6 +25,7 @@ from app.models import (
     Report,
     ReportInfoValue,
     ReportChecklistResponse,
+    ReportSignature,
     Template,
     User,
 )
@@ -610,6 +611,7 @@ async def download_report_pdf(
         .options(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
+            selectinload(Report.signatures),
         )
         .where(
             and_(

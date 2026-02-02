@@ -30,6 +30,12 @@ import {
   type CaptureMetadata,
   type PhotoMetadata,
 } from '@/features/photo'
+import {
+  SignatureSection,
+  signatureApi,
+  type SignatureData,
+  type SignatureField,
+} from '@/features/signature'
 
 export function ReportFillPage() {
   const { reportId } = useParams<{ reportId: string }>()
@@ -52,12 +58,29 @@ export function ReportFillPage() {
   // PDF download state
   const [isDownloading, setIsDownloading] = useState(false)
 
+  // Signature state
+  const [signatures, setSignatures] = useState<SignatureData[]>([])
+
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
     queryKey: ['report', reportId],
     queryFn: () => reportApi.get(reportId!),
     enabled: !!reportId,
   })
+
+  // Fetch signatures
+  const { data: signaturesData } = useQuery({
+    queryKey: ['signatures', reportId],
+    queryFn: () => signatureApi.list(reportId!),
+    enabled: !!reportId,
+  })
+
+  // Update signatures state when data changes
+  useEffect(() => {
+    if (signaturesData) {
+      setSignatures(signaturesData.signatures)
+    }
+  }, [signaturesData])
 
   // Build update data from form state
   const buildUpdateData = useCallback((): UpdateReportData => {
@@ -280,6 +303,31 @@ export function ReportFillPage() {
     }
   }, [reportId])
 
+  // Signature handlers
+  const handleAddSignature = useCallback(async (
+    roleName: string,
+    blob: Blob,
+    signerName?: string,
+    fieldId?: string
+  ) => {
+    if (!reportId) return
+
+    const newSignature = await signatureApi.upload(reportId, {
+      role_name: roleName,
+      file: blob,
+      signer_name: signerName,
+      signature_field_id: fieldId,
+    })
+    setSignatures((prev) => [...prev, newSignature])
+  }, [reportId])
+
+  const handleDeleteSignature = useCallback(async (signatureId: string) => {
+    if (!reportId) return
+
+    await signatureApi.delete(reportId, signatureId)
+    setSignatures((prev) => prev.filter((s) => s.id !== signatureId))
+  }, [reportId])
+
   // Get response ID from field
   const getResponseId = useCallback((fieldId: string | undefined, sectionName: string, fieldLabel: string): string | undefined => {
     if (!report) return undefined
@@ -498,6 +546,17 @@ export function ReportFillPage() {
           />
         ))}
       </div>
+
+      {/* Signatures Section */}
+      {report.template_snapshot.signature_fields && report.template_snapshot.signature_fields.length > 0 && (
+        <SignatureSection
+          signatures={signatures}
+          signatureFields={report.template_snapshot.signature_fields as SignatureField[]}
+          onAddSignature={handleAddSignature}
+          onDeleteSignature={handleDeleteSignature}
+          isReadOnly={isReadOnly}
+        />
+      )}
 
       {/* Camera Capture Modal */}
       <CameraCapture

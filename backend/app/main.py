@@ -63,6 +63,7 @@ from app.api.v1.routes.template_signature_fields import router as template_signa
 from app.api.v1.routes.template_field_config import router as template_field_config_router
 from app.api.v1.routes.reports import router as reports_router
 from app.api.v1.routes.photos import router as photos_router
+from app.api.v1.routes.signatures import router as signatures_router
 
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
@@ -75,6 +76,7 @@ app.include_router(template_signature_fields_router, prefix="/api/v1")
 app.include_router(template_field_config_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 app.include_router(photos_router, prefix="/api/v1")
+app.include_router(signatures_router, prefix="/api/v1")
 
 # Mount static files for local photo storage (development)
 uploads_path = Path("uploads")

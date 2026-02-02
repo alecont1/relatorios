@@ -30,6 +30,9 @@ from app.models import (  # noqa: F401
     TemplateSignatureField,
     Project,
     Report,
+    ReportInfoValue,
+    ReportChecklistResponse,
+    ReportSignature,
     ReportPhoto,
 )
 

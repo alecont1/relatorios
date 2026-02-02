@@ -58,6 +58,12 @@ class Report(Base):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
+    signatures: Mapped[list["ReportSignature"]] = relationship(
+        "ReportSignature",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return f"<Report(id={self.id}, title={self.title}, status={self.status})>"
