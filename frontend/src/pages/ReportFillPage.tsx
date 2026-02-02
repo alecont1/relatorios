@@ -22,6 +22,13 @@ import {
   type SnapshotField,
 } from '@/features/report/api/reportApi'
 import { useAutoSave } from '@/features/report/hooks'
+import {
+  CameraCapture,
+  PhotoGallery,
+  photoApi,
+  type CaptureMetadata,
+  type PhotoMetadata,
+} from '@/features/photo'
 
 export function ReportFillPage() {
   const { reportId } = useParams<{ reportId: string }>()
@@ -35,6 +42,11 @@ export function ReportFillPage() {
   const [showComments, setShowComments] = useState<Set<string>>(new Set())
   const [isInitialized, setIsInitialized] = useState(false)
   const [showDraftRecovery, setShowDraftRecovery] = useState(false)
+
+  // Photo state
+  const [photos, setPhotos] = useState<Record<string, PhotoMetadata[]>>({})
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [cameraResponseId, setCameraResponseId] = useState<string | null>(null)
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
@@ -120,16 +132,22 @@ export function ReportFillPage() {
       }
       setInfoValues(iv)
 
-      // Initialize responses from server
+      // Initialize responses and photos from server
       const rs: Record<string, { value: string; comment: string }> = {}
+      const ph: Record<string, PhotoMetadata[]> = {}
       for (const r of report.checklist_responses) {
         const key = r.field_id || `${r.section_name}:${r.field_label}`
         rs[key] = {
           value: r.response_value || '',
           comment: r.comment || '',
         }
+        // Initialize photos for this response
+        if (r.photos && r.photos.length > 0) {
+          ph[String(r.id)] = r.photos as PhotoMetadata[]
+        }
       }
       setResponses(rs)
+      setPhotos(ph)
 
       // Expand first section by default
       if (report.template_snapshot.sections.length > 0) {
@@ -199,6 +217,59 @@ export function ReportFillPage() {
       return next
     })
   }
+
+  // Photo handlers
+  const openCamera = useCallback((responseId: string) => {
+    setCameraResponseId(responseId)
+    setCameraOpen(true)
+  }, [])
+
+  const handlePhotoCapture = useCallback(async (blob: Blob, metadata: CaptureMetadata) => {
+    if (!cameraResponseId || !reportId) return
+
+    try {
+      const photo = await photoApi.upload(reportId, {
+        response_id: cameraResponseId,
+        file: blob,
+        captured_at: metadata.capturedAt,
+        latitude: metadata.gps?.latitude,
+        longitude: metadata.gps?.longitude,
+        gps_accuracy: metadata.gps?.accuracy,
+        address: metadata.address,
+      })
+
+      setPhotos((prev) => ({
+        ...prev,
+        [cameraResponseId]: [...(prev[cameraResponseId] || []), photo],
+      }))
+    } catch (error) {
+      console.error('Failed to upload photo:', error)
+    }
+  }, [cameraResponseId, reportId])
+
+  const handlePhotoDelete = useCallback(async (responseId: string, photoId: string) => {
+    if (!reportId) return
+
+    try {
+      await photoApi.delete(reportId, photoId)
+      setPhotos((prev) => ({
+        ...prev,
+        [responseId]: (prev[responseId] || []).filter((p) => p.id !== photoId),
+      }))
+    } catch (error) {
+      console.error('Failed to delete photo:', error)
+    }
+  }, [reportId])
+
+  // Get response ID from field
+  const getResponseId = useCallback((fieldId: string | undefined, sectionName: string, fieldLabel: string): string | undefined => {
+    if (!report) return undefined
+    const key = fieldId || `${sectionName}:${fieldLabel}`
+    const response = report.checklist_responses.find(
+      (r) => (r.field_id === fieldId) || `${r.section_name}:${r.field_label}` === key
+    )
+    return response ? String(response.id) : undefined
+  }, [report])
 
   // Calculate progress
   const progress = useMemo(() => {
@@ -381,9 +452,21 @@ export function ReportFillPage() {
             showComments={showComments}
             onToggleComment={toggleComment}
             isReadOnly={isReadOnly}
+            photos={photos}
+            getResponseId={getResponseId}
+            onOpenCamera={openCamera}
+            onDeletePhoto={handlePhotoDelete}
           />
         ))}
       </div>
+
+      {/* Camera Capture Modal */}
+      <CameraCapture
+        isOpen={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCapture={handlePhotoCapture}
+        requireGPS={false}
+      />
     </div>
   )
 }
@@ -398,6 +481,10 @@ interface SectionAccordionProps {
   showComments: Set<string>
   onToggleComment: (fieldKey: string) => void
   isReadOnly: boolean
+  photos: Record<string, PhotoMetadata[]>
+  getResponseId: (fieldId: string | undefined, sectionName: string, fieldLabel: string) => string | undefined
+  onOpenCamera: (responseId: string) => void
+  onDeletePhoto: (responseId: string, photoId: string) => void
 }
 
 function SectionAccordion({
@@ -410,6 +497,10 @@ function SectionAccordion({
   showComments,
   onToggleComment,
   isReadOnly,
+  photos,
+  getResponseId,
+  onOpenCamera,
+  onDeletePhoto,
 }: SectionAccordionProps) {
   // Calculate section completion
   const filledCount = section.fields.filter((f) => {
@@ -440,29 +531,36 @@ function SectionAccordion({
       {/* Section Fields */}
       {isExpanded && (
         <div className="border-t divide-y">
-          {section.fields.map((field) => (
-            <FieldRow
-              key={field.id}
-              field={field}
-              sectionName={section.name}
-              response={responses[field.id || `${section.name}:${field.label}`] || { value: '', comment: '' }}
-              onValueChange={(value) =>
-                onResponseChange(
-                  field.id || `${section.name}:${field.label}`,
-                  value,
-                  responses[field.id || `${section.name}:${field.label}`]?.comment || ''
-                )
-              }
-              onCommentChange={(comment) =>
-                onCommentChange(field.id || `${section.name}:${field.label}`, comment)
-              }
-              showComment={showComments.has(field.id || `${section.name}:${field.label}`)}
-              onToggleComment={() =>
-                onToggleComment(field.id || `${section.name}:${field.label}`)
-              }
-              isReadOnly={isReadOnly}
-            />
-          ))}
+          {section.fields.map((field) => {
+            const responseId = getResponseId(field.id, section.name, field.label)
+            return (
+              <FieldRow
+                key={field.id}
+                field={field}
+                sectionName={section.name}
+                response={responses[field.id || `${section.name}:${field.label}`] || { value: '', comment: '' }}
+                onValueChange={(value) =>
+                  onResponseChange(
+                    field.id || `${section.name}:${field.label}`,
+                    value,
+                    responses[field.id || `${section.name}:${field.label}`]?.comment || ''
+                  )
+                }
+                onCommentChange={(comment) =>
+                  onCommentChange(field.id || `${section.name}:${field.label}`, comment)
+                }
+                showComment={showComments.has(field.id || `${section.name}:${field.label}`)}
+                onToggleComment={() =>
+                  onToggleComment(field.id || `${section.name}:${field.label}`)
+                }
+                isReadOnly={isReadOnly}
+                photos={responseId ? photos[responseId] || [] : []}
+                responseId={responseId}
+                onOpenCamera={onOpenCamera}
+                onDeletePhoto={onDeletePhoto}
+              />
+            )
+          })}
         </div>
       )}
     </div>
@@ -478,6 +576,10 @@ interface FieldRowProps {
   showComment: boolean
   onToggleComment: () => void
   isReadOnly: boolean
+  photos: PhotoMetadata[]
+  responseId?: string
+  onOpenCamera: (responseId: string) => void
+  onDeletePhoto: (responseId: string, photoId: string) => void
 }
 
 function FieldRow({
@@ -488,9 +590,14 @@ function FieldRow({
   showComment,
   onToggleComment,
   isReadOnly,
+  photos,
+  responseId,
+  onOpenCamera,
+  onDeletePhoto,
 }: FieldRowProps) {
   const hasCommentConfig = field.comment_config?.enabled
-  const hasPhotoConfig = field.photo_config?.required || (field.photo_config?.min_count || 0) > 0
+  const photoConfig = field.photo_config
+  const hasPhotoConfig = photoConfig && (photoConfig.required || (photoConfig.min_count || 0) > 0 || (photoConfig.max_count || 0) > 0)
 
   return (
     <div className="p-4 space-y-3">
@@ -498,12 +605,6 @@ function FieldRow({
         {/* Field Label */}
         <div className="flex-1">
           <p className="text-sm text-gray-900">{field.label}</p>
-          {hasPhotoConfig && (
-            <span className="inline-flex items-center gap-1 text-xs text-blue-600 mt-1">
-              <Camera className="h-3 w-3" />
-              Foto obrigatoria
-            </span>
-          )}
         </div>
 
         {/* Field Input */}
@@ -544,6 +645,18 @@ function FieldRow({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
           />
         </div>
+      )}
+
+      {/* Photo Gallery */}
+      {(hasPhotoConfig || photos.length > 0) && responseId && (
+        <PhotoGallery
+          photos={photos}
+          maxPhotos={photoConfig?.max_count}
+          required={photoConfig?.required || (photoConfig?.min_count || 0) > 0}
+          onAddPhoto={() => onOpenCamera(responseId)}
+          onDeletePhoto={(photoId) => onDeletePhoto(responseId, photoId)}
+          isReadOnly={isReadOnly}
+        />
       )}
     </div>
   )
