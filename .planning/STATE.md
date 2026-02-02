@@ -6,10 +6,10 @@
 
 ## Current Status
 
-**Active Phase:** 6 - Report Core (PENDING)
+**Active Phase:** 9 - Digital Signatures (PENDING)
 **Active Plan:** None - Phase planning required
-**Last Action:** Completed Phase 5 - Template Configuration (Human Verified)
-**Next Action:** Plan Phase 6 - Report Core
+**Last Action:** Completed Phase 8 - PDF Generation System
+**Next Action:** Plan Phase 9 - Digital Signatures
 
 ---
 
@@ -37,16 +37,16 @@
 | 3 | Multi-Tenant Architecture | Complete | 100% | 5/5 |
 | 4 | Template Management | Complete | 100% | 5/5 |
 | 5 | Template Configuration | Complete | 100% | 6/6 |
-| 6 | Report Core | Pending | 0% | 0/0 |
-| 7 | Photo Capture & Processing | Pending | 0% | 0/0 |
-| 8 | PDF Generation System | Pending | 0% | 0/0 |
+| 6 | Report Core | Complete | 100% | 5/5 |
+| 7 | Photo Capture & Processing | Complete | 100% | 5/5 |
+| 8 | PDF Generation System | Complete | 100% | 5/5 |
 | 9 | Digital Signatures | Pending | 0% | 0/0 |
 | 10 | Mobile UX & Polish | Pending | 0% | 0/0 |
 
-**Overall Progress:** 5/10 phases (50%)
+**Overall Progress:** 8/10 phases (80%)
 
 **Progress Bar:**
-████████████████████░░░░░░░░░░░░░░░░░░░░░░ 50%
+████████████████████████████████░░░░░░░░░░ 80%
 
 ---
 
@@ -128,6 +128,8 @@
 | 2026-02-02 | JSONB for field configuration | Use JSONB columns for photo_config and comment_config | Flexible schema without migrations for future config additions |
 | 2026-02-02 | SimpleBase for config models | TemplateInfoField and TemplateSignatureField extend SimpleBase | Inherit tenant isolation via Template, no direct tenant_id |
 | 2026-02-02 | Ordered relationships | Use order_by in relationship definitions | SQLAlchemy returns collections in correct order automatically |
+| 2026-02-02 | fpdf2 over WeasyPrint | Pure Python, no GTK dependencies | Works on Windows dev and Linux production without external libs |
+| 2026-02-02 | Template snapshot in PDF | Store template state at report creation time | PDF generation uses snapshot, not current template version |
 
 ### Active TODOs
 
@@ -180,6 +182,12 @@
 - **2026-02-02:** Completed 05-05-PLAN.md - Frontend Field Config UI (SignatureFieldsConfigurator, FieldConfigModal, ChecklistSectionsView)
 - **2026-02-02:** Completed 05-06-PLAN.md - Human Verification (approved)
 - **2026-02-02:** **Phase 5 Complete** - Full template configuration system (6 plans)
+- **2026-02-02:** Completed Phase 6 - Report Core (ReportFillPage, auto-save, draft recovery, checklist UI)
+- **2026-02-02:** **Phase 6 Complete** - Full report creation and filling workflow (5 plans)
+- **2026-02-02:** Completed Phase 7 - Photo Capture (camera capture, geolocation, watermarking, R2 upload, gallery)
+- **2026-02-02:** **Phase 7 Complete** - Full photo capture and processing system (5 plans, pending manual test)
+- **2026-02-02:** Completed Phase 8 - PDF Generation (fpdf2 service, PDF endpoint, download button)
+- **2026-02-02:** **Phase 8 Complete** - Full PDF generation with tenant branding (5 plans)
 
 ---
 
@@ -197,10 +205,13 @@
 - Phase 3 complete (5/5 plans finished, verified)
 - Phase 4 complete (5/5 plans finished, human verified)
 - Phase 5 complete (6/6 plans finished, human verified)
+- Phase 6 complete (5/5 plans finished)
+- Phase 7 complete (5/5 plans finished, pending manual test)
+- Phase 8 complete (5/5 plans finished)
 - User action required: Complete 01-USER-SETUP.md before deploying
 
 **Last session:** 2026-02-02
-**Stopped at:** Phase 5 complete - ready for Phase 6 planning
+**Stopped at:** Phase 8 complete - ready for Phase 9 planning
 **Resume file:** None
 
 ---

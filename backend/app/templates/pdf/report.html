@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ report.title }}</title>
+  <style>
+    :root {
+      --primary-color: {{ tenant.primary_color or '#2563eb' }};
+      --secondary-color: {{ tenant.secondary_color or '#1e40af' }};
+    }
+    {% include 'pdf/styles.css' %}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    {% if tenant.logo_primary_url %}
+    <img src="{{ tenant.logo_primary_url }}" alt="Logo" class="header-logo">
+    {% else %}
+    <div style="width: 50mm;"></div>
+    {% endif %}
+
+    <div class="header-title">
+      <h1>{{ template.name }}</h1>
+      <p class="subtitle">{{ report.title }}</p>
+    </div>
+
+    {% if tenant.logo_secondary_url %}
+    <img src="{{ tenant.logo_secondary_url }}" alt="Logo Secundário" class="header-logo">
+    {% else %}
+    <div style="width: 50mm;"></div>
+    {% endif %}
+  </div>
+
+  <div class="header-meta">
+    <p><strong>Código:</strong> {{ template.code }}</p>
+    <p><strong>Data:</strong> {{ report.created_at.strftime('%d/%m/%Y') }}</p>
+    <p><strong>Versão:</strong> {{ template.version }}</p>
+  </div>
+
+  <!-- Project Information -->
+  {% if info_values %}
+  <div class="section">
+    <h2 class="section-title">Informações do Projeto</h2>
+    <table class="info-table">
+      {% for field in info_values %}
+      <tr>
+        <td class="label">{{ field.field_label }}</td>
+        <td class="value">{{ field.value or '-' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Reference Standards -->
+  {% if template.reference_standards %}
+  <div class="section">
+    <h2 class="section-title">Normas de Referência</h2>
+    <p>{{ template.reference_standards }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Checklist Sections -->
+  {% for section in sections %}
+  <div class="section">
+    <h2 class="section-title">{{ section.name }}</h2>
+
+    <table class="checklist-table">
+      <thead>
+        <tr>
+          <th class="field-label">Item de Verificação</th>
+          <th class="field-response">Resultado</th>
+          <th class="field-comment">Observações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for field in section.fields %}
+        <tr>
+          <td class="field-label">{{ field.label }}</td>
+          <td class="field-response">
+            {% if field.response %}
+              {% if field.response.response_value == 'Sim' or field.response.response_value == 'OK' or field.response.response_value == 'Conforme' %}
+                <span class="response-ok">{{ field.response.response_value }}</span>
+              {% elif field.response.response_value == 'Nao' or field.response.response_value == 'NOK' or field.response.response_value == 'Não Conforme' %}
+                <span class="response-nok">{{ field.response.response_value }}</span>
+              {% elif field.response.response_value == 'N/A' %}
+                <span class="response-na">{{ field.response.response_value }}</span>
+              {% else %}
+                {{ field.response.response_value or '-' }}
+              {% endif %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td class="field-comment">{{ field.response.comment if field.response else '' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Photos for this section -->
+    {% set section_photos = [] %}
+    {% for field in section.fields %}
+      {% if field.response and field.response.photos %}
+        {% for photo in field.response.photos %}
+          {% set _ = section_photos.append({'photo': photo, 'field': field.label}) %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+
+    {% if section_photos %}
+    <div class="photo-section">
+      <p class="font-bold mb-4">Registro Fotográfico</p>
+      <div class="photo-grid">
+        {% for item in section_photos %}
+        <div class="photo-item">
+          <img src="{{ item.photo.url }}" alt="Foto">
+          <div class="photo-caption">
+            {{ item.field }}<br>
+            {% if item.photo.captured_at %}
+            {{ item.photo.captured_at[:19].replace('T', ' ') }}
+            {% endif %}
+            {% if item.photo.address %}
+            <br>{{ item.photo.address[:50] }}{% if item.photo.address|length > 50 %}...{% endif %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <!-- Signatures -->
+  {% if signatures %}
+  <div class="signatures-section">
+    <h2 class="section-title">Assinaturas</h2>
+    <div class="signatures-grid">
+      {% for sig in signatures %}
+      <div class="signature-box">
+        <div class="signature-image">
+          {% if sig.image_url %}
+          <img src="{{ sig.image_url }}" alt="Assinatura">
+          {% endif %}
+        </div>
+        <p class="signature-role">{{ sig.role_name }}</p>
+        {% if sig.signed_at %}
+        <p class="signature-date">{{ sig.signed_at.strftime('%d/%m/%Y %H:%M') }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>
+      <strong>{{ tenant.name }}</strong>
+      {% if tenant.phone %} | {{ tenant.phone }}{% endif %}
+      {% if tenant.email %} | {{ tenant.email }}{% endif %}
+    </p>
+    <p>Documento gerado em {{ now.strftime('%d/%m/%Y às %H:%M') }}</p>
+  </div>
+</body>
+</html>

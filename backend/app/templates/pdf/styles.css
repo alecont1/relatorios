@@ -1,0 +1,263 @@
+/* PDF Report Styles */
+
+/* Page setup */
+@page {
+  size: A4;
+  margin: 15mm 15mm 20mm 15mm;
+
+  @bottom-center {
+    content: "Página " counter(page) " de " counter(pages);
+    font-size: 9pt;
+    color: #666;
+  }
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.4;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10mm;
+  border-bottom: 2px solid var(--primary-color, #2563eb);
+  margin-bottom: 8mm;
+}
+
+.header-logo {
+  max-height: 20mm;
+  max-width: 50mm;
+}
+
+.header-title {
+  text-align: center;
+  flex: 1;
+  padding: 0 5mm;
+}
+
+.header-title h1 {
+  font-size: 16pt;
+  font-weight: bold;
+  margin: 0 0 2mm 0;
+  color: var(--primary-color, #2563eb);
+}
+
+.header-title .subtitle {
+  font-size: 10pt;
+  color: #666;
+  margin: 0;
+}
+
+.header-meta {
+  font-size: 9pt;
+  color: #666;
+  text-align: right;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 8mm;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  font-size: 12pt;
+  font-weight: bold;
+  color: var(--primary-color, #2563eb);
+  background-color: #f0f4ff;
+  padding: 2mm 4mm;
+  margin: 0 0 4mm 0;
+  border-left: 3px solid var(--primary-color, #2563eb);
+}
+
+/* Info Fields Table */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 6mm;
+}
+
+.info-table td {
+  padding: 2mm 3mm;
+  border: 0.5pt solid #ddd;
+  vertical-align: top;
+}
+
+.info-table .label {
+  width: 35%;
+  font-weight: bold;
+  background-color: #f9fafb;
+  color: #374151;
+}
+
+.info-table .value {
+  width: 65%;
+}
+
+/* Checklist Table */
+.checklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 4mm;
+}
+
+.checklist-table th {
+  background-color: var(--primary-color, #2563eb);
+  color: white;
+  padding: 2mm 3mm;
+  text-align: left;
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.checklist-table td {
+  padding: 2mm 3mm;
+  border: 0.5pt solid #ddd;
+  vertical-align: top;
+  font-size: 9pt;
+}
+
+.checklist-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.checklist-table .field-label {
+  width: 50%;
+}
+
+.checklist-table .field-response {
+  width: 20%;
+  text-align: center;
+}
+
+.checklist-table .field-comment {
+  width: 30%;
+  font-style: italic;
+  color: #666;
+}
+
+/* Response badges */
+.response-ok {
+  color: #059669;
+  font-weight: bold;
+}
+
+.response-nok {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.response-na {
+  color: #6b7280;
+}
+
+/* Photo Grid */
+.photo-section {
+  margin-top: 4mm;
+  page-break-inside: avoid;
+}
+
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3mm;
+}
+
+.photo-item {
+  width: calc(33.333% - 2mm);
+  border: 0.5pt solid #ddd;
+  padding: 2mm;
+  background: #f9fafb;
+}
+
+.photo-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.photo-caption {
+  font-size: 7pt;
+  color: #666;
+  margin-top: 1mm;
+  text-align: center;
+}
+
+/* Signatures Section */
+.signatures-section {
+  margin-top: 10mm;
+  page-break-inside: avoid;
+}
+
+.signatures-grid {
+  display: flex;
+  justify-content: space-around;
+  gap: 10mm;
+}
+
+.signature-box {
+  text-align: center;
+  width: 45%;
+}
+
+.signature-image {
+  height: 20mm;
+  border-bottom: 1pt solid #333;
+  margin-bottom: 2mm;
+}
+
+.signature-image img {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.signature-role {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #374151;
+}
+
+.signature-date {
+  font-size: 8pt;
+  color: #666;
+}
+
+/* Footer */
+.footer {
+  margin-top: 10mm;
+  padding-top: 4mm;
+  border-top: 1pt solid #ddd;
+  font-size: 8pt;
+  color: #666;
+  text-align: center;
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.font-bold { font-weight: bold; }
+.mt-4 { margin-top: 4mm; }
+.mb-4 { margin-bottom: 4mm; }
+
+/* Print optimizations */
+@media print {
+  .section {
+    page-break-inside: avoid;
+  }
+
+  .checklist-table tr {
+    page-break-inside: avoid;
+  }
+}

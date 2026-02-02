@@ -13,6 +13,7 @@ import {
   Cloud,
   CloudOff,
   RefreshCw,
+  FileDown,
 } from 'lucide-react'
 import {
   reportApi,
@@ -47,6 +48,9 @@ export function ReportFillPage() {
   const [photos, setPhotos] = useState<Record<string, PhotoMetadata[]>>({})
   const [cameraOpen, setCameraOpen] = useState(false)
   const [cameraResponseId, setCameraResponseId] = useState<string | null>(null)
+
+  // PDF download state
+  const [isDownloading, setIsDownloading] = useState(false)
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
@@ -192,6 +196,21 @@ export function ReportFillPage() {
     // Save first, then complete
     await autoSave.saveNow()
     await completeMutation.mutateAsync()
+  }
+
+  // PDF download handler
+  const handleDownloadPdf = async () => {
+    if (!report || !reportId) return
+
+    setIsDownloading(true)
+    try {
+      const filename = `${report.title.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
+      await reportApi.downloadPdf(reportId, filename)
+    } catch (error) {
+      console.error('Failed to download PDF:', error)
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   const toggleSection = (sectionId: string) => {
@@ -350,6 +369,26 @@ export function ReportFillPage() {
             >
               <CheckCircle className="h-4 w-4" />
               Concluir
+            </button>
+          </div>
+        )}
+
+        {isReadOnly && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500">
+              {report.status === 'completed' ? 'Relatorio concluido' : 'Relatorio arquivado'}
+            </span>
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileDown className="h-4 w-4" />
+              )}
+              {isDownloading ? 'Baixando...' : 'Baixar PDF'}
             </button>
           </div>
         )}

@@ -14,6 +14,7 @@ from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -584,4 +585,76 @@ def _build_detail_response(report: Report) -> ReportDetailResponse:
             )
             for cr in checklist_responses
         ],
+    )
+
+
+@router.get("/{report_id}/pdf")
+async def download_report_pdf(
+    report_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_tenant_filter),
+):
+    """
+    Generate and download PDF for a report.
+
+    The report should be completed for full PDF generation,
+    but drafts can also be downloaded for preview.
+    """
+    from app.models.tenant import Tenant
+    from app.services.pdf_service import pdf_service
+
+    # Load report with relationships
+    result = await db.execute(
+        select(Report)
+        .options(
+            selectinload(Report.info_values),
+            selectinload(Report.checklist_responses),
+        )
+        .where(
+            and_(
+                Report.id == report_id,
+                Report.tenant_id == tenant_id,
+            )
+        )
+    )
+    report = result.scalar_one_or_none()
+
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Relatorio nao encontrado",
+        )
+
+    # Load tenant for branding
+    tenant_result = await db.execute(
+        select(Tenant).where(Tenant.id == tenant_id)
+    )
+    tenant = tenant_result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tenant nao encontrado",
+        )
+
+    # Generate PDF
+    try:
+        pdf_bytes = pdf_service.generate_report_pdf(report, tenant)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao gerar PDF: {str(e)}",
+        )
+
+    # Build filename
+    safe_title = "".join(c for c in report.title if c.isalnum() or c in (' ', '-', '_')).strip()
+    filename = f"{safe_title}_{report.created_at.strftime('%Y%m%d')}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
     )
