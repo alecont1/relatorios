@@ -38,7 +38,7 @@ class TemplateSection(SimpleBase):
         "TemplateField",
         back_populates="section",
         cascade="all, delete-orphan",
-        order_by="TemplateField.order"
+        lazy="selectin"
     )
 
     def __repr__(self) -> str:
