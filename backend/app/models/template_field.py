@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.simple_base import SimpleBase
@@ -29,6 +30,13 @@ class TemplateField(SimpleBase):
     field_type: Mapped[str] = mapped_column(String(50), nullable=False)
     options: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON array for dropdown options
     order: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # Photo and comment configuration (JSONB for flexible structure)
+    photo_config: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Schema: {"required": bool, "min_count": int, "max_count": int, "require_gps": bool, "watermark": bool}
+
+    comment_config: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Schema: {"enabled": bool, "required": bool}
 
     # Relationships
     section: Mapped["TemplateSection"] = relationship(

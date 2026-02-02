@@ -40,6 +40,20 @@ class Template(Base):
         order_by="TemplateSection.order"
     )
 
+    info_fields: Mapped[list["TemplateInfoField"]] = relationship(
+        "TemplateInfoField",
+        back_populates="template",
+        cascade="all, delete-orphan",
+        order_by="TemplateInfoField.order"
+    )
+
+    signature_fields: Mapped[list["TemplateSignatureField"]] = relationship(
+        "TemplateSignatureField",
+        back_populates="template",
+        cascade="all, delete-orphan",
+        order_by="TemplateSignatureField.order"
+    )
+
     # Constraints
     __table_args__ = (
         UniqueConstraint("tenant_id", "code", name="uq_template_tenant_code"),
