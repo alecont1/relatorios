@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Search, ToggleLeft, ToggleRight, Settings } from 'lucide-react'
 import type { TemplateListItem } from '../api/templateApi'
 import { templateApi } from '../api/templateApi'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
@@ -14,6 +15,7 @@ export function TemplateList({ onSelectTemplate }: TemplateListProps) {
   const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'all'>('active')
   const debouncedSearch = useDebouncedValue(search, 300)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['templates', debouncedSearch, statusFilter],
@@ -136,20 +138,32 @@ export function TemplateList({ onSelectTemplate }: TemplateListProps) {
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleMutation.mutate({ id: template.id, is_active: !template.is_active })
-                      }}
-                      className="text-gray-400 hover:text-gray-600"
-                      title={template.is_active ? 'Desativar' : 'Ativar'}
-                    >
-                      {template.is_active ? (
-                        <ToggleRight className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <ToggleLeft className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/templates/${template.id}/configure`)
+                        }}
+                        className="text-gray-400 hover:text-blue-600"
+                        title="Configurar template"
+                      >
+                        <Settings className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleMutation.mutate({ id: template.id, is_active: !template.is_active })
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                        title={template.is_active ? 'Desativar' : 'Ativar'}
+                      >
+                        {template.is_active ? (
+                          <ToggleRight className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <ToggleLeft className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

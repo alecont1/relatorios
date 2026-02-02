@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-do
 import { QueryClientProvider } from '@tanstack/react-query';
 import { LogOut, Users, Home, Building2, Settings, FileText } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -212,6 +212,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
                   <AppLayout>
                     <TemplatesPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/templates/:templateId/configure"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                  <AppLayout>
+                    <TemplateConfigPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
