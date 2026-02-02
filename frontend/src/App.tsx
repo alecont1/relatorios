@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { LogOut, Users, Home, Building2, Settings, FileText } from 'lucide-react';
+import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -86,6 +86,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                     Templates
                   </Link>
                 )}
+                <Link
+                  to="/reports"
+                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Relatorios
+                </Link>
                 {user?.role === 'superadmin' && (
                   <Link
                     to="/tenants"
@@ -222,6 +229,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
                   <AppLayout>
                     <TemplateConfigPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ReportsPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
