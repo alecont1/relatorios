@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -10,6 +10,9 @@ import {
   ChevronUp,
   MessageSquare,
   Camera,
+  Cloud,
+  CloudOff,
+  RefreshCw,
 } from 'lucide-react'
 import {
   reportApi,
@@ -18,6 +21,7 @@ import {
   type SnapshotSection,
   type SnapshotField,
 } from '@/features/report/api/reportApi'
+import { useAutoSave } from '@/features/report/hooks'
 
 export function ReportFillPage() {
   const { reportId } = useParams<{ reportId: string }>()
@@ -29,8 +33,8 @@ export function ReportFillPage() {
   const [responses, setResponses] = useState<Record<string, { value: string; comment: string }>>({})
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [showComments, setShowComments] = useState<Set<string>>(new Set())
-  const [isSaving, setIsSaving] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [showDraftRecovery, setShowDraftRecovery] = useState(false)
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
@@ -39,54 +43,8 @@ export function ReportFillPage() {
     enabled: !!reportId,
   })
 
-  // Initialize form state from report data
-  useEffect(() => {
-    if (report) {
-      // Initialize info values
-      const iv: Record<string, string> = {}
-      for (const v of report.info_values) {
-        iv[v.field_label] = v.value || ''
-      }
-      setInfoValues(iv)
-
-      // Initialize responses
-      const rs: Record<string, { value: string; comment: string }> = {}
-      for (const r of report.checklist_responses) {
-        const key = r.field_id || `${r.section_name}:${r.field_label}`
-        rs[key] = {
-          value: r.response_value || '',
-          comment: r.comment || '',
-        }
-      }
-      setResponses(rs)
-
-      // Expand first section by default
-      if (report.template_snapshot.sections.length > 0) {
-        setExpandedSections(new Set([report.template_snapshot.sections[0].id]))
-      }
-    }
-  }, [report])
-
-  // Save mutation
-  const saveMutation = useMutation({
-    mutationFn: (data: UpdateReportData) => reportApi.update(reportId!, data),
-    onSuccess: () => {
-      setLastSaved(new Date())
-      queryClient.invalidateQueries({ queryKey: ['report', reportId] })
-    },
-  })
-
-  // Complete mutation
-  const completeMutation = useMutation({
-    mutationFn: () => reportApi.complete(reportId!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-      navigate('/reports')
-    },
-  })
-
   // Build update data from form state
-  const buildUpdateData = (): UpdateReportData => {
+  const buildUpdateData = useCallback((): UpdateReportData => {
     if (!report) return {}
 
     // Build info values update
@@ -122,20 +80,99 @@ export function ReportFillPage() {
       info_values: infoValuesUpdate,
       checklist_responses: checklistUpdate,
     }
-  }
+  }, [report, infoValues, responses])
 
-  const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      await saveMutation.mutateAsync(buildUpdateData())
-    } finally {
-      setIsSaving(false)
+  // Form data for auto-save change detection
+  const formData = useMemo(
+    () => ({ infoValues, responses }),
+    [infoValues, responses]
+  )
+
+  // Draft storage key
+  const draftKey = reportId ? `report-draft-${reportId}` : undefined
+
+  // Auto-save hook
+  const autoSave = useAutoSave({
+    data: formData,
+    onSave: async () => {
+      const data = buildUpdateData()
+      await reportApi.update(reportId!, data)
+      queryClient.invalidateQueries({ queryKey: ['report', reportId] })
+    },
+    debounceMs: 2000,
+    enabled: isInitialized && report?.status !== 'completed' && report?.status !== 'archived',
+    storageKey: draftKey,
+  })
+
+  // Initialize form state from report data
+  useEffect(() => {
+    if (report && !isInitialized) {
+      // Check for draft backup first
+      const draft = autoSave.loadDraftBackup()
+      if (draft && (draft.infoValues || draft.responses)) {
+        setShowDraftRecovery(true)
+      }
+
+      // Initialize info values from server
+      const iv: Record<string, string> = {}
+      for (const v of report.info_values) {
+        iv[v.field_label] = v.value || ''
+      }
+      setInfoValues(iv)
+
+      // Initialize responses from server
+      const rs: Record<string, { value: string; comment: string }> = {}
+      for (const r of report.checklist_responses) {
+        const key = r.field_id || `${r.section_name}:${r.field_label}`
+        rs[key] = {
+          value: r.response_value || '',
+          comment: r.comment || '',
+        }
+      }
+      setResponses(rs)
+
+      // Expand first section by default
+      if (report.template_snapshot.sections.length > 0) {
+        setExpandedSections(new Set([report.template_snapshot.sections[0].id]))
+      }
+
+      setIsInitialized(true)
     }
+  }, [report, isInitialized, autoSave])
+
+  // Recover draft from localStorage
+  const recoverDraft = useCallback(() => {
+    const draft = autoSave.loadDraftBackup()
+    if (draft) {
+      if (draft.infoValues) setInfoValues(draft.infoValues)
+      if (draft.responses) setResponses(draft.responses)
+    }
+    setShowDraftRecovery(false)
+  }, [autoSave])
+
+  const dismissDraftRecovery = useCallback(() => {
+    autoSave.clearDraftBackup()
+    setShowDraftRecovery(false)
+  }, [autoSave])
+
+  // Complete mutation
+  const completeMutation = useMutation({
+    mutationFn: () => reportApi.complete(reportId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reports'] })
+      navigate('/reports')
+    },
+  })
+
+  // Manual save handler
+  const handleSave = async () => {
+    await autoSave.saveNow()
   }
 
+  // Complete handler
   const handleComplete = async () => {
     // Save first, then complete
-    await handleSave()
+    await autoSave.saveNow()
     await completeMutation.mutateAsync()
   }
 
@@ -221,22 +258,23 @@ export function ReportFillPage() {
 
         {!isReadOnly && (
           <div className="flex items-center gap-3">
-            {lastSaved && (
-              <span className="text-sm text-gray-500">
-                Salvo: {lastSaved.toLocaleTimeString('pt-BR')}
-              </span>
-            )}
+            {/* Auto-save status indicator */}
+            <AutoSaveStatus
+              status={autoSave.status}
+              lastSaved={autoSave.lastSaved}
+              error={autoSave.error}
+            />
             <button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={autoSave.isSaving}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
-              {isSaving ? 'Salvando...' : 'Salvar'}
+              {autoSave.isSaving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
               onClick={handleComplete}
-              disabled={completeMutation.isPending || isSaving}
+              disabled={completeMutation.isPending || autoSave.isSaving}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
               <CheckCircle className="h-4 w-4" />
@@ -245,6 +283,32 @@ export function ReportFillPage() {
           </div>
         )}
       </div>
+
+      {/* Draft Recovery Banner */}
+      {showDraftRecovery && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="h-5 w-5 text-yellow-600" />
+            <p className="text-sm text-yellow-800">
+              Foi encontrado um rascunho nao salvo. Deseja recuperar?
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={dismissDraftRecovery}
+              className="px-3 py-1 text-sm text-yellow-700 hover:bg-yellow-100 rounded"
+            >
+              Descartar
+            </button>
+            <button
+              onClick={recoverDraft}
+              className="px-3 py-1 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            >
+              Recuperar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="bg-white p-4 rounded-lg border">
@@ -567,5 +631,52 @@ function FieldInput({ field, value, onChange, isReadOnly }: FieldInputProps) {
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 min-w-[200px]"
         />
       )
+  }
+}
+
+// Auto-save status indicator component
+interface AutoSaveStatusProps {
+  status: 'idle' | 'pending' | 'saving' | 'saved' | 'error'
+  lastSaved: Date | null
+  error: string | null
+}
+
+function AutoSaveStatus({ status, lastSaved, error }: AutoSaveStatusProps) {
+  const formatTime = (date: Date) => date.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  switch (status) {
+    case 'pending':
+      return (
+        <span className="flex items-center gap-1.5 text-sm text-gray-400">
+          <Cloud className="h-4 w-4" />
+          Alteracoes pendentes...
+        </span>
+      )
+    case 'saving':
+      return (
+        <span className="flex items-center gap-1.5 text-sm text-blue-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Salvando...
+        </span>
+      )
+    case 'saved':
+      return (
+        <span className="flex items-center gap-1.5 text-sm text-green-600">
+          <Cloud className="h-4 w-4" />
+          Salvo {lastSaved && `as ${formatTime(lastSaved)}`}
+        </span>
+      )
+    case 'error':
+      return (
+        <span className="flex items-center gap-1.5 text-sm text-red-500" title={error || undefined}>
+          <CloudOff className="h-4 w-4" />
+          Erro ao salvar
+        </span>
+      )
+    default:
+      return null
   }
 }
