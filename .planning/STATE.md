@@ -6,10 +6,10 @@
 
 ## Current Status
 
-**Active Phase:** 5 - Template Configuration (PENDING)
-**Active Plan:** None
-**Last Action:** Completed Phase 4 - Template Management (human verified)
-**Next Action:** Start Phase 5 planning
+**Active Phase:** 5 - Template Configuration (IN PROGRESS)
+**Active Plan:** 01 of 6
+**Last Action:** Completed 05-01-PLAN.md - Template Configuration Models
+**Next Action:** Continue Phase 5 - Plan 02 (Info & Signature Schemas)
 
 ---
 
@@ -36,17 +36,17 @@
 | 2 | Authentication System | Complete | 100% | 6/6 |
 | 3 | Multi-Tenant Architecture | Complete | 100% | 5/5 |
 | 4 | Template Management | Complete | 100% | 5/5 |
-| 5 | Template Configuration | Pending | 0% | 0/0 |
+| 5 | Template Configuration | In Progress | 17% | 1/6 |
 | 6 | Report Core | Pending | 0% | 0/0 |
 | 7 | Photo Capture & Processing | Pending | 0% | 0/0 |
 | 8 | PDF Generation System | Pending | 0% | 0/0 |
 | 9 | Digital Signatures | Pending | 0% | 0/0 |
 | 10 | Mobile UX & Polish | Pending | 0% | 0/0 |
 
-**Overall Progress:** 4/10 phases (40%)
+**Overall Progress:** 4.17/10 phases (41.7%)
 
 **Progress Bar:**
-████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░ 41.7%
 
 ---
 
@@ -125,6 +125,9 @@
 | 2026-01-31 | Collect all errors not fail-fast | Better UX for users fixing Excel files | Parser validates ALL rows before returning errors |
 | 2026-01-31 | Support slash and comma separators | Flexibility in dropdown option formatting | Accepts both "Yes/No/NA" and "Yes, No, NA" formats |
 | 2026-01-31 | Dataclass-based parsing | Type safety and clarity in parser | ParseResult, ParsedSection, ParsedField for structured data |
+| 2026-02-02 | JSONB for field configuration | Use JSONB columns for photo_config and comment_config | Flexible schema without migrations for future config additions |
+| 2026-02-02 | SimpleBase for config models | TemplateInfoField and TemplateSignatureField extend SimpleBase | Inherit tenant isolation via Template, no direct tenant_id |
+| 2026-02-02 | Ordered relationships | Use order_by in relationship definitions | SQLAlchemy returns collections in correct order automatically |
 
 ### Active TODOs
 
@@ -170,6 +173,7 @@
 - **2026-02-01:** Completed 04-04-PLAN.md - Frontend Template Management UI (TemplateList, ExcelUploader, TemplatePreviewModal, TemplatesPage)
 - **2026-02-01:** Completed 04-05-PLAN.md - Integration Verification (human approved)
 - **2026-02-01:** **Phase 4 Complete** - Full template management with Excel import (5 plans)
+- **2026-02-02:** Completed 05-01-PLAN.md - Template Configuration Models (TemplateInfoField, TemplateSignatureField, JSONB config columns)
 
 ---
 
@@ -186,11 +190,11 @@
 - Phase 2 complete (6/6 plans finished)
 - Phase 3 complete (5/5 plans finished, verified)
 - Phase 4 complete (5/5 plans finished, human verified)
-- Phase 5 pending - Template Configuration
+- Phase 5 in progress (1/6 plans complete - 05-01 done)
 - User action required: Complete 01-USER-SETUP.md before deploying
 
-**Last session:** 2026-02-01
-**Stopped at:** Completed Phase 4 - Template Management
+**Last session:** 2026-02-02
+**Stopped at:** Completed 05-01-PLAN.md - Template Configuration Models
 **Resume file:** None
 
 ---
