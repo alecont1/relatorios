@@ -27,7 +27,7 @@ export function useAutoSave<T>({
     error: null,
   })
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dataRef = useRef<T>(data)
   const isFirstRender = useRef(true)
   const isSaving = useRef(false)

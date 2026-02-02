@@ -1,7 +1,7 @@
 /**
  * Photo API client for uploading and managing photos.
  */
-import { apiClient } from '@/lib/apiClient'
+import api from '@/lib/axios'
 
 export interface GPSCoordinates {
   latitude: number
@@ -66,8 +66,8 @@ export const photoApi = {
       formData.append('address', data.address)
     }
 
-    const response = await apiClient.post<{ photo: PhotoMetadata }>(
-      `/reports/${reportId}/photos`,
+    const response = await api.post<{ photo: PhotoMetadata }>(
+      `/api/v1/reports/${reportId}/photos`,
       formData,
       {
         headers: {
@@ -83,15 +83,15 @@ export const photoApi = {
    * Delete a photo.
    */
   async delete(reportId: string, photoId: string): Promise<void> {
-    await apiClient.delete(`/reports/${reportId}/photos/${photoId}`)
+    await api.delete(`/api/v1/reports/${reportId}/photos/${photoId}`)
   },
 
   /**
    * List all photos for a report.
    */
   async list(reportId: string): Promise<PhotoListItem[]> {
-    const response = await apiClient.get<PhotoListItem[]>(
-      `/reports/${reportId}/photos`
+    const response = await api.get<PhotoListItem[]>(
+      `/api/v1/reports/${reportId}/photos`
     )
     return response.data
   },

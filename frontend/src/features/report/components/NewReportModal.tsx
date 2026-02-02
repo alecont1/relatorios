@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { X, FileText, AlertCircle } from 'lucide-react'
-import type { Template } from '@/features/template/api/templateApi'
+import type { TemplateListItem } from '@/features/template/api/templateApi'
 import type { CreateReportData } from '@/features/report/api/reportApi'
 
 interface NewReportModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: CreateReportData) => void
-  templates: Template[]
+  templates: TemplateListItem[]
   isSubmitting: boolean
   error?: string
 }

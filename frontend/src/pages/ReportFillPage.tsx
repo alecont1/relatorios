@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   MessageSquare,
-  Camera,
   Cloud,
   CloudOff,
   RefreshCw,
@@ -17,7 +16,6 @@ import {
 } from 'lucide-react'
 import {
   reportApi,
-  type ReportDetail,
   type UpdateReportData,
   type SnapshotSection,
   type SnapshotField,
@@ -170,7 +168,13 @@ export function ReportFillPage() {
         }
         // Initialize photos for this response
         if (r.photos && r.photos.length > 0) {
-          ph[String(r.id)] = r.photos as PhotoMetadata[]
+          ph[String(r.id)] = r.photos.map(p => ({
+            id: p.photo_id,
+            url: p.url,
+            captured_at: new Date().toISOString(),
+            watermarked: true,
+            ...(p.caption && { caption: p.caption }),
+          })) as PhotoMetadata[]
         }
       }
       setResponses(rs)
@@ -524,7 +528,7 @@ export function ReportFillPage() {
             isExpanded={expandedSections.has(section.id)}
             onToggle={() => toggleSection(section.id)}
             responses={responses}
-            onResponseChange={(fieldKey, value, comment) => {
+            onResponseChange={(fieldKey, value, _comment) => {
               setResponses((prev) => ({
                 ...prev,
                 [fieldKey]: { ...prev[fieldKey], value, comment: prev[fieldKey]?.comment || '' },
