@@ -115,6 +115,16 @@ Plans:
 
 **Dependencies:** Phase 4 (needs basic template management)
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 05-01-PLAN.md - Database models + migration (TemplateInfoField, TemplateSignatureField, JSONB columns)
+- [ ] 05-02-PLAN.md - Backend API for info fields CRUD
+- [ ] 05-03-PLAN.md - Backend API for signature fields CRUD + field config updates
+- [ ] 05-04-PLAN.md - Frontend template configuration UI (accordion, info fields configurator)
+- [ ] 05-05-PLAN.md - Frontend field configuration UI (photo/comment settings) + signature fields UI
+- [ ] 05-06-PLAN.md - Integration verification (human verify)
+
 **Success Criteria:**
 1. Admin can add configurable info fields (text, date, select types) to template for project metadata
 2. Admin can create ordered sections containing checklist fields
