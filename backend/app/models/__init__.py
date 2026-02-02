@@ -15,6 +15,8 @@ from app.models.user import User
 from app.models.template import Template
 from app.models.template_section import TemplateSection
 from app.models.template_field import TemplateField
+from app.models.template_info_field import TemplateInfoField
+from app.models.template_signature_field import TemplateSignatureField
 from app.models.project import Project
 from app.models.report import Report
 from app.models.report_photo import ReportPhoto
@@ -27,6 +29,8 @@ __all__ = [
     "Template",
     "TemplateSection",
     "TemplateField",
+    "TemplateInfoField",
+    "TemplateSignatureField",
     "Project",
     "Report",
     "ReportPhoto",
