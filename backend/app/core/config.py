@@ -15,11 +15,11 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def convert_database_url(cls, v: str) -> str:
-        """Convert postgres:// or postgresql:// to postgresql+asyncpg:// for async SQLAlchemy."""
+        """Convert postgres:// or postgresql:// to postgresql+psycopg:// for async SQLAlchemy with psycopg3."""
         if v.startswith("postgres://"):
-            return v.replace("postgres://", "postgresql+asyncpg://", 1)
-        if v.startswith("postgresql://") and "+asyncpg" not in v:
-            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            return v.replace("postgres://", "postgresql+psycopg://", 1)
+        if v.startswith("postgresql://") and "+" not in v:
+            return v.replace("postgresql://", "postgresql+psycopg://", 1)
         return v
 
     # CORS
