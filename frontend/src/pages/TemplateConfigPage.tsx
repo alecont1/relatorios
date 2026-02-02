@@ -1,17 +1,28 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Loader2 } from 'lucide-react'
-import { templateApi } from '@/features/template/api/templateApi'
-import { AccordionSection, InfoFieldsConfigurator } from '@/features/template/components'
+import { templateApi, type TemplateField } from '@/features/template/api/templateApi'
+import {
+  AccordionSection,
+  InfoFieldsConfigurator,
+  SignatureFieldsConfigurator,
+  ChecklistSectionsView,
+  FieldConfigModal,
+} from '@/features/template/components'
 
 export function TemplateConfigPage() {
   const { templateId } = useParams<{ templateId: string }>()
   const navigate = useNavigate()
 
+  const [selectedField, setSelectedField] = useState<TemplateField | null>(null)
+  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
+
   const {
     data: template,
     isLoading: isLoadingTemplate,
     error: templateError,
+    refetch: refetchTemplate,
   } = useQuery({
     queryKey: ['template', templateId],
     queryFn: () => templateApi.get(templateId!),
@@ -31,6 +42,7 @@ export function TemplateConfigPage() {
   const {
     data: signatureFieldsData,
     isLoading: isLoadingSignatureFields,
+    refetch: refetchSignatureFields,
   } = useQuery({
     queryKey: ['signatureFields', templateId],
     queryFn: () => templateApi.getSignatureFields(templateId!),
@@ -38,6 +50,20 @@ export function TemplateConfigPage() {
   })
 
   const isLoading = isLoadingTemplate || isLoadingInfoFields || isLoadingSignatureFields
+
+  const handleFieldClick = (field: TemplateField) => {
+    setSelectedField(field)
+    setIsFieldModalOpen(true)
+  }
+
+  const handleFieldModalClose = () => {
+    setIsFieldModalOpen(false)
+    setSelectedField(null)
+  }
+
+  const handleFieldSave = () => {
+    refetchTemplate()
+  }
 
   if (isLoading) {
     return (
@@ -60,6 +86,12 @@ export function TemplateConfigPage() {
       </div>
     )
   }
+
+  // Count total fields across all sections
+  const totalFields = template.sections?.reduce(
+    (acc, section) => acc + section.fields.length,
+    0
+  ) || 0
 
   return (
     <div className="space-y-6">
@@ -102,39 +134,15 @@ export function TemplateConfigPage() {
         {/* Checklist Sections */}
         <AccordionSection
           title="Secoes do Checklist"
-          badge={template.sections?.length || 0}
+          badge={`${template.sections?.length || 0} secoes, ${totalFields} campos`}
         >
           <p className="text-sm text-gray-500 mb-4">
-            Visualize as secoes e campos do checklist importados do Excel.
-            Use o Plano 05-05 para configurar fotos e comentarios por campo.
+            Clique em um campo para configurar requisitos de fotos e comentarios.
           </p>
-          {template.sections && template.sections.length > 0 ? (
-            <div className="space-y-3">
-              {template.sections.map((section, idx) => (
-                <div key={section.id || idx} className="rounded border border-gray-200 p-3">
-                  <h4 className="font-medium text-gray-900 mb-2">
-                    {idx + 1}. {section.name}
-                  </h4>
-                  <ul className="space-y-1 pl-4">
-                    {section.fields.map((field, fidx) => (
-                      <li
-                        key={field.id || fidx}
-                        className="text-sm text-gray-600 flex items-center gap-2"
-                      >
-                        <span className="w-5 text-gray-400">{fidx + 1}.</span>
-                        <span>{field.label}</span>
-                        <span className="text-xs text-gray-400">({field.field_type})</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-4 text-gray-500">
-              Nenhuma secao configurada
-            </p>
-          )}
+          <ChecklistSectionsView
+            sections={template.sections || []}
+            onFieldClick={handleFieldClick}
+          />
         </AccordionSection>
 
         {/* Signature Fields */}
@@ -144,35 +152,24 @@ export function TemplateConfigPage() {
         >
           <p className="text-sm text-gray-500 mb-4">
             Configure quem deve assinar o relatorio (ex: Tecnico Executor, Responsavel Tecnico).
-            A implementacao completa sera feita no Plano 05-05.
           </p>
-          {signatureFieldsData && signatureFieldsData.signature_fields.length > 0 ? (
-            <div className="space-y-2">
-              {signatureFieldsData.signature_fields.map((field) => (
-                <div
-                  key={field.id}
-                  className="flex items-center justify-between rounded border border-gray-200 px-3 py-2"
-                >
-                  <span className="font-medium text-gray-900">{field.role_name}</span>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      field.required
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {field.required ? 'Obrigatorio' : 'Opcional'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-4 text-gray-500">
-              Nenhum campo de assinatura configurado
-            </p>
-          )}
+          <SignatureFieldsConfigurator
+            templateId={templateId!}
+            initialFields={signatureFieldsData?.signature_fields || []}
+            onUpdate={() => refetchSignatureFields()}
+          />
         </AccordionSection>
       </div>
+
+      {/* Field Configuration Modal */}
+      {selectedField && (
+        <FieldConfigModal
+          field={selectedField}
+          isOpen={isFieldModalOpen}
+          onClose={handleFieldModalClose}
+          onSave={handleFieldSave}
+        />
+      )}
     </div>
   )
 }
