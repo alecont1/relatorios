@@ -19,10 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Create PostGIS extension and all initial tables."""
-
-    # Enable PostGIS extension
-    op.execute('CREATE EXTENSION IF NOT EXISTS postgis')
+    """Create all initial tables."""
 
     # Create tenants table (NO tenant_id - it IS a tenant)
     op.create_table(
@@ -136,7 +133,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Drop all tables and PostGIS extension."""
+    """Drop all tables."""
 
     # Drop tables in reverse order (respecting foreign keys)
     op.drop_index(op.f('ix_report_photos_report_id'), table_name='report_photos')
@@ -163,6 +160,3 @@ def downgrade() -> None:
 
     op.drop_index(op.f('ix_tenants_slug'), table_name='tenants')
     op.drop_table('tenants')
-
-    # Drop PostGIS extension
-    op.execute('DROP EXTENSION IF EXISTS postgis')
