@@ -1,68 +1,95 @@
+@import "tailwindcss";
+
+/* Custom CSS Variables for Tenant Branding */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Base styles */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  background-color: #f9fafb;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* iOS safe area support */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Touch optimizations */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Minimum touch target size */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent text selection on interactive elements */
+button, .no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar on mobile but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pull to refresh indicator */
+.pull-indicator {
+  @apply fixed top-0 left-0 right-0 flex items-center justify-center h-12 bg-blue-50 text-blue-600 text-sm transform -translate-y-full transition-transform;
+}
+.pull-indicator.visible {
+  @apply translate-y-0;
+}
+
+/* Loading skeleton animation */
+@keyframes skeleton {
+  0% {
+    background-position: -200px 0;
   }
-  a:hover {
-    color: #747bff;
+  100% {
+    background-position: calc(200px + 100%) 0;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: skeleton 1.5s ease-in-out infinite;
+}
+
+/* Form input focus states for mobile */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  ring: 2;
+  ring-color: var(--color-primary);
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
   }
 }

@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
   useAuthStore,
-  useLogout,
 } from '@/features/auth';
 import { useTheme } from '@/features/tenant';
+import { AppLayout } from '@/components/layout';
+import { OfflineIndicator } from '@/components/ui';
 
 /**
  * Auth initializer component.
@@ -36,126 +36,21 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * App layout with navigation.
- */
-function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthStore();
-  const logout = useLogout();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout.mutateAsync();
-    navigate('/login');
-  };
-
-  const canManageUsers = user?.role === 'admin' || user?.role === 'superadmin';
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex items-center gap-8">
-              <Link to="/" className="text-xl font-bold text-gray-900">
-                SmartHand
-              </Link>
-              <div className="flex gap-4">
-                <Link
-                  to="/"
-                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                >
-                  <Home className="h-4 w-4" />
-                  Dashboard
-                </Link>
-                {canManageUsers && (
-                  <Link
-                    to="/users"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <Users className="h-4 w-4" />
-                    Usuarios
-                  </Link>
-                )}
-                {canManageUsers && (
-                  <Link
-                    to="/templates"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Templates
-                  </Link>
-                )}
-                <Link
-                  to="/reports"
-                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                >
-                  <ClipboardList className="h-4 w-4" />
-                  Relatorios
-                </Link>
-                {user?.role === 'superadmin' && (
-                  <Link
-                    to="/tenants"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <Building2 className="h-4 w-4" />
-                    Tenants
-                  </Link>
-                )}
-                {(user?.role === 'admin' || user?.role === 'superadmin') && (
-                  <Link
-                    to="/settings"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Configuracoes
-                  </Link>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                {user?.full_name}
-              </span>
-              <button
-                onClick={handleLogout}
-                disabled={logout.isPending}
-                className="
-                  flex items-center gap-1 rounded-lg
-                  px-3 py-2 text-sm text-gray-600
-                  hover:bg-gray-100 hover:text-gray-900
-                "
-              >
-                <LogOut className="h-4 w-4" />
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Page content */}
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
-  );
-}
-
-/**
  * Dashboard page.
  */
 function DashboardPage() {
   const { user } = useAuthStore();
   return (
-    <div>
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <p className="mt-2 text-gray-600">
-        Bem-vindo, {user?.full_name}!
-      </p>
-      <p className="text-sm text-gray-500">
-        Cargo: {user?.role}
-      </p>
+      <div className="bg-white rounded-lg border p-6">
+        <p className="text-gray-600">
+          Bem-vindo, <span className="font-semibold">{user?.full_name}</span>!
+        </p>
+        <p className="text-sm text-gray-500 mt-1">
+          Cargo: {user?.role}
+        </p>
+      </div>
     </div>
   );
 }
@@ -166,6 +61,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <OfflineIndicator />
         <AuthInitializer>
           <Routes>
             {/* Public routes */}
