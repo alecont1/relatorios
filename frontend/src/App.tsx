@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-do
 import { QueryClientProvider } from '@tanstack/react-query';
 import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -239,6 +239,16 @@ function App() {
                 <ProtectedRoute>
                   <AppLayout>
                     <ReportsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports/:reportId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ReportFillPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
