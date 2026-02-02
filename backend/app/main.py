@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -71,3 +73,8 @@ app.include_router(template_info_fields_router, prefix="/api/v1")
 app.include_router(template_signature_fields_router, prefix="/api/v1")
 app.include_router(template_field_config_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
+
+# Mount static files for local photo storage (development)
+uploads_path = Path("uploads")
+uploads_path.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_path)), name="uploads")

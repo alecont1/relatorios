@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     r2_access_key_id: str = ""
     r2_secret_access_key: str = ""
     r2_bucket_name: str = "smarthand-photos"
+    r2_public_url: str = ""  # Public URL for R2 bucket (e.g., https://pub-xxx.r2.dev)
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
