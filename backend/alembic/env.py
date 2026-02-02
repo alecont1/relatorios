@@ -26,6 +26,8 @@ from app.models import (  # noqa: F401
     Template,
     TemplateSection,
     TemplateField,
+    TemplateInfoField,
+    TemplateSignatureField,
     Project,
     Report,
     ReportPhoto,
