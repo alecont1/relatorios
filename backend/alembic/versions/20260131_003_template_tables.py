@@ -22,7 +22,11 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Create template, template_sections, and template_fields tables."""
 
-    # Drop old templates table if exists (from initial schema)
+    # First, drop the FK constraint from reports table that references templates
+    op.drop_constraint('reports_template_id_fkey', 'reports', type_='foreignkey')
+    op.drop_index('ix_templates_tenant_id', table_name='templates')
+
+    # Drop old templates table (from initial schema)
     op.drop_table('templates')
 
     # Create new templates table with full schema
@@ -70,9 +74,22 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['section_id'], ['template_sections.id'], name='fk_template_fields_section_id', ondelete='CASCADE')
     )
 
+    # Re-create the FK constraint from reports to templates
+    op.create_foreign_key(
+        'reports_template_id_fkey',
+        'reports',
+        'templates',
+        ['template_id'],
+        ['id'],
+        ondelete='RESTRICT'
+    )
+
 
 def downgrade() -> None:
     """Drop template tables and recreate old templates stub."""
+
+    # First, drop the FK constraint from reports table
+    op.drop_constraint('reports_template_id_fkey', 'reports', type_='foreignkey')
 
     # Drop tables in reverse order (children first)
     op.drop_table('template_fields')
@@ -91,4 +108,15 @@ def downgrade() -> None:
         sa.Column('created_at', sa.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
         sa.Column('updated_at', sa.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
         sa.ForeignKeyConstraint(['tenant_id'], ['tenants.id'], name='fk_templates_tenant_id')
+    )
+    op.create_index('ix_templates_tenant_id', 'templates', ['tenant_id'])
+
+    # Re-create FK from reports to templates
+    op.create_foreign_key(
+        'reports_template_id_fkey',
+        'reports',
+        'templates',
+        ['template_id'],
+        ['id'],
+        ondelete='RESTRICT'
     )

@@ -1,7 +1,9 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
@@ -11,7 +13,7 @@ class Report(Base):
     Report model.
 
     Represents a single report filled by a technician.
-    Contains structured data based on a template.
+    Contains structured data based on a template snapshot.
     """
 
     __tablename__ = "reports"
@@ -21,10 +23,16 @@ class Report(Base):
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, default="draft", index=True
     )
-    data_json: Mapped[str] = mapped_column(Text, nullable=False)
     location: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="Geographic location as text (lat,lon) - Phase 1"
+        Text, nullable=True, comment="Geographic location as text (lat,lon)"
     )
+
+    # Template snapshot - frozen copy at report creation for historical consistency
+    template_snapshot: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
+    # Lifecycle timestamps
+    started_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Foreign keys
     template_id: Mapped[uuid.UUID] = mapped_column(
@@ -35,6 +43,20 @@ class Report(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+
+    # Relationships
+    info_values: Mapped[list["ReportInfoValue"]] = relationship(
+        "ReportInfoValue",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+    checklist_responses: Mapped[list["ReportChecklistResponse"]] = relationship(
+        "ReportChecklistResponse",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )
 
     def __repr__(self) -> str:

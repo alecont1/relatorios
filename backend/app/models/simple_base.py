@@ -1,38 +1,35 @@
-import uuid
-from datetime import datetime
+"""
+SimpleBase - Base class for models that don't need tenant_id.
 
-from sqlalchemy import func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+Models inheriting from SimpleBase:
+- TemplateSection (inherits tenant isolation via Template)
+- TemplateField (inherits tenant isolation via TemplateSection)
+- TemplateInfoField (inherits tenant isolation via Template)
+- TemplateSignatureField (inherits tenant isolation via Template)
+"""
+
+from app.models.base import Base
 
 
-class SimpleBase(DeclarativeBase):
+class SimpleBase(Base):
     """
     Simple base model for child tables that don't need tenant_id.
 
     Used for models that inherit tenant isolation through their parent
     (e.g., TemplateSection belongs to Template which has tenant_id).
 
-    Provides:
-    - id: Primary key (UUID)
-    - created_at: Timestamp of creation
-    - updated_at: Timestamp of last update
+    Inherits from Base but marks tenant_id as excluded by setting
+    __abstract__ = True and relying on Base's declared_attr logic
+    that checks class name.
     """
 
-    # Primary key
-    id: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True,
-        default=uuid.uuid4,
-        server_default=func.gen_random_uuid()
-    )
+    __abstract__ = True
 
-    # Timestamps
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        nullable=False
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False
-    )
+    # Override tenant_id to be None for SimpleBase subclasses
+    # The Base.tenant_id declared_attr will return None if __tablename__
+    # starts with 'template_' (child tables)
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Mark that this class should not have tenant_id
+        cls._exclude_tenant_id = True

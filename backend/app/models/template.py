@@ -32,26 +32,26 @@ class Template(Base):
     # Status
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    # Relationships
+    # Relationships - order_by deferred to query time since using forward refs
     sections: Mapped[list["TemplateSection"]] = relationship(
         "TemplateSection",
         back_populates="template",
         cascade="all, delete-orphan",
-        order_by="TemplateSection.order"
+        lazy="selectin"
     )
 
     info_fields: Mapped[list["TemplateInfoField"]] = relationship(
         "TemplateInfoField",
         back_populates="template",
         cascade="all, delete-orphan",
-        order_by="TemplateInfoField.order"
+        lazy="selectin"
     )
 
     signature_fields: Mapped[list["TemplateSignatureField"]] = relationship(
         "TemplateSignatureField",
         back_populates="template",
         cascade="all, delete-orphan",
-        order_by="TemplateSignatureField.order"
+        lazy="selectin"
     )
 
     # Constraints

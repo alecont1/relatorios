@@ -28,9 +28,12 @@ class Base(DeclarativeBase):
     # Multi-tenant support - conditionally added
     @declared_attr
     def tenant_id(cls) -> Mapped[uuid.UUID]:
-        """Add tenant_id to all tables except tenants."""
+        """Add tenant_id to all tables except tenants and SimpleBase children."""
         if cls.__name__ == "Tenant":
             # Tenant table doesn't have tenant_id
+            return None  # type: ignore
+        if getattr(cls, '_exclude_tenant_id', False):
+            # SimpleBase children don't have tenant_id
             return None  # type: ignore
         return mapped_column(
             index=True,
