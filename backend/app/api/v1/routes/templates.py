@@ -170,7 +170,7 @@ async def parse_excel_template(
     )
 
 
-@router.post("/", response_model=TemplateResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TemplateResponse, status_code=status.HTTP_201_CREATED)
 async def create_template(
     template_data: TemplateCreate,
     current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
@@ -237,7 +237,7 @@ async def create_template(
     return _template_to_response(template)
 
 
-@router.get("/", response_model=TemplateListResponse)
+@router.get("", response_model=TemplateListResponse)
 async def list_templates(
     current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],

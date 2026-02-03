@@ -83,12 +83,13 @@ async def login(
     refresh_token = create_refresh_token(token_data)
 
     # Set refresh token in httpOnly cookie
+    # samesite="none" required for cross-origin requests (Vercel frontend -> Railway backend)
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
         secure=True,  # HTTPS only in production
-        samesite="strict",
+        samesite="none",  # Required for cross-origin
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
         path="/api/v1/auth",  # Only sent to auth endpoints
     )
@@ -157,12 +158,13 @@ async def refresh_tokens(
     new_refresh_token = create_refresh_token(token_data)
 
     # Set new refresh token cookie
+    # samesite="none" required for cross-origin requests (Vercel frontend -> Railway backend)
     response.set_cookie(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
         secure=True,
-        samesite="strict",
+        samesite="none",  # Required for cross-origin
         max_age=7 * 24 * 60 * 60,
         path="/api/v1/auth",
     )
@@ -189,7 +191,7 @@ async def logout(
         path="/api/v1/auth",
         httponly=True,
         secure=True,
-        samesite="strict",
+        samesite="none",  # Required for cross-origin
     )
 
     return {"message": "Logout realizado com sucesso"}

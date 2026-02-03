@@ -31,7 +31,7 @@ from app.schemas.tenant import (
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
 
-@router.post("/", response_model=TenantResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TenantResponse, status_code=status.HTTP_201_CREATED)
 async def create_tenant(
     tenant_data: TenantCreate,
     current_user: Annotated[User, Depends(require_superadmin)],
@@ -64,7 +64,7 @@ async def create_tenant(
     return TenantResponse.model_validate(tenant)
 
 
-@router.get("/", response_model=TenantListResponse)
+@router.get("", response_model=TenantListResponse)
 async def list_tenants(
     current_user: Annotated[User, Depends(require_superadmin)],
     db: AsyncSession = Depends(get_db),
