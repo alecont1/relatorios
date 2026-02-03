@@ -10,7 +10,7 @@ export function useUsers(skip = 0, limit = 50) {
   return useQuery({
     queryKey: ['users', skip, limit],
     queryFn: async (): Promise<UsersListResponse> => {
-      const { data } = await api.get<UsersListResponse>('/api/v1/users', {
+      const { data } = await api.get<UsersListResponse>('/users', {
         params: { skip, limit },
       });
       return data;
@@ -26,7 +26,7 @@ export function useCreateUser() {
 
   return useMutation({
     mutationFn: async (userData: CreateUserRequest): Promise<User> => {
-      const { data } = await api.post<User>('/api/v1/users', userData);
+      const { data } = await api.post<User>('/users', userData);
       return data;
     },
     onSuccess: () => {
@@ -44,7 +44,7 @@ export function useDeleteUser() {
 
   return useMutation({
     mutationFn: async (userId: string): Promise<void> => {
-      await api.delete(`/api/v1/users/${userId}`);
+      await api.delete(`/users/${userId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -67,7 +67,7 @@ export function useUpdateUser() {
       data: Partial<CreateUserRequest>;
     }): Promise<User> => {
       const { data: user } = await api.patch<User>(
-        `/api/v1/users/${userId}`,
+        `/users/${userId}`,
         data
       );
       return user;

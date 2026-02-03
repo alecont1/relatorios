@@ -67,7 +67,7 @@ export const photoApi = {
     }
 
     const response = await api.post<{ photo: PhotoMetadata }>(
-      `/api/v1/reports/${reportId}/photos`,
+      `/reports/${reportId}/photos`,
       formData,
       {
         headers: {
@@ -83,7 +83,7 @@ export const photoApi = {
    * Delete a photo.
    */
   async delete(reportId: string, photoId: string): Promise<void> {
-    await api.delete(`/api/v1/reports/${reportId}/photos/${photoId}`)
+    await api.delete(`/reports/${reportId}/photos/${photoId}`)
   },
 
   /**
@@ -91,7 +91,7 @@ export const photoApi = {
    */
   async list(reportId: string): Promise<PhotoListItem[]> {
     const response = await api.get<PhotoListItem[]>(
-      `/api/v1/reports/${reportId}/photos`
+      `/reports/${reportId}/photos`
     )
     return response.data
   },

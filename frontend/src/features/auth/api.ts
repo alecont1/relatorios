@@ -19,7 +19,7 @@ export function useLogin() {
       formData.append('password', credentials.password);
 
       const { data } = await api.post<LoginResponse>(
-        '/api/v1/auth/login',
+        '/auth/login',
         formData,
         {
           headers: {
@@ -47,7 +47,7 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async (): Promise<void> => {
-      await api.post('/api/v1/auth/logout');
+      await api.post('/auth/logout');
     },
     onSuccess: () => {
       clearAuth();
@@ -72,7 +72,7 @@ export function useRefreshToken() {
 
   return useMutation({
     mutationFn: async (): Promise<LoginResponse> => {
-      const { data } = await api.post<LoginResponse>('/api/v1/auth/refresh');
+      const { data } = await api.post<LoginResponse>('/auth/refresh');
       return data;
     },
     onSuccess: (data) => {
