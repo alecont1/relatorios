@@ -35,7 +35,8 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="SmartHand API",
     version=settings.app_version,
-    lifespan=lifespan
+    lifespan=lifespan,
+    redirect_slashes=True  # Enable automatic redirect for trailing slashes
 )
 
 # Configure rate limiting
