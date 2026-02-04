@@ -218,7 +218,9 @@ export function ReportFillPage() {
   const completeMutation = useMutation({
     mutationFn: () => reportApi.complete(reportId!),
     onSuccess: () => {
+      // Invalidate both the list and the individual report
       queryClient.invalidateQueries({ queryKey: ['reports'] })
+      queryClient.invalidateQueries({ queryKey: ['report', reportId] })
       navigate('/reports')
     },
   })
