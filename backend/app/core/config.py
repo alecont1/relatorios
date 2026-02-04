@@ -24,8 +24,15 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: list[str] = Field(
-        default=["http://localhost:5173"],
+        default=[
+            "http://localhost:5173",
+            "http://localhost:3000",
+        ],
         description="Allowed CORS origins"
+    )
+    cors_origins_regex: str = Field(
+        default=r"https://.*\.vercel\.app",
+        description="Regex pattern for additional CORS origins"
     )
 
     # Cloudflare R2 Storage
