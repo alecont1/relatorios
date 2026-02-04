@@ -34,7 +34,7 @@ from app.schemas.user import (
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_data: UserCreate,
     current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
@@ -93,7 +93,7 @@ async def create_user(
     return UserResponse.model_validate(user)
 
 
-@router.get("/", response_model=UserListResponse)
+@router.get("", response_model=UserListResponse)
 async def list_users(
     current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
     db: AsyncSession = Depends(get_db),
