@@ -5,7 +5,7 @@ Revises: 007
 Create Date: 2026-02-04
 
 This migration:
-1. Deletes all existing users (clean slate for new role system)
+1. Deletes all existing data (clean slate for new role system)
 2. Makes tenant_id nullable (for superadmin users)
 3. Adds CHECK constraint to enforce role/tenant_id consistency
 
@@ -27,16 +27,30 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """
     Migration steps:
-    1. Delete all existing users (clean slate)
+    1. Delete all existing data (clean slate)
     2. Make tenant_id nullable
     3. Add constraint for role/tenant consistency
     """
 
-    # Step 1: Delete all existing users
-    # This is a clean slate approach - the new role system requires proper setup
-    # Reports reference users, so we need to handle that first
-    op.execute("UPDATE reports SET user_id = NULL WHERE user_id IS NOT NULL")
+    # Step 1: Delete all data in correct order (respecting foreign keys)
+    # Report-related tables first
+    op.execute("DELETE FROM report_signatures")
+    op.execute("DELETE FROM report_checklist_responses")
+    op.execute("DELETE FROM report_info_values")
+    op.execute("DELETE FROM report_photos")
+    op.execute("DELETE FROM reports")
+
+    # Then users
     op.execute("DELETE FROM users")
+
+    # Optionally clean projects, templates, tenants too for fresh start
+    # Uncomment if you want a completely fresh database:
+    # op.execute("DELETE FROM projects")
+    # op.execute("DELETE FROM template_signature_fields")
+    # op.execute("DELETE FROM template_info_fields")
+    # op.execute("DELETE FROM template_sections")
+    # op.execute("DELETE FROM templates")
+    # op.execute("DELETE FROM tenants")
 
     # Step 2: Make tenant_id nullable (for superadmin users)
     op.alter_column(
