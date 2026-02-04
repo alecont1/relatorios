@@ -1,76 +1,81 @@
 #!/usr/bin/env python3
 """
-Create a superadmin user in the system.
+Create the initial superadmin user for SmartHand.
 
 Usage:
+    # With environment variables:
+    SUPERADMIN_EMAIL=admin@smarthand.com.br \
+    SUPERADMIN_PASSWORD=SuaSenhaSegura123! \
+    SUPERADMIN_NAME="Alexandre Conti" \
     python scripts/create_superadmin.py
 
-This script will create a superadmin user with:
-- tenant_id = NULL (global access)
-- role = "superadmin"
-- is_active = True
-
-You will be prompted for email, full name, and password.
+    # Or run interactively (will prompt for values)
+    python scripts/create_superadmin.py
 """
 
 import asyncio
+import os
 import sys
 from getpass import getpass
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(__file__).rsplit("/", 2)[0])
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import select
-from app.core.database import async_engine, AsyncSessionLocal
+from app.core.database import AsyncSessionLocal
 from app.core.security import hash_password
 from app.models.user import User
 
 
 async def create_superadmin():
-    """Create a superadmin user interactively."""
-    print("\n=== Create Superadmin User ===\n")
+    """Create the initial superadmin user."""
+    print("\n=== SmartHand - Criar Superadmin ===\n")
 
-    # Get user input
-    email = input("Email: ").strip()
+    # Get values from environment or prompt
+    email = os.environ.get("SUPERADMIN_EMAIL")
+    password = os.environ.get("SUPERADMIN_PASSWORD")
+    full_name = os.environ.get("SUPERADMIN_NAME")
+
     if not email:
-        print("Error: Email is required")
-        return
-
-    full_name = input("Full name: ").strip()
+        email = input("Email: ").strip()
     if not full_name:
-        print("Error: Full name is required")
-        return
+        full_name = input("Nome completo: ").strip()
+    if not password:
+        password = getpass("Senha: ")
 
-    password = getpass("Password: ")
-    if len(password) < 8:
-        print("Error: Password must be at least 8 characters")
-        return
+    # Validate inputs
+    if not email or "@" not in email:
+        print("Erro: Email invalido")
+        return False
 
-    password_confirm = getpass("Confirm password: ")
-    if password != password_confirm:
-        print("Error: Passwords do not match")
-        return
+    if not full_name or len(full_name) < 2:
+        print("Erro: Nome deve ter pelo menos 2 caracteres")
+        return False
+
+    if not password or len(password) < 8:
+        print("Erro: Senha deve ter pelo menos 8 caracteres")
+        return False
 
     # Connect to database
     async with AsyncSessionLocal() as db:
         # Check if email already exists
         result = await db.execute(select(User).where(User.email == email))
-        existing_user = result.scalar_one_or_none()
+        if result.scalar_one_or_none():
+            print(f"Erro: Email '{email}' ja existe")
+            return False
 
-        if existing_user:
-            print(f"\nError: User with email '{email}' already exists")
-            return
-
-        # Check if there's already a superadmin
+        # Check if superadmin already exists
         result = await db.execute(select(User).where(User.role == "superadmin"))
-        existing_superadmin = result.scalar_one_or_none()
-
-        if existing_superadmin:
-            print(f"\nWarning: A superadmin already exists: {existing_superadmin.email}")
-            confirm = input("Create another superadmin? (yes/no): ").strip().lower()
-            if confirm != "yes":
-                print("Aborted")
-                return
+        existing = result.scalar_one_or_none()
+        if existing:
+            print(f"Aviso: Ja existe um superadmin: {existing.email}")
+            if os.environ.get("SUPERADMIN_EMAIL"):
+                # Non-interactive mode, skip
+                print("Abortando em modo nao-interativo")
+                return False
+            confirm = input("Criar outro? (sim/nao): ").strip().lower()
+            if confirm != "sim":
+                return False
 
         # Create superadmin
         superadmin = User(
@@ -78,7 +83,7 @@ async def create_superadmin():
             full_name=full_name,
             password_hash=hash_password(password),
             role="superadmin",
-            tenant_id=None,  # Superadmin has no tenant
+            tenant_id=None,
             is_active=True,
         )
 
@@ -86,14 +91,15 @@ async def create_superadmin():
         await db.commit()
         await db.refresh(superadmin)
 
-        print(f"\n=== Superadmin Created Successfully ===")
+        print(f"\n=== Superadmin Criado ===")
         print(f"ID: {superadmin.id}")
         print(f"Email: {superadmin.email}")
-        print(f"Full Name: {superadmin.full_name}")
-        print(f"Role: {superadmin.role}")
-        print(f"Tenant ID: {superadmin.tenant_id} (NULL - global access)")
-        print(f"\nYou can now log in at /api/v1/auth/login")
+        print(f"Nome: {superadmin.full_name}")
+        print(f"Role: superadmin (acesso global)")
+        print(f"\nAcesse: /api/v1/auth/login")
+        return True
 
 
 if __name__ == "__main__":
-    asyncio.run(create_superadmin())
+    success = asyncio.run(create_superadmin())
+    sys.exit(0 if success else 1)
