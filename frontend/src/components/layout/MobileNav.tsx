@@ -16,7 +16,7 @@ export function MobileNav() {
           <NavItem to="/templates" icon={FileText} label="Templates" />
         )}
         {canAccessSettings && (
-          <NavItem to="/settings" icon={Settings} label="Config" />
+          <NavItem to="/settings" icon={Settings} label="Empresa" />
         )}
         <NavItem to="/profile" icon={User} label="Perfil" />
       </div>

@@ -36,5 +36,8 @@ class Tenant(Base):
     contact_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     contact_website: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    # Watermark field (for report branding)
+    watermark_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
     def __repr__(self) -> str:
         return f"<Tenant(id={self.id}, slug={self.slug}, name={self.name})>"

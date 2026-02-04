@@ -30,6 +30,7 @@ export function TenantSettingsForm() {
       setValue('contact_phone', branding.contact_phone)
       setValue('contact_email', branding.contact_email)
       setValue('contact_website', branding.contact_website)
+      setValue('watermark_text', branding.watermark_text)
     }
   }, [branding, setValue])
 
@@ -81,6 +82,23 @@ export function TenantSettingsForm() {
             value={watch('brand_color_accent') ?? null}
             onChange={(color) => setValue('brand_color_accent', color)}
           />
+        </div>
+      </section>
+
+      {/* Watermark */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Marca d'Agua</h2>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Texto da Marca d'Agua</label>
+          <input
+            {...register('watermark_text')}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+            placeholder="Ex: CONFIDENCIAL - Nome da Empresa"
+            maxLength={255}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Este texto sera aplicado como marca d'agua nos relatorios e fotos gerados.
+          </p>
         </div>
       </section>
 

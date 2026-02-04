@@ -12,6 +12,7 @@ export interface Tenant {
   contact_phone: string | null
   contact_email: string | null
   contact_website: string | null
+  watermark_text: string | null
   created_at: string
   updated_at: string
 }
@@ -39,6 +40,7 @@ export interface UpdateBrandingRequest {
   contact_phone?: string | null
   contact_email?: string | null
   contact_website?: string | null
+  watermark_text?: string | null
 }
 
 export interface LogoUploadUrlRequest {

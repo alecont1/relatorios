@@ -46,6 +46,9 @@ class TenantBrandingUpdate(BaseModel):
     contact_email: Optional[str] = Field(None, max_length=255, description="Contact email address")
     contact_website: Optional[str] = Field(None, max_length=255, description="Website URL")
 
+    # Watermark field
+    watermark_text: Optional[str] = Field(None, max_length=255, description="Watermark text for reports")
+
     @field_validator("brand_color_primary", "brand_color_secondary", "brand_color_accent")
     @classmethod
     def validate_hex_color(cls, v: Optional[str]) -> Optional[str]:
@@ -78,6 +81,9 @@ class TenantResponse(TenantBase):
     contact_phone: Optional[str] = None
     contact_email: Optional[str] = None
     contact_website: Optional[str] = None
+
+    # Watermark field
+    watermark_text: Optional[str] = None
 
     class Config:
         from_attributes = True
