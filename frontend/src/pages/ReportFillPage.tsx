@@ -35,6 +35,10 @@ import {
   type SignatureData,
   type SignatureField,
 } from '@/features/signature'
+import {
+  CertificateSelectionModal,
+  type Certificate,
+} from '@/features/report/components/CertificateSelectionModal'
 
 export function ReportFillPage() {
   const { reportId } = useParams<{ reportId: string }>()
@@ -59,6 +63,10 @@ export function ReportFillPage() {
 
   // Signature state
   const [signatures, setSignatures] = useState<SignatureData[]>([])
+
+  // Certificate selection modal state
+  const [showCertificateModal, setShowCertificateModal] = useState(false)
+  const [selectedCertificates, setSelectedCertificates] = useState<Certificate[]>([])
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
@@ -219,10 +227,19 @@ export function ReportFillPage() {
     await autoSave.saveNow()
   }
 
-  // Complete handler
-  const handleComplete = async () => {
-    // Save first, then complete
+  // Open certificate modal before completing
+  const handleOpenCompleteModal = async () => {
+    // Save first
     await autoSave.saveNow()
+    // Show certificate selection modal
+    setShowCertificateModal(true)
+  }
+
+  // Complete handler (called after certificate selection)
+  const handleComplete = async (certificates: Certificate[]) => {
+    setSelectedCertificates(certificates)
+    setShowCertificateModal(false)
+    // Complete the report
     await completeMutation.mutateAsync()
   }
 
@@ -451,7 +468,7 @@ export function ReportFillPage() {
               {autoSave.isSaving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
-              onClick={handleComplete}
+              onClick={handleOpenCompleteModal}
               disabled={completeMutation.isPending || autoSave.isSaving}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
@@ -604,6 +621,14 @@ export function ReportFillPage() {
         onClose={() => setCameraOpen(false)}
         onCapture={handlePhotoCapture}
         requireGPS={false}
+      />
+
+      {/* Certificate Selection Modal */}
+      <CertificateSelectionModal
+        isOpen={showCertificateModal}
+        onClose={() => setShowCertificateModal(false)}
+        onConfirm={handleComplete}
+        isLoading={completeMutation.isPending}
       />
     </div>
   )
