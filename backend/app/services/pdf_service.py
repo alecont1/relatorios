@@ -122,11 +122,11 @@ class PDFService:
         # Build context
         tenant_info = {
             "name": tenant.name,
-            "logo_primary_url": tenant.logo_primary_url,
-            "logo_secondary_url": tenant.logo_secondary_url,
-            "primary_color": tenant.primary_color or "#2563eb",
-            "phone": tenant.phone,
-            "email": tenant.email,
+            "logo_primary_url": tenant.logo_primary_key,
+            "logo_secondary_url": tenant.logo_secondary_key,
+            "primary_color": tenant.brand_color_primary or "#2563eb",
+            "phone": tenant.contact_phone,
+            "email": tenant.contact_email,
         }
 
         template_info = {
