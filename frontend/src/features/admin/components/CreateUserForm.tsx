@@ -25,7 +25,7 @@ export function CreateUserForm({ onSuccess, onCancel }: CreateUserFormProps) {
       email: '',
       full_name: '',
       password: '',
-      role: 'user',
+      role: 'technician',
     },
   });
 
@@ -126,9 +126,10 @@ export function CreateUserForm({ onSuccess, onCancel }: CreateUserFormProps) {
             ${errors.role ? 'border-red-500' : ''}
           `}
         >
-          <option value="user">Tecnico</option>
-          <option value="manager">Gerente</option>
-          <option value="admin">Administrador</option>
+          <option value="viewer">Visualizador</option>
+          <option value="technician">Tecnico</option>
+          <option value="project_manager">Gerente de Projeto</option>
+          <option value="tenant_admin">Administrador</option>
         </select>
         {errors.role && (
           <p className="mt-1 text-sm text-red-600">

@@ -39,7 +39,7 @@ export const createUserSchema = z.object({
     .min(2, 'Nome deve ter no minimo 2 caracteres')
     .max(255, 'Nome muito longo'),
   password: strongPasswordSchema,
-  role: z.enum(['user', 'manager', 'admin'], {
+  role: z.enum(['viewer', 'technician', 'project_manager', 'tenant_admin'], {
     errorMap: () => ({ message: 'Selecione um cargo valido' }),
   }),
 });

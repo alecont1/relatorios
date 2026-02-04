@@ -103,7 +103,7 @@ async def create_report(
     data: ReportCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """
     Create a new report from a template.
@@ -112,6 +112,13 @@ async def create_report(
     - Creates empty info values and checklist responses based on template structure
     - Sets status to 'draft'
     """
+    # Require tenant_id for report creation
+    if tenant_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Superadmin deve especificar tenant_id na query (?tenant_id=...)",
+        )
+
     # Verify template exists and belongs to tenant
     result = await db.execute(
         select(Template)
@@ -204,7 +211,7 @@ async def create_report(
 async def list_reports(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
     status_filter: str | None = Query(None, alias="status"),
     template_id: UUID | None = Query(None),
     skip: int = Query(0, ge=0),
@@ -222,7 +229,10 @@ async def list_reports(
     - limit: Maximum number of records to return
     """
     # Build query conditions
-    conditions = [Report.tenant_id == tenant_id]
+    # If tenant_id is None (superadmin without filter), show all reports
+    conditions = []
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
 
     if status_filter:
         conditions.append(Report.status == status_filter)
@@ -257,21 +267,21 @@ async def get_report(
     report_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """Get a report with all its info values and checklist responses."""
+    # Build conditions - superadmin can access any report
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
     result = await db.execute(
         select(Report)
         .options(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
         )
-        .where(
-            and_(
-                Report.id == report_id,
-                Report.tenant_id == tenant_id,
-            )
-        )
+        .where(and_(*conditions))
     )
     report = result.scalar_one_or_none()
 
@@ -290,7 +300,7 @@ async def update_report(
     data: ReportUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """
     Update a report (save draft).
@@ -300,18 +310,18 @@ async def update_report(
     - Updates checklist responses
     - Sets started_at if transitioning from draft
     """
+    # Build conditions - superadmin can update any report
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
     result = await db.execute(
         select(Report)
         .options(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
         )
-        .where(
-            and_(
-                Report.id == report_id,
-                Report.tenant_id == tenant_id,
-            )
-        )
+        .where(and_(*conditions))
     )
     report = result.scalar_one_or_none()
 
@@ -411,7 +421,7 @@ async def complete_report(
     report_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """
     Mark a report as completed.
@@ -420,18 +430,18 @@ async def complete_report(
     - Sets completed_at timestamp
     - Changes status to 'completed'
     """
+    # Build conditions - superadmin can complete any report
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
     result = await db.execute(
         select(Report)
         .options(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
         )
-        .where(
-            and_(
-                Report.id == report_id,
-                Report.tenant_id == tenant_id,
-            )
-        )
+        .where(and_(*conditions))
     )
     report = result.scalar_one_or_none()
 
@@ -473,21 +483,21 @@ async def archive_report(
     report_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """Archive a completed report."""
+    # Build conditions - superadmin can archive any report
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
     result = await db.execute(
         select(Report)
         .options(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
         )
-        .where(
-            and_(
-                Report.id == report_id,
-                Report.tenant_id == tenant_id,
-            )
-        )
+        .where(and_(*conditions))
     )
     report = result.scalar_one_or_none()
 
@@ -595,7 +605,7 @@ async def download_report_pdf(
     report_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_filter),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
 ):
     """
     Generate and download PDF for a report.
@@ -606,6 +616,11 @@ async def download_report_pdf(
     from app.models.tenant import Tenant
     from app.services.pdf_service import pdf_service
 
+    # Build conditions - superadmin can access any report
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
     # Load report with relationships
     result = await db.execute(
         select(Report)
@@ -614,12 +629,7 @@ async def download_report_pdf(
             selectinload(Report.checklist_responses),
             selectinload(Report.signatures),
         )
-        .where(
-            and_(
-                Report.id == report_id,
-                Report.tenant_id == tenant_id,
-            )
-        )
+        .where(and_(*conditions))
     )
     report = result.scalar_one_or_none()
 
@@ -629,9 +639,9 @@ async def download_report_pdf(
             detail="Relatorio nao encontrado",
         )
 
-    # Load tenant for branding
+    # Load tenant for branding - use report's tenant_id for proper branding
     tenant_result = await db.execute(
-        select(Tenant).where(Tenant.id == tenant_id)
+        select(Tenant).where(Tenant.id == report.tenant_id)
     )
     tenant = tenant_result.scalar_one_or_none()
 

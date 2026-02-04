@@ -31,12 +31,14 @@ async def get_report_with_access(
     user: User,
 ) -> Report:
     """Get report and verify user has access."""
-    result = await db.execute(
-        select(Report)
-        .where(Report.id == report_id)
-        .where(Report.tenant_id == user.tenant_id)
-        .options(selectinload(Report.signatures))
-    )
+    query = select(Report).where(Report.id == report_id).options(selectinload(Report.signatures))
+
+    # Superadmin (tenant_id=NULL) can access all reports
+    # Regular users can only access reports from their tenant
+    if user.tenant_id is not None:
+        query = query.where(Report.tenant_id == user.tenant_id)
+
+    result = await db.execute(query)
     report = result.scalar_one_or_none()
 
     if not report:
@@ -101,10 +103,10 @@ async def upload_signature(
             detail=f"Signature for role '{role_name}' already exists. Delete it first to replace."
         )
 
-    # Upload to storage
+    # Upload to storage - use report's tenant_id for proper isolation
     storage = get_storage_service()
     try:
-        file_key = f"{current_user.tenant_id}/signatures/{report_id}/{uuid.uuid4()}.png"
+        file_key = f"{report.tenant_id}/signatures/{report_id}/{uuid.uuid4()}.png"
         content = await file.read()
 
         if hasattr(storage, 'upload_bytes'):
@@ -115,7 +117,7 @@ async def upload_signature(
             file.file = io.BytesIO(content)
             url, file_key = storage.upload_photo(
                 file=file.file,
-                tenant_id=str(current_user.tenant_id),
+                tenant_id=str(report.tenant_id),
                 report_id=str(report_id),
                 response_id="signatures",
                 original_filename=f"{role_name}.png",
@@ -127,11 +129,11 @@ async def upload_signature(
             detail=str(e)
         )
 
-    # Create signature record
+    # Create signature record - use report's tenant_id for proper isolation
     signed_at = datetime.utcnow()
     signature = ReportSignature(
         id=uuid.uuid4(),
-        tenant_id=current_user.tenant_id,
+        tenant_id=report.tenant_id,
         report_id=report_id,
         role_name=role_name,
         signer_name=signer_name,

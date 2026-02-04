@@ -35,12 +35,14 @@ async def get_report_with_access(
     user: User,
 ) -> Report:
     """Get report and verify user has access."""
-    result = await db.execute(
-        select(Report)
-        .where(Report.id == report_id)
-        .where(Report.tenant_id == user.tenant_id)
-        .options(selectinload(Report.checklist_responses))
-    )
+    query = select(Report).where(Report.id == report_id).options(selectinload(Report.checklist_responses))
+
+    # Superadmin (tenant_id=NULL) can access all reports
+    # Regular users can only access reports from their tenant
+    if user.tenant_id is not None:
+        query = query.where(Report.tenant_id == user.tenant_id)
+
+    result = await db.execute(query)
     report = result.scalar_one_or_none()
 
     if not report:
@@ -108,12 +110,12 @@ async def upload_photo(
             detail=f"Maximum {max_photos} photos allowed for this field"
         )
 
-    # Upload to storage
+    # Upload to storage - use report's tenant_id for proper isolation
     storage = get_storage_service()
     try:
         url, storage_path = storage.upload_photo(
             file=file.file,
-            tenant_id=str(current_user.tenant_id),
+            tenant_id=str(report.tenant_id),
             report_id=str(report_id),
             response_id=response_id,
             original_filename=file.filename or "photo.jpg",
