@@ -22,18 +22,22 @@ class Settings(BaseSettings):
             return v.replace("postgresql://", "postgresql+psycopg://", 1)
         return v
 
-    # CORS
-    cors_origins: list[str] = Field(
-        default=[
-            "http://localhost:5173",
-            "http://localhost:3000",
-        ],
-        description="Allowed CORS origins"
+    # CORS - accepts comma-separated string or JSON list
+    cors_origins_str: str = Field(
+        default="http://localhost:5173,http://localhost:3000",
+        description="Comma-separated allowed CORS origins"
     )
     cors_origins_regex: str = Field(
         default=r"https://.*\.vercel\.app",
         description="Regex pattern for additional CORS origins"
     )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        """Parse CORS origins from comma-separated string."""
+        if not self.cors_origins_str:
+            return []
+        return [origin.strip() for origin in self.cors_origins_str.split(",") if origin.strip()]
 
     # Cloudflare R2 Storage
     r2_endpoint_url: str = ""
