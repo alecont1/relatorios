@@ -3,10 +3,10 @@ import uuid
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import TenantBase
 
 
-class Project(Base):
+class Project(TenantBase):
     """
     Project model.
 

@@ -1,14 +1,20 @@
 """
 SQLAlchemy models for SmartHand application.
 
-All models inherit from Base and include:
-- id: UUID primary key
-- tenant_id: Multi-tenant support (except Tenant model itself)
-- created_at: Timestamp of creation
-- updated_at: Timestamp of last update
+Base classes:
+- Base: Common columns (id, created_at, updated_at) - NO tenant_id
+- TenantBase: Extends Base with tenant_id for multi-tenant models
+- SimpleBase: Alias for Base, used by child models
+
+Models with tenant_id (extend TenantBase):
+- Tenant (special case - no tenant_id, it IS the tenant)
+- User, Template, Project, Report
+
+Models without tenant_id (extend Base/SimpleBase):
+- TemplateSection, TemplateField, etc. (inherit isolation via parent)
 """
 
-from app.models.base import Base
+from app.models.base import Base, TenantBase
 from app.models.simple_base import SimpleBase
 from app.models.tenant import Tenant
 from app.models.user import User
@@ -28,6 +34,7 @@ from app.models.report_photo import ReportPhoto
 
 __all__ = [
     "Base",
+    "TenantBase",
     "SimpleBase",
     "Tenant",
     "User",

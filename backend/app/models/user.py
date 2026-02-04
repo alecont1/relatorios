@@ -3,10 +3,10 @@ import uuid
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
+from app.models.base import TenantBase
 
 
-class User(Base):
+class User(TenantBase):
     """
     User model.
 

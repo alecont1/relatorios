@@ -3,10 +3,10 @@ import uuid
 from sqlalchemy import Boolean, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
+from app.models.base import TenantBase
 
 
-class Template(Base):
+class Template(TenantBase):
     """
     Template model for report generation.
 

@@ -1,11 +1,15 @@
 """
-SimpleBase - Base class for models that don't need tenant_id.
+SimpleBase - Alias for Base (no tenant_id).
 
-Models inheriting from SimpleBase:
+Models inheriting from SimpleBase (or Base directly):
 - TemplateSection (inherits tenant isolation via Template)
 - TemplateField (inherits tenant isolation via TemplateSection)
 - TemplateInfoField (inherits tenant isolation via Template)
 - TemplateSignatureField (inherits tenant isolation via Template)
+- ReportChecklistResponse (inherits tenant isolation via Report)
+- ReportInfoValue (inherits tenant isolation via Report)
+- ReportPhoto (inherits tenant isolation via Report)
+- ReportSignature (inherits tenant isolation via Report)
 """
 
 from app.models.base import Base
@@ -18,18 +22,7 @@ class SimpleBase(Base):
     Used for models that inherit tenant isolation through their parent
     (e.g., TemplateSection belongs to Template which has tenant_id).
 
-    Inherits from Base but marks tenant_id as excluded by setting
-    __abstract__ = True and relying on Base's declared_attr logic
-    that checks class name.
+    This is just an alias for Base to make the intent clear.
     """
 
     __abstract__ = True
-
-    # Override tenant_id to be None for SimpleBase subclasses
-    # The Base.tenant_id declared_attr will return None if __tablename__
-    # starts with 'template_' (child tables)
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        # Mark that this class should not have tenant_id
-        cls._exclude_tenant_id = True
