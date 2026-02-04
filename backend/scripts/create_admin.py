@@ -49,27 +49,49 @@ async def create_admin():
         else:
             print(f"Tenant already exists: {tenant.name}")
 
-        # Check if admin user exists
+        # Check if superadmin user exists (global admin without tenant)
         result = await db.execute(
-            select(User).where(User.email == "admin@smarthand.com")
+            select(User).where(User.email == "admin@smarthand.com.br")
         )
-        user = result.scalar_one_or_none()
+        superadmin = result.scalar_one_or_none()
 
-        if not user:
-            print("Creating admin user...")
-            user = User(
-                tenant_id=tenant.id,
-                email="admin@smarthand.com",
+        if not superadmin:
+            print("Creating superadmin user...")
+            superadmin = User(
+                tenant_id=None,  # Superadmin has NO tenant
+                email="admin@smarthand.com.br",
                 password_hash=hash_password("admin123"),
-                full_name="Administrador",
+                full_name="Administrador SmartHand",
                 role="superadmin",
                 is_active=True,
             )
-            db.add(user)
+            db.add(superadmin)
             await db.commit()
-            print(f"  User created: {user.email}")
+            print(f"  Superadmin created: {superadmin.email}")
         else:
-            print(f"User already exists: {user.email}")
+            print(f"Superadmin already exists: {superadmin.email}")
+
+        # Check if demo tenant admin exists
+        result = await db.execute(
+            select(User).where(User.email == "admin@demo.com")
+        )
+        tenant_admin = result.scalar_one_or_none()
+
+        if not tenant_admin:
+            print("Creating tenant admin user...")
+            tenant_admin = User(
+                tenant_id=tenant.id,  # Tenant admin MUST have tenant
+                email="admin@demo.com",
+                password_hash=hash_password("admin123"),
+                full_name="Administrador Demo",
+                role="tenant_admin",
+                is_active=True,
+            )
+            db.add(tenant_admin)
+            await db.commit()
+            print(f"  Tenant admin created: {tenant_admin.email}")
+        else:
+            print(f"Tenant admin already exists: {tenant_admin.email}")
 
         # Check if default project exists (using the placeholder UUID from frontend)
         default_project_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
@@ -96,8 +118,8 @@ async def create_admin():
 
         print("\n" + "="*50)
         print("Login credentials:")
-        print("  Email: admin@smarthand.com")
-        print("  Password: admin123")
+        print("  Superadmin: admin@smarthand.com.br / admin123")
+        print("  Tenant Admin (Demo): admin@demo.com / admin123")
         print("="*50)
 
 
