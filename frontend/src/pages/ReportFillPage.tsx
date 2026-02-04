@@ -39,11 +39,17 @@ import {
   CertificateSelectionModal,
   type Certificate,
 } from '@/features/report/components/CertificateSelectionModal'
+import { useTenantStore, getLogoUrl } from '@/features/tenant'
 
 export function ReportFillPage() {
   const { reportId } = useParams<{ reportId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  // Get tenant branding for watermark
+  const { branding } = useTenantStore()
+  const tenantLogo = getLogoUrl(branding?.logo_primary_key)
+  const watermarkText = branding?.watermark_text || undefined
 
   // Form state
   const [infoValues, setInfoValues] = useState<Record<string, string>>({})
@@ -631,6 +637,9 @@ export function ReportFillPage() {
         isOpen={cameraOpen}
         onClose={() => setCameraOpen(false)}
         onCapture={handlePhotoCapture}
+        tenantLogo={tenantLogo}
+        projectName={report?.title}
+        watermarkText={watermarkText}
         requireGPS={false}
       />
 

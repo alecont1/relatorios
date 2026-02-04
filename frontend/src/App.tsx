@@ -8,7 +8,7 @@ import {
   useRefreshToken,
   useAuthStore,
 } from '@/features/auth';
-import { useTheme } from '@/features/tenant';
+import { useTheme, useBrandingLoader } from '@/features/tenant';
 import { AppLayout } from '@/components/layout';
 import { OfflineIndicator } from '@/components/ui';
 
@@ -57,6 +57,7 @@ function DashboardPage() {
 
 function App() {
   useTheme();  // Apply tenant branding via CSS variables
+  useBrandingLoader();  // Load tenant branding data
 
   return (
     <QueryClientProvider client={queryClient}>

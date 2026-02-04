@@ -12,6 +12,8 @@ interface WatermarkOptions {
   timestamp: Date
   address?: string
   tenantLogo?: string
+  projectName?: string
+  watermarkText?: string
 }
 
 /**
@@ -78,7 +80,7 @@ export async function addWatermark(
   blob: Blob,
   options: WatermarkOptions
 ): Promise<Blob> {
-  const { timestamp, address, tenantLogo } = options
+  const { timestamp, address, tenantLogo, projectName, watermarkText } = options
 
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -96,14 +98,18 @@ export async function addWatermark(
       // Draw original image
       ctx.drawImage(img, 0, 0)
 
-      // Calculate watermark area height (10% of image height, min 60px)
-      const watermarkHeight = Math.max(img.height * 0.1, 60)
-      const padding = watermarkHeight * 0.15
-      const fontSize = Math.max(watermarkHeight * 0.3, 14)
+      // Calculate watermark area height (12% of image height, min 80px for more info)
+      const watermarkHeight = Math.max(img.height * 0.12, 80)
+      const padding = watermarkHeight * 0.12
+      const fontSize = Math.max(watermarkHeight * 0.22, 12)
+      const lineHeight = fontSize * 1.4
 
       // Draw semi-transparent bottom strip
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
       ctx.fillRect(0, img.height - watermarkHeight, img.width, watermarkHeight)
+
+      // Track logo width for text positioning
+      let logoEndX = padding
 
       // Draw tenant logo if provided
       if (tenantLogo) {
@@ -111,7 +117,17 @@ export async function addWatermark(
           const logo = await loadImage(tenantLogo)
           const logoHeight = watermarkHeight - padding * 2
           const logoWidth = (logo.width / logo.height) * logoHeight
-          ctx.drawImage(logo, padding, img.height - watermarkHeight + padding, logoWidth, logoHeight)
+          const maxLogoWidth = img.width * 0.2 // Max 20% of image width
+          const finalLogoWidth = Math.min(logoWidth, maxLogoWidth)
+          const finalLogoHeight = (finalLogoWidth / logoWidth) * logoHeight
+          ctx.drawImage(
+            logo,
+            padding,
+            img.height - watermarkHeight + (watermarkHeight - finalLogoHeight) / 2,
+            finalLogoWidth,
+            finalLogoHeight
+          )
+          logoEndX = padding + finalLogoWidth + padding
         } catch {
           // Ignore logo loading errors
         }
@@ -121,23 +137,52 @@ export async function addWatermark(
       ctx.fillStyle = '#ffffff'
       ctx.textBaseline = 'top'
 
-      const textY = img.height - watermarkHeight + padding
-      const lineHeight = fontSize + padding * 0.3
+      const textStartY = img.height - watermarkHeight + padding
 
-      // Draw date/time (first line - more prominent)
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`
+      // RIGHT SIDE: Date/time and address
       ctx.textAlign = 'right'
+      const rightX = img.width - padding
+
+      // Draw date/time (first line - bold)
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`
       const dateStr = formatDateTime(timestamp)
-      ctx.fillText(`📅 ${dateStr}`, img.width - padding, textY)
+      ctx.fillText(dateStr, rightX, textStartY)
 
       // Draw address if provided (second line)
       if (address) {
-        ctx.font = `${fontSize * 0.85}px Arial, sans-serif`
-        ctx.textAlign = 'right'
+        ctx.font = `${fontSize * 0.9}px Arial, sans-serif`
         ctx.fillText(
-          `📍 ${truncateText(address, 45)}`,
-          img.width - padding,
-          textY + lineHeight
+          truncateText(address, 50),
+          rightX,
+          textStartY + lineHeight
+        )
+      }
+
+      // LEFT SIDE: Project name and watermark text (after logo)
+      ctx.textAlign = 'left'
+      const leftX = logoEndX
+
+      // Calculate max width for left text (don't overlap with right side)
+      const maxLeftWidth = img.width * 0.5 - logoEndX
+
+      // Draw project name if provided
+      if (projectName) {
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`
+        ctx.fillText(
+          truncateText(`📋 ${projectName}`, Math.floor(maxLeftWidth / (fontSize * 0.5))),
+          leftX,
+          textStartY
+        )
+      }
+
+      // Draw watermark text if provided (second line on left or third line)
+      if (watermarkText) {
+        ctx.font = `${fontSize * 0.9}px Arial, sans-serif`
+        ctx.fillStyle = '#ffcc00' // Yellow for visibility
+        ctx.fillText(
+          truncateText(watermarkText, Math.floor(maxLeftWidth / (fontSize * 0.5))),
+          leftX,
+          textStartY + lineHeight
         )
       }
 

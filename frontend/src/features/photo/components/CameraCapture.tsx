@@ -17,6 +17,8 @@ interface CameraCaptureProps {
   onClose: () => void
   onCapture: (blob: Blob, metadata: CaptureMetadata) => void
   tenantLogo?: string
+  projectName?: string
+  watermarkText?: string
   requireGPS?: boolean
 }
 
@@ -31,6 +33,8 @@ export function CameraCapture({
   onClose,
   onCapture,
   tenantLogo,
+  projectName,
+  watermarkText,
   requireGPS = false,
 }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -81,6 +85,8 @@ export function CameraCapture({
         timestamp: new Date(),
         address: address || undefined,
         tenantLogo,
+        projectName,
+        watermarkText,
       })
 
       onCapture(processed, {
@@ -97,7 +103,7 @@ export function CameraCapture({
     } finally {
       setIsProcessing(false)
     }
-  }, [capturedImage, address, tenantLogo, geolocation.coordinates, onCapture, onClose])
+  }, [capturedImage, address, tenantLogo, projectName, watermarkText, geolocation.coordinates, onCapture, onClose])
 
   const handleRetake = useCallback(() => {
     setCapturedImage(null)

@@ -57,3 +57,13 @@ export interface LogoConfirmRequest {
   logo_type: 'primary' | 'secondary'
   object_key: string
 }
+
+/**
+ * Build the public URL for a logo from its R2 object key.
+ */
+export function getLogoUrl(logoKey: string | null | undefined): string | undefined {
+  if (!logoKey) return undefined
+  const r2PublicUrl = import.meta.env.VITE_R2_PUBLIC_URL
+  if (!r2PublicUrl) return undefined
+  return `${r2PublicUrl}/${logoKey}`
+}
