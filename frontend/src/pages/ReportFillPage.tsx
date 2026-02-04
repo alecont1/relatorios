@@ -66,7 +66,7 @@ export function ReportFillPage() {
 
   // Certificate selection modal state
   const [showCertificateModal, setShowCertificateModal] = useState(false)
-  const [selectedCertificates, setSelectedCertificates] = useState<Certificate[]>([])
+  const [_selectedCertificates, setSelectedCertificates] = useState<Certificate[]>([])
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
