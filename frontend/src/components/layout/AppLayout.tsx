@@ -32,8 +32,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isSuperadmin = user?.role === 'superadmin'
   const isTenantAdmin = user?.role === 'tenant_admin'
   const isProjectManager = user?.role === 'project_manager'
-  const isTechnician = user?.role === 'technician'
-  const isViewer = user?.role === 'viewer'
 
   // Combined checks for common permissions
   const canManageUsers = isSuperadmin || isTenantAdmin

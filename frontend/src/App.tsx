@@ -83,7 +83,7 @@ function App() {
             <Route
               path="/users"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
                   <AppLayout>
                     <UsersPage />
                   </AppLayout>
@@ -103,7 +103,7 @@ function App() {
             <Route
               path="/settings"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
                   <AppLayout>
                     <TenantSettingsPage />
                   </AppLayout>
@@ -113,7 +113,7 @@ function App() {
             <Route
               path="/templates"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
                   <AppLayout>
                     <TemplatesPage />
                   </AppLayout>
@@ -123,7 +123,7 @@ function App() {
             <Route
               path="/templates/:templateId/configure"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+                <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
                   <AppLayout>
                     <TemplateConfigPage />
                   </AppLayout>
