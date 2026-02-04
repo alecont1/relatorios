@@ -27,6 +27,7 @@ from app.models import (
     ReportChecklistResponse,
     ReportSignature,
     Template,
+    TemplateSection,
     User,
 )
 from app.schemas.report import (
@@ -116,7 +117,7 @@ async def create_report(
         select(Template)
         .options(
             selectinload(Template.info_fields),
-            selectinload(Template.sections).selectinload("fields"),
+            selectinload(Template.sections).selectinload(TemplateSection.fields),
             selectinload(Template.signature_fields),
         )
         .where(
