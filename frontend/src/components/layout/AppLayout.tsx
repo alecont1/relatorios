@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download } from 'lucide-react'
+import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban } from 'lucide-react'
 import { useAuthStore, useLogout } from '@/features/auth'
 import { MobileNav } from './MobileNav'
 import { usePWA } from '@/hooks/usePWA'
@@ -7,6 +7,15 @@ import { usePWA } from '@/hooks/usePWA'
 interface AppLayoutProps {
   children: React.ReactNode
 }
+
+/**
+ * Role hierarchy:
+ * - superadmin: Global admin (tenant_id = NULL) - Sees all tenants
+ * - tenant_admin: Admin of a specific tenant - Manages users, templates, settings for their tenant
+ * - project_manager: Manager of specific projects - Manages reports in assigned projects
+ * - technician: Field technician - Creates and edits reports
+ * - viewer: Read-only access - Can only view reports
+ */
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuthStore()
@@ -19,7 +28,19 @@ export function AppLayout({ children }: AppLayoutProps) {
     navigate('/login')
   }
 
-  const canManageUsers = user?.role === 'admin' || user?.role === 'superadmin'
+  // Permission checks based on new role hierarchy
+  const isSuperadmin = user?.role === 'superadmin'
+  const isTenantAdmin = user?.role === 'tenant_admin'
+  const isProjectManager = user?.role === 'project_manager'
+  const isTechnician = user?.role === 'technician'
+  const isViewer = user?.role === 'viewer'
+
+  // Combined checks for common permissions
+  const canManageUsers = isSuperadmin || isTenantAdmin
+  const canManageTemplates = isSuperadmin || isTenantAdmin
+  const canManageProjects = isSuperadmin || isTenantAdmin || isProjectManager
+  const canAccessSettings = isSuperadmin || isTenantAdmin
+  const canAccessTenants = isSuperadmin // Only superadmin sees tenants menu
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,6 +60,19 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Link>
+
+                {/* Tenants - Only superadmin */}
+                {canAccessTenants && (
+                  <Link
+                    to="/tenants"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    Empresas
+                  </Link>
+                )}
+
+                {/* Users - tenant_admin and superadmin */}
                 {canManageUsers && (
                   <Link
                     to="/users"
@@ -48,7 +82,20 @@ export function AppLayout({ children }: AppLayoutProps) {
                     Usuarios
                   </Link>
                 )}
-                {canManageUsers && (
+
+                {/* Projects - project_manager, tenant_admin, superadmin */}
+                {canManageProjects && (
+                  <Link
+                    to="/projects"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <FolderKanban className="h-4 w-4" />
+                    Projetos
+                  </Link>
+                )}
+
+                {/* Templates - tenant_admin and superadmin */}
+                {canManageTemplates && (
                   <Link
                     to="/templates"
                     className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
@@ -57,6 +104,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                     Templates
                   </Link>
                 )}
+
+                {/* Reports - All authenticated users can see reports */}
                 <Link
                   to="/reports"
                   className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
@@ -64,22 +113,15 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <ClipboardList className="h-4 w-4" />
                   Relatorios
                 </Link>
-                {user?.role === 'superadmin' && (
-                  <Link
-                    to="/tenants"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <Building2 className="h-4 w-4" />
-                    Tenants
-                  </Link>
-                )}
-                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+
+                {/* Settings - tenant_admin and superadmin */}
+                {canAccessSettings && (
                   <Link
                     to="/settings"
                     className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
                   >
                     <Settings className="h-4 w-4" />
-                    Empresa
+                    {isSuperadmin ? 'Configuracoes' : 'Empresa'}
                   </Link>
                 )}
               </div>
@@ -94,9 +136,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                   Instalar App
                 </button>
               )}
-              <span className="text-sm text-gray-600">
-                {user?.full_name}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  {user?.full_name}
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                  {getRoleDisplayName(user?.role)}
+                </span>
+              </div>
               <button
                 onClick={handleLogout}
                 disabled={logout.isPending}
@@ -145,4 +192,24 @@ export function AppLayout({ children }: AppLayoutProps) {
       <MobileNav />
     </div>
   )
+}
+
+/**
+ * Get human-readable display name for role
+ */
+function getRoleDisplayName(role?: string): string {
+  switch (role) {
+    case 'superadmin':
+      return 'Super Admin'
+    case 'tenant_admin':
+      return 'Admin'
+    case 'project_manager':
+      return 'Gerente'
+    case 'technician':
+      return 'Tecnico'
+    case 'viewer':
+      return 'Visualizador'
+    default:
+      return role || 'Usuario'
+  }
 }

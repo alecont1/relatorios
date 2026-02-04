@@ -1,12 +1,61 @@
 """
 User schemas for API request/response validation.
+
+Role Hierarchy (highest to lowest privilege):
+- superadmin: Global system admin, tenant_id = NULL
+- tenant_admin: Admin of a specific tenant
+- project_manager: Manager of specific projects
+- technician: Field technician (default)
+- viewer: Read-only access
 """
 
 import re
 from datetime import datetime
+from enum import Enum
+from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+
+
+class UserRole(str, Enum):
+    """
+    Role hierarchy (highest to lowest privilege):
+    - superadmin: Global system admin, tenant_id = NULL
+    - tenant_admin: Admin of a specific tenant
+    - project_manager: Manager of specific projects
+    - technician: Field technician (default)
+    - viewer: Read-only access
+    """
+    SUPERADMIN = "superadmin"
+    TENANT_ADMIN = "tenant_admin"
+    PROJECT_MANAGER = "project_manager"
+    TECHNICIAN = "technician"
+    VIEWER = "viewer"
+
+
+# Role hierarchy for permission checks (higher number = more privilege)
+ROLE_HIERARCHY = {
+    UserRole.SUPERADMIN: 100,
+    UserRole.TENANT_ADMIN: 80,
+    UserRole.PROJECT_MANAGER: 60,
+    UserRole.TECHNICIAN: 40,
+    UserRole.VIEWER: 20,
+}
+
+# Roles that require a tenant_id (all except superadmin)
+TENANT_BOUND_ROLES = {
+    UserRole.TENANT_ADMIN,
+    UserRole.PROJECT_MANAGER,
+    UserRole.TECHNICIAN,
+    UserRole.VIEWER,
+}
+
+# Roles that can manage users
+USER_MANAGEMENT_ROLES = {
+    UserRole.SUPERADMIN,
+    UserRole.TENANT_ADMIN,
+}
 
 
 def validate_strong_password(password: str) -> str:
@@ -46,10 +95,16 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    """Schema for creating a new user (admin only)."""
+    """
+    Schema for creating a new user.
+
+    Validation rules:
+    - superadmin: tenant_id must be NULL
+    - All other roles: tenant_id is required
+    """
     password: str
-    role: str = Field(default="user", pattern="^(user|manager|admin)$")
-    tenant_id: UUID | None = None  # Only superadmin can specify
+    role: UserRole = Field(default=UserRole.TECHNICIAN)
+    tenant_id: UUID | None = None  # Required for non-superadmin roles
 
     @field_validator("password")
     @classmethod
@@ -57,11 +112,20 @@ class UserCreate(UserBase):
         """Validate password meets strength requirements."""
         return validate_strong_password(v)
 
+    @model_validator(mode="after")
+    def validate_role_tenant_consistency(self) -> "UserCreate":
+        """Ensure tenant_id is provided for tenant-bound roles."""
+        if self.role in TENANT_BOUND_ROLES and self.tenant_id is None:
+            raise ValueError(f"tenant_id é obrigatório para o cargo '{self.role.value}'")
+        if self.role == UserRole.SUPERADMIN and self.tenant_id is not None:
+            raise ValueError("superadmin não pode ter tenant_id")
+        return self
+
 
 class UserUpdate(BaseModel):
-    """Schema for updating user (admin only)."""
+    """Schema for updating user."""
     full_name: str | None = None
-    role: str | None = Field(default=None, pattern="^(user|manager|admin)$")
+    role: UserRole | None = None
     is_active: bool | None = None
     password: str | None = None
 
@@ -77,8 +141,8 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     """User data returned in API responses."""
     id: UUID
-    role: str
-    tenant_id: UUID
+    role: UserRole
+    tenant_id: UUID | None  # Nullable for superadmin
     is_active: bool
     created_at: datetime
 

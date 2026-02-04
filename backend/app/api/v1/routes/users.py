@@ -2,15 +2,15 @@
 User CRUD endpoints for admin user management.
 
 This module provides:
-- POST /users/ - Create user (admin/superadmin only)
+- POST /users/ - Create user (tenant_admin/superadmin only)
 - GET /users/ - List users with pagination
 - GET /users/{user_id} - Get specific user
 - PATCH /users/{user_id} - Update user
 - DELETE /users/{user_id} - Hard delete user
 
 RBAC:
-- Admin: Can only manage users in their own tenant
-- Superadmin: Can manage users in any tenant
+- tenant_admin: Can only manage users in their own tenant
+- superadmin: Can manage users in any tenant
 """
 
 from typing import Annotated
@@ -21,7 +21,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import require_role
+from app.core.deps import require_tenant_admin, get_current_user
 from app.core.security import hash_password
 from app.models.user import User
 from app.schemas.user import (
@@ -29,6 +29,8 @@ from app.schemas.user import (
     UserResponse,
     UserUpdate,
     UserListResponse,
+    UserRole,
+    TENANT_BOUND_ROLES,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -37,34 +39,55 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_data: UserCreate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_tenant_admin)],
     db: AsyncSession = Depends(get_db),
 ):
     """
     Create a new user.
 
-    - Admin: Can only create users in their own tenant
-    - Superadmin: Can create users in any tenant
-    - Admin cannot create superadmin users
+    - tenant_admin: Can only create users in their own tenant
+    - superadmin: Can create users in any tenant
+
+    Role restrictions:
+    - tenant_admin cannot create superadmin users
+    - tenant_admin can only create: tenant_admin, project_manager, technician, viewer
     """
     # Determine tenant_id
     if current_user.role == "superadmin":
-        # Superadmin can specify tenant, defaults to their own
-        tenant_id = user_data.tenant_id or current_user.tenant_id
+        # Superadmin can specify tenant, or None for creating another superadmin
+        if user_data.role == UserRole.SUPERADMIN:
+            tenant_id = None  # Superadmin has no tenant
+        else:
+            tenant_id = user_data.tenant_id
+            if tenant_id is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"tenant_id é obrigatório para o cargo '{user_data.role.value}'",
+                )
     else:
-        # Admin can only create in their tenant
+        # tenant_admin can only create in their tenant
         tenant_id = current_user.tenant_id
         if user_data.tenant_id and user_data.tenant_id != tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Admin so pode criar usuarios no proprio tenant",
+                detail="Tenant admin só pode criar usuários no próprio tenant",
             )
 
-    # Admin cannot create superadmin
-    if current_user.role == "admin" and user_data.role == "superadmin":
+    # tenant_admin cannot create superadmin or other tenant_admins
+    if current_user.role == "tenant_admin":
+        if user_data.role == UserRole.SUPERADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tenant admin não pode criar usuários superadmin",
+            )
+        # tenant_admin CAN create other tenant_admins in their tenant
+        # This allows delegation within the organization
+
+    # Validate role can be managed by current user
+    if not current_user.can_manage_role(user_data.role.value):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin nao pode criar usuarios superadmin",
+            detail=f"Você não tem permissão para criar usuários com o cargo '{user_data.role.value}'",
         )
 
     # Check if email already exists
@@ -74,7 +97,7 @@ async def create_user(
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email ja cadastrado",
+            detail="Email já cadastrado",
         )
 
     # Create user
@@ -82,7 +105,7 @@ async def create_user(
         email=user_data.email,
         full_name=user_data.full_name,
         password_hash=hash_password(user_data.password),
-        role=user_data.role,
+        role=user_data.role.value,
         tenant_id=tenant_id,
     )
 
@@ -95,7 +118,7 @@ async def create_user(
 
 @router.get("", response_model=UserListResponse)
 async def list_users(
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_tenant_admin)],
     db: AsyncSession = Depends(get_db),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
@@ -103,14 +126,14 @@ async def list_users(
     """
     List users.
 
-    - Admin: Sees only users in their tenant
-    - Superadmin: Sees all users
+    - tenant_admin: Sees only users in their tenant
+    - superadmin: Sees all users
     """
     # Build query
     query = select(User)
 
     if current_user.role != "superadmin":
-        # Admin sees only their tenant
+        # tenant_admin sees only their tenant
         query = query.where(User.tenant_id == current_user.tenant_id)
 
     # Get total count
@@ -131,7 +154,7 @@ async def list_users(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: UUID,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_tenant_admin)],
     db: AsyncSession = Depends(get_db),
 ):
     """Get a specific user by ID."""
@@ -141,10 +164,10 @@ async def get_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario nao encontrado",
+            detail="Usuário não encontrado",
         )
 
-    # Admin can only see users in their tenant
+    # tenant_admin can only see users in their tenant
     if current_user.role != "superadmin" and user.tenant_id != current_user.tenant_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -158,7 +181,7 @@ async def get_user(
 async def update_user(
     user_id: UUID,
     user_data: UserUpdate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_tenant_admin)],
     db: AsyncSession = Depends(get_db),
 ):
     """Update a user."""
@@ -168,28 +191,37 @@ async def update_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario nao encontrado",
+            detail="Usuário não encontrado",
         )
 
-    # Admin can only update users in their tenant
+    # tenant_admin can only update users in their tenant
     if current_user.role != "superadmin" and user.tenant_id != current_user.tenant_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Acesso negado",
         )
 
-    # Admin cannot promote to superadmin
-    if current_user.role == "admin" and user_data.role == "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin nao pode promover usuarios a superadmin",
-        )
+    # Validate role change permissions
+    if user_data.role is not None:
+        # tenant_admin cannot promote to superadmin
+        if current_user.role == "tenant_admin" and user_data.role == UserRole.SUPERADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tenant admin não pode promover usuários a superadmin",
+            )
+
+        # Check if user can manage the target role
+        if not current_user.can_manage_role(user_data.role.value):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Você não tem permissão para definir o cargo '{user_data.role.value}'",
+            )
 
     # Update fields
     if user_data.full_name is not None:
         user.full_name = user_data.full_name
     if user_data.role is not None:
-        user.role = user_data.role
+        user.role = user_data.role.value
     if user_data.is_active is not None:
         user.is_active = user_data.is_active
     if user_data.password is not None:
@@ -204,7 +236,7 @@ async def update_user(
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: UUID,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_tenant_admin)],
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -219,10 +251,10 @@ async def delete_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario nao encontrado",
+            detail="Usuário não encontrado",
         )
 
-    # Admin can only delete users in their tenant
+    # tenant_admin can only delete users in their tenant
     if current_user.role != "superadmin" and user.tenant_id != current_user.tenant_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -233,7 +265,14 @@ async def delete_user(
     if user.id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Nao e possivel excluir o proprio usuario",
+            detail="Não é possível excluir o próprio usuário",
+        )
+
+    # Cannot delete superadmin unless you are superadmin
+    if user.role == "superadmin" and current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas superadmin pode excluir outro superadmin",
         )
 
     # TODO: In Phase 6, check for reports and reassign or block
