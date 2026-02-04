@@ -117,26 +117,27 @@ export async function addWatermark(
         }
       }
 
-      // Draw timestamp
+      // Draw watermark text
       ctx.fillStyle = '#ffffff'
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`
       ctx.textBaseline = 'top'
 
-      const dateStr = formatDateTime(timestamp)
       const textY = img.height - watermarkHeight + padding
+      const lineHeight = fontSize + padding * 0.3
 
-      // Draw timestamp on right side
+      // Draw date/time (first line - more prominent)
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`
       ctx.textAlign = 'right'
-      ctx.fillText(dateStr, img.width - padding, textY)
+      const dateStr = formatDateTime(timestamp)
+      ctx.fillText(`📅 ${dateStr}`, img.width - padding, textY)
 
-      // Draw address if provided
+      // Draw address if provided (second line)
       if (address) {
         ctx.font = `${fontSize * 0.85}px Arial, sans-serif`
         ctx.textAlign = 'right'
         ctx.fillText(
-          truncateText(address, 50),
+          `📍 ${truncateText(address, 45)}`,
           img.width - padding,
-          textY + fontSize + padding * 0.5
+          textY + lineHeight
         )
       }
 
