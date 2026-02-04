@@ -264,7 +264,7 @@ async def create_template(
 
 @router.get("", response_model=TemplateListResponse)
 async def list_templates(
-    current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("viewer", "technician", "project_manager", "tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
     search: str = Query("", description="Search by name or code"),
@@ -290,7 +290,7 @@ async def list_templates(
         )
 
     # Status filter - regular users always see only active
-    if current_user.role in ["user", "manager"]:
+    if current_user.role in ["viewer", "technician", "project_manager"]:
         query = query.where(Template.is_active == True)
     elif status == "active":
         query = query.where(Template.is_active == True)
@@ -326,7 +326,7 @@ async def list_templates(
 @router.get("/{template_id}", response_model=TemplateResponse)
 async def get_template(
     template_id: UUID,
-    current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("viewer", "technician", "project_manager", "tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -348,7 +348,7 @@ async def get_template(
         )
 
     # Regular users can't see inactive templates
-    if not template.is_active and current_user.role in ["user", "manager"]:
+    if not template.is_active and current_user.role in ["viewer", "technician", "project_manager"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Template nao encontrado"

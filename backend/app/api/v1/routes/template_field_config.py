@@ -113,7 +113,7 @@ async def update_field_config(
 @router.get("/{field_id}/config", response_model=FieldConfigResponse)
 async def get_field_config(
     field_id: UUID,
-    current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("viewer", "technician", "project_manager", "tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):

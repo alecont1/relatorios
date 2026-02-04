@@ -112,7 +112,7 @@ async def create_signature_field(
 @router.get("/{template_id}/signature-fields", response_model=SignatureFieldListResponse)
 async def list_signature_fields(
     template_id: UUID,
-    current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("viewer", "technician", "project_manager", "tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):

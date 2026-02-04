@@ -127,7 +127,7 @@ async def create_info_field(
 @router.get("/{template_id}/info-fields", response_model=InfoFieldListResponse)
 async def list_info_fields(
     template_id: UUID,
-    current_user: Annotated[User, Depends(require_role("user", "manager", "admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("viewer", "technician", "project_manager", "tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
