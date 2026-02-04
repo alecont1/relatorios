@@ -115,7 +115,7 @@ def _template_to_response(template: Template) -> TemplateResponse:
 @router.post("/parse", response_model=ExcelParseResponse)
 async def parse_excel_template(
     file: UploadFile = File(...),
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))] = None,
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))] = None,
 ):
     """
     Parse uploaded Excel file and return preview.
@@ -173,8 +173,8 @@ async def parse_excel_template(
 @router.post("", response_model=TemplateResponse, status_code=status.HTTP_201_CREATED)
 async def create_template(
     template_data: TemplateCreate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
-    tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
+    tenant_id: Annotated[UUID | None, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -182,7 +182,17 @@ async def create_template(
 
     Code is auto-generated based on category (COM-001, INS-002, etc.).
     Sections and fields are created in a single transaction.
+
+    Note: Superadmins must specify tenant_id query parameter since templates
+    must belong to a tenant.
     """
+    # Superadmin must specify tenant_id
+    if tenant_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Superadmin deve especificar tenant_id na query (?tenant_id=...)"
+        )
+
     # Generate code
     code = await generate_template_code(db, tenant_id, template_data.category)
 
@@ -351,7 +361,7 @@ async def get_template(
 async def update_template(
     template_id: UUID,
     template_data: TemplateUpdate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):

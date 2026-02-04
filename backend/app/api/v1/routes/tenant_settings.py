@@ -49,7 +49,7 @@ class LogoConfirmRequest(BaseModel):
 async def get_tenant_branding(
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "superadmin"))
+    current_user: User = Depends(require_role("tenant_admin", "superadmin"))
 ):
     """
     Get current tenant's branding configuration.
@@ -76,7 +76,7 @@ async def update_tenant_branding(
     branding_data: TenantBrandingUpdate,
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "superadmin"))
+    current_user: User = Depends(require_role("tenant_admin", "superadmin"))
 ):
     """
     Update tenant branding configuration.
@@ -114,7 +114,7 @@ async def update_tenant_branding(
 async def generate_logo_upload_url(
     request: LogoUploadRequest,
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
-    current_user: User = Depends(require_role("admin", "superadmin"))
+    current_user: User = Depends(require_role("tenant_admin", "superadmin"))
 ):
     """
     Generate presigned URL for uploading tenant logo.
@@ -155,7 +155,7 @@ async def confirm_logo_upload(
     request: LogoConfirmRequest,
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "superadmin"))
+    current_user: User = Depends(require_role("tenant_admin", "superadmin"))
 ):
     """
     Confirm logo upload and save object key to tenant.

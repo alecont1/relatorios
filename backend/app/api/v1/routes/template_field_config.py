@@ -82,7 +82,7 @@ def _field_to_config_response(field: TemplateField) -> FieldConfigResponse:
 async def update_field_config(
     field_id: UUID,
     config_data: FieldConfigUpdate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):

@@ -76,7 +76,7 @@ def _signature_field_to_response(field: TemplateSignatureField) -> SignatureFiel
 async def create_signature_field(
     template_id: UUID,
     field_data: SignatureFieldCreate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -144,7 +144,7 @@ async def update_signature_field(
     template_id: UUID,
     field_id: UUID,
     field_data: SignatureFieldUpdate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -190,7 +190,7 @@ async def update_signature_field(
 async def delete_signature_field(
     template_id: UUID,
     field_id: UUID,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -222,7 +222,7 @@ async def delete_signature_field(
 async def reorder_signature_fields(
     template_id: UUID,
     reorder_data: SignatureFieldReorder,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):

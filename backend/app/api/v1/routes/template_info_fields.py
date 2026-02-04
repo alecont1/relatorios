@@ -89,7 +89,7 @@ def _info_field_to_response(field: TemplateInfoField) -> InfoFieldResponse:
 async def create_info_field(
     template_id: UUID,
     field_data: InfoFieldCreate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -159,7 +159,7 @@ async def update_info_field(
     template_id: UUID,
     field_id: UUID,
     field_data: InfoFieldUpdate,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -229,7 +229,7 @@ async def update_info_field(
 async def delete_info_field(
     template_id: UUID,
     field_id: UUID,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -261,7 +261,7 @@ async def delete_info_field(
 async def reorder_info_fields(
     template_id: UUID,
     reorder_data: InfoFieldReorder,
-    current_user: Annotated[User, Depends(require_role("admin", "superadmin"))],
+    current_user: Annotated[User, Depends(require_role("tenant_admin", "superadmin"))],
     tenant_id: Annotated[UUID, Depends(get_tenant_filter)],
     db: AsyncSession = Depends(get_db),
 ):
