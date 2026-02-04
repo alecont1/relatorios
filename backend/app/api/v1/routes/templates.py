@@ -212,12 +212,27 @@ async def create_template(
         await db.flush()  # Get section.id
 
         for field_data in section_data.fields:
+            # Default configurations for photo and comment
+            default_photo_config = {
+                "required": False,
+                "min_count": 0,
+                "max_count": 5,
+                "require_gps": False,
+                "watermark": True,
+            }
+            default_comment_config = {
+                "enabled": True,
+                "required": False,
+            }
+
             field = TemplateField(
                 section_id=section.id,
                 label=field_data.label,
                 field_type=field_data.field_type,
                 options=json.dumps(field_data.options) if field_data.options else None,
                 order=field_data.order,
+                photo_config=default_photo_config,
+                comment_config=default_comment_config,
             )
             db.add(field)
 
