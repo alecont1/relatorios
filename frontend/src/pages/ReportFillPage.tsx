@@ -13,6 +13,7 @@ import {
   CloudOff,
   RefreshCw,
   FileDown,
+  ListChecks,
 } from 'lucide-react'
 import {
   reportApi,
@@ -225,6 +226,33 @@ export function ReportFillPage() {
     await completeMutation.mutateAsync()
   }
 
+  // Pre-fill all checklist fields with first positive option
+  const handlePreFillAll = useCallback(() => {
+    if (!report) return
+
+    const newResponses = { ...responses }
+
+    for (const section of report.template_snapshot.sections) {
+      for (const field of section.fields) {
+        const key = field.id || `${section.name}:${field.label}`
+
+        // Only pre-fill dropdown fields
+        if (field.field_type === 'dropdown' && field.options) {
+          const options = field.options.split(/[,\/]/).map((o) => o.trim()).filter(Boolean)
+          if (options.length > 0) {
+            // Use first option (typically "Sim", "OK", "Conforme")
+            newResponses[key] = {
+              value: options[0],
+              comment: responses[key]?.comment || '',
+            }
+          }
+        }
+      }
+    }
+
+    setResponses(newResponses)
+  }, [report, responses])
+
   // PDF download handler
   const handleDownloadPdf = async () => {
     if (!report || !reportId) return
@@ -406,6 +434,14 @@ export function ReportFillPage() {
               lastSaved={autoSave.lastSaved}
               error={autoSave.error}
             />
+            <button
+              onClick={handlePreFillAll}
+              className="flex items-center gap-2 px-4 py-2 text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 border border-blue-200"
+              title="Preencher todos os campos com a primeira opção"
+            >
+              <ListChecks className="h-4 w-4" />
+              Preencher Tudo
+            </button>
             <button
               onClick={handleSave}
               disabled={autoSave.isSaving}
