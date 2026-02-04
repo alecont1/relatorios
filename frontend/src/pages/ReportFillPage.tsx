@@ -67,6 +67,7 @@ export function ReportFillPage() {
   // Certificate selection modal state
   const [showCertificateModal, setShowCertificateModal] = useState(false)
   const [_selectedCertificates, setSelectedCertificates] = useState<Certificate[]>([])
+  const [isCompleting, setIsCompleting] = useState(false)
 
   // Fetch report details
   const { data: report, isLoading, error } = useQuery({
@@ -146,7 +147,7 @@ export function ReportFillPage() {
       queryClient.invalidateQueries({ queryKey: ['report', reportId] })
     },
     debounceMs: 2000,
-    enabled: isInitialized && report?.status !== 'completed' && report?.status !== 'archived',
+    enabled: isInitialized && !isCompleting && report?.status !== 'completed' && report?.status !== 'archived',
     storageKey: draftKey,
   })
 
@@ -239,8 +240,16 @@ export function ReportFillPage() {
   const handleComplete = async (certificates: Certificate[]) => {
     setSelectedCertificates(certificates)
     setShowCertificateModal(false)
-    // Complete the report
-    await completeMutation.mutateAsync()
+    setIsCompleting(true) // Disable auto-save
+
+    try {
+      // Complete the report
+      await completeMutation.mutateAsync()
+    } catch (error) {
+      // If already completed, just navigate
+      console.log('Report completion error (may already be completed):', error)
+      navigate('/reports')
+    }
   }
 
   // Pre-fill all checklist fields with first positive option
