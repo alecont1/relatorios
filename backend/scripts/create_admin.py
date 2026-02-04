@@ -23,7 +23,8 @@ from app.core.database import engine, async_session
 from app.core.security import hash_password
 # Import all models to ensure SQLAlchemy relationships are resolved
 import app.models  # noqa: F401
-from app.models import Tenant, User
+from app.models import Tenant, User, Project
+import uuid
 
 
 async def create_admin():
@@ -69,6 +70,29 @@ async def create_admin():
             print(f"  User created: {user.email}")
         else:
             print(f"User already exists: {user.email}")
+
+        # Check if default project exists (using the placeholder UUID from frontend)
+        default_project_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
+        result = await db.execute(
+            select(Project).where(Project.id == default_project_id)
+        )
+        project = result.scalar_one_or_none()
+
+        if not project:
+            print("Creating default project...")
+            project = Project(
+                id=default_project_id,
+                tenant_id=tenant.id,
+                name="Projeto Padrao",
+                description="Projeto padrao para relatorios sem projeto especifico",
+                client_name="Cliente Geral",
+                is_active=True,
+            )
+            db.add(project)
+            await db.commit()
+            print(f"  Project created: {project.name} (ID: {project.id})")
+        else:
+            print(f"Default project already exists: {project.name}")
 
         print("\n" + "="*50)
         print("Login credentials:")
