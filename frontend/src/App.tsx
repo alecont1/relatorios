@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage, CertificatesPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage, CertificatesPage, OnboardingPage, SuperAdminTenantsPage, CreateTenantWizard, SuperAdminTenantDetailsPage, SuperAdminPlansPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -11,6 +11,7 @@ import {
 import { useTheme, useBrandingLoader } from '@/features/tenant';
 import { AppLayout } from '@/components/layout';
 import { OfflineIndicator } from '@/components/ui';
+import { OnboardingBanner, useOnboardingGuard } from '@/features/onboarding';
 
 /**
  * Auth initializer component.
@@ -40,8 +41,11 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
  */
 function DashboardPage() {
   const { user } = useAuthStore();
+  useOnboardingGuard();
+
   return (
     <div className="space-y-6">
+      <OnboardingBanner />
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       <div className="bg-white rounded-lg border p-6">
         <p className="text-gray-600">
@@ -156,6 +160,58 @@ function App() {
                 <ProtectedRoute>
                   <AppLayout>
                     <ReportFillPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Onboarding wizard (full-screen, no AppLayout) */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute allowedRoles={['tenant_admin']}>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* SuperAdmin routes */}
+            <Route
+              path="/superadmin/tenants"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin']}>
+                  <AppLayout>
+                    <SuperAdminTenantsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/superadmin/tenants/new"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin']}>
+                  <AppLayout>
+                    <CreateTenantWizard />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/superadmin/tenants/:tenantId"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin']}>
+                  <AppLayout>
+                    <SuperAdminTenantDetailsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/superadmin/plans"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin']}>
+                  <AppLayout>
+                    <SuperAdminPlansPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

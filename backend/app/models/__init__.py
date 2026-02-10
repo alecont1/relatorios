@@ -17,6 +17,10 @@ Models without tenant_id (extend Base/SimpleBase):
 from app.models.base import Base, TenantBase
 from app.models.simple_base import SimpleBase
 from app.models.tenant import Tenant
+from app.models.tenant_plan import TenantPlan
+from app.models.tenant_config import TenantConfig
+from app.models.tenant_audit_log import TenantAuditLog
+from app.models.tenant_onboarding import TenantOnboarding
 from app.models.user import User
 # Import child models BEFORE parent models to ensure forward refs resolve
 from app.models.template_section import TemplateSection
@@ -39,6 +43,10 @@ __all__ = [
     "TenantBase",
     "SimpleBase",
     "Tenant",
+    "TenantPlan",
+    "TenantConfig",
+    "TenantAuditLog",
+    "TenantOnboarding",
     "User",
     "Template",
     "TemplateSection",

@@ -8,3 +8,10 @@ export { TemplateConfigPage } from './TemplateConfigPage';
 export { ReportsPage } from './ReportsPage';
 export { ReportFillPage } from './ReportFillPage';
 export { CertificatesPage } from './CertificatesPage';
+export { OnboardingPage } from './OnboardingPage';
+export {
+  SuperAdminTenantsPage,
+  CreateTenantWizard,
+  SuperAdminTenantDetailsPage,
+  SuperAdminPlansPage,
+} from './superadmin';

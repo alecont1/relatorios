@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy import String, func
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
@@ -42,6 +42,20 @@ class Tenant(Base):
 
     # Watermark configuration (JSONB)
     watermark_config: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+
+    # Relationships
+    config: Mapped[Optional["TenantConfig"]] = relationship(
+        "TenantConfig",
+        back_populates="tenant",
+        uselist=False,
+        lazy="selectin"
+    )
+    onboarding: Mapped[Optional["TenantOnboarding"]] = relationship(
+        "TenantOnboarding",
+        back_populates="tenant",
+        uselist=False,
+        lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return f"<Tenant(id={self.id}, slug={self.slug}, name={self.name})>"

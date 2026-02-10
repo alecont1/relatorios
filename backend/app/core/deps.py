@@ -8,6 +8,7 @@ This module provides:
 - require_superadmin: Dependency for superadmin-only routes
 - require_tenant_admin: Dependency for tenant admin and above
 - get_tenant_filter: Dependency for tenant-scoped queries
+- check_tenant_active: Dependency to block suspended tenants
 """
 
 from typing import Annotated
@@ -20,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import decode_token
+from app.models.tenant_config import TenantConfig
 from app.models.user import User
 from app.schemas.user import UserRole, ROLE_HIERARCHY
 
@@ -309,3 +311,39 @@ async def require_same_tenant_or_superadmin(
             detail="Acesso negado a este tenant"
         )
     return True
+
+
+async def check_tenant_active(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """
+    Dependency that checks tenant is not suspended.
+
+    Superadmin bypasses this check. For all other users, loads
+    the TenantConfig and raises HTTP 423 if the tenant is suspended.
+
+    Usage:
+        @router.post("/reports")
+        async def create_report(
+            user: Annotated[User, Depends(check_tenant_active)],
+        ):
+            ...
+    """
+    if current_user.role == "superadmin":
+        return current_user
+    if current_user.tenant_id is None:
+        return current_user
+
+    result = await db.execute(
+        select(TenantConfig).where(TenantConfig.tenant_id == current_user.tenant_id)
+    )
+    config = result.scalar_one_or_none()
+
+    if config is not None and config.status == "suspended":
+        raise HTTPException(
+            status_code=423,
+            detail=f"Tenant suspenso: {config.suspended_reason or 'Sem motivo informado'}",
+        )
+
+    return current_user

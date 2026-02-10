@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban, Award } from 'lucide-react'
+import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban, Award, Shield, CreditCard } from 'lucide-react'
 import { useAuthStore, useLogout } from '@/features/auth'
 import { MobileNav } from './MobileNav'
 import { usePWA } from '@/hooks/usePWA'
@@ -58,6 +58,26 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Link>
+
+                {/* SuperAdmin - Only superadmin */}
+                {isSuperadmin && (
+                  <Link
+                    to="/superadmin/tenants"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Gestao Tenants
+                  </Link>
+                )}
+                {isSuperadmin && (
+                  <Link
+                    to="/superadmin/plans"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Planos
+                  </Link>
+                )}
 
                 {/* Tenants - Only superadmin */}
                 {canAccessTenants && (
