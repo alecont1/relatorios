@@ -1,11 +1,10 @@
 import { Check } from 'lucide-react'
-import { STEP_KEYS, type OnboardingStep, type StepKey } from '../types'
+import type { OnboardingStep, StepKey } from '../types'
 
 const STEP_LABELS: Record<StepKey, string> = {
   branding: 'Identidade Visual',
   template: 'Template',
   certificate: 'Certificados',
-  users: 'Equipe',
   first_report: 'Primeiro Relatorio',
 }
 

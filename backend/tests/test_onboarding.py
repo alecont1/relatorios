@@ -77,11 +77,11 @@ async def test_get_status_new_tenant(admin_client: AsyncClient, test_tenant):
     data = resp.json()
     assert data["is_completed"] is False
     assert data["current_step"] == 0
-    assert len(data["steps"]) == 5
+    assert len(data["steps"]) == 4
     for step in data["steps"]:
         assert step["status"] == "pending"
     assert data["steps"][0]["key"] == "branding"
-    assert data["steps"][4]["key"] == "first_report"
+    assert data["steps"][3]["key"] == "first_report"
 
 
 # ---------------------------------------------------------------------------
@@ -158,7 +158,7 @@ async def test_clone_demo_template(admin_client: AsyncClient, test_tenant, db_se
 @pytest.mark.asyncio
 async def test_all_steps_completed(admin_client: AsyncClient, test_tenant):
     """Completing all steps sets is_completed=True."""
-    steps = ["branding", "template", "certificate", "users", "first_report"]
+    steps = ["branding", "template", "certificate", "first_report"]
     for step in steps:
         resp = await admin_client.put(
             f"/api/v1/onboarding/step/{step}",

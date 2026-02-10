@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
 import { TenantSettingsForm } from '@/features/tenant/components/TenantSettingsForm'
 import { useUpdateBranding } from '@/features/tenant/api'
 
@@ -8,12 +8,12 @@ interface BrandingStepProps {
 
 export function BrandingStep({ onComplete }: BrandingStepProps) {
   const updateBranding = useUpdateBranding()
+  const completedRef = useRef(false)
 
-  useEffect(() => {
-    if (updateBranding.isSuccess) {
-      onComplete()
-    }
-  }, [updateBranding.isSuccess, onComplete])
+  if (updateBranding.isSuccess && !completedRef.current) {
+    completedRef.current = true
+    onComplete()
+  }
 
   return (
     <div className="space-y-6">

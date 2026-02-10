@@ -19,13 +19,12 @@ from app.models.tenant_onboarding import TenantOnboarding
 
 
 # Ordered step keys matching the wizard flow
-STEP_KEYS = ["branding", "template", "certificate", "users", "first_report"]
+STEP_KEYS = ["branding", "template", "certificate", "first_report"]
 
 STEP_LABELS = {
     "branding": "Identidade Visual",
     "template": "Template de Relatorio",
     "certificate": "Certificados de Calibracao",
-    "users": "Equipe",
     "first_report": "Primeiro Relatorio",
 }
 

@@ -11,7 +11,6 @@ export {
   BrandingStep,
   TemplateStep,
   CertificateStep,
-  UsersStep,
   FirstReportStep,
   OnboardingBanner,
 } from './components'

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2, Plus, Award } from 'lucide-react'
 import {
@@ -14,7 +13,6 @@ interface CertificateStepProps {
 export function CertificateStep({ onComplete }: CertificateStepProps) {
   const createCertificate = useCreateCertificate()
   const { data: certificatesData } = useCertificates()
-  const [showForm, setShowForm] = useState(true)
 
   const {
     register,
@@ -82,7 +80,6 @@ export function CertificateStep({ onComplete }: CertificateStepProps) {
       )}
 
       {/* Inline form */}
-      {showForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="onboarding-certificate-form space-y-4 rounded-lg border p-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -166,7 +163,6 @@ export function CertificateStep({ onComplete }: CertificateStepProps) {
             </button>
           </div>
         </form>
-      )}
 
       <div className="flex justify-start">
         <button

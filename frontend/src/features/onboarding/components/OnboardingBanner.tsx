@@ -31,7 +31,7 @@ export function OnboardingBanner() {
         <Rocket className="h-6 w-6 text-blue-600" />
         <div className="flex-1">
           <p className="font-medium text-blue-900">
-            {completedCount} de 5 passos concluidos
+            {completedCount} de {status.steps.length} passos concluidos
           </p>
           <p className="text-sm text-blue-700">
             Continue a configuracao inicial para aproveitar ao maximo a plataforma.

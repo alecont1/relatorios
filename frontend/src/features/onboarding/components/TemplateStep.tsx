@@ -47,6 +47,14 @@ export function TemplateStep({ onComplete }: TemplateStepProps) {
             </div>
           </div>
         </div>
+        <div className="flex justify-start">
+          <button
+            onClick={onComplete}
+            className="rounded-lg bg-green-600 px-6 py-2 text-white hover:bg-green-700"
+          >
+            Concluir Passo
+          </button>
+        </div>
       </div>
     )
   }
