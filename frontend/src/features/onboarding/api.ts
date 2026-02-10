@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/axios'
 import type {
@@ -61,4 +62,70 @@ export function useCloneDemoTemplate() {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
   })
+}
+
+/**
+ * Fetch a report's PDF as a blob and return an object URL for iframe display.
+ * Cleans up the blob URL on unmount or when reportId changes.
+ */
+export function useReportPdfBlob(reportId: string | null) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!reportId) {
+      setBlobUrl(null)
+      return
+    }
+
+    let cancelled = false
+    let url: string | null = null
+
+    const fetchPdf = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await api.get(`/reports/${reportId}/pdf`, {
+          responseType: 'blob',
+        })
+        if (cancelled) return
+        const blob = new Blob([response.data], { type: 'application/pdf' })
+        url = window.URL.createObjectURL(blob)
+        setBlobUrl(url)
+      } catch (err: unknown) {
+        if (cancelled) return
+        const axiosError = err as { response?: { status?: number } }
+        if (axiosError.response?.status === 404) {
+          setError('PDF nao disponivel para este relatorio')
+        } else {
+          setError('Erro ao carregar PDF')
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    fetchPdf()
+
+    return () => {
+      cancelled = true
+      if (url) {
+        window.URL.revokeObjectURL(url)
+      }
+    }
+  }, [reportId])
+
+  // Helper to trigger download
+  const downloadPdf = () => {
+    if (!blobUrl) return
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = `relatorio-${reportId}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  return { blobUrl, isLoading, error, downloadPdf }
 }

@@ -1,6 +1,5 @@
 export { OnboardingProgress } from './OnboardingProgress'
 export { BrandingStep } from './BrandingStep'
 export { TemplateStep } from './TemplateStep'
-export { CertificateStep } from './CertificateStep'
 export { FirstReportStep } from './FirstReportStep'
 export { OnboardingBanner } from './OnboardingBanner'

@@ -6,36 +6,29 @@ const TOUR_STEPS: Record<StepKey, Step[]> = {
   branding: [
     {
       target: '.onboarding-branding-logos',
-      content: 'Faca upload dos logos da sua empresa. Eles aparecerão nos relatorios gerados.',
+      content: 'Faca upload dos logos da sua empresa. Veja no preview ao lado como ficara no PDF.',
       disableBeacon: true,
     },
     {
       target: '.onboarding-branding-colors',
-      content: 'Escolha as cores da marca para personalizar a interface e os relatorios.',
+      content: 'Escolha as cores da marca. O preview do PDF atualiza em tempo real!',
     },
     {
       target: '.onboarding-branding-contact',
-      content: 'Preencha as informacoes de contato que aparecerão nos relatorios.',
+      content: 'Preencha as informacoes de contato que aparecerão no rodape dos relatorios.',
     },
   ],
   template: [
     {
       target: '.onboarding-template-clone',
-      content: 'Clique aqui para clonar o template demo CPQ11. Voce podera personaliza-lo depois.',
-      disableBeacon: true,
-    },
-  ],
-  certificate: [
-    {
-      target: '.onboarding-certificate-form',
-      content: 'Cadastre os certificados de calibracao dos seus equipamentos de medicao.',
+      content: 'Clone o template demo para ver como seus relatorios serao estruturados.',
       disableBeacon: true,
     },
   ],
   first_report: [
     {
       target: '.onboarding-report-form',
-      content: 'Crie seu primeiro relatorio usando o template demo. Isso ajuda a entender o fluxo completo.',
+      content: 'Crie seu primeiro relatorio e veja o PDF gerado com sua marca!',
       disableBeacon: true,
     },
   ],

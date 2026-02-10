@@ -2,10 +2,17 @@ import { useTenantBranding } from '@/features/tenant/api'
 import { getLogoUrl } from '@/features/tenant/types'
 import type { Template, InfoField, SignatureField } from '../api/templateApi'
 
+export interface BrandingOverride {
+  logoUrl?: string
+  companyName?: string
+  primaryColor?: string
+}
+
 interface PdfCoverPreviewProps {
   template: Template
   infoFields: InfoField[]
   signatureFields: SignatureField[]
+  brandingOverride?: BrandingOverride
 }
 
 const A4_SCALE = 0.45 // scale factor for preview
@@ -14,12 +21,12 @@ const A4_HEIGHT = 297 // mm
 const PX_WIDTH = A4_WIDTH * A4_SCALE * 2.5 // ~236px
 const PX_HEIGHT = A4_HEIGHT * A4_SCALE * 2.5 // ~334px
 
-export function PdfCoverPreview({ template, infoFields, signatureFields }: PdfCoverPreviewProps) {
+export function PdfCoverPreview({ template, infoFields, signatureFields, brandingOverride }: PdfCoverPreviewProps) {
   const { data: branding } = useTenantBranding()
 
-  const logoUrl = getLogoUrl(branding?.logo_primary_key)
-  const companyName = branding?.name ?? 'Empresa'
-  const primaryColor = branding?.brand_color_primary ?? '#2563eb'
+  const logoUrl = brandingOverride?.logoUrl ?? getLogoUrl(branding?.logo_primary_key)
+  const companyName = brandingOverride?.companyName ?? branding?.name ?? 'Empresa'
+  const primaryColor = brandingOverride?.primaryColor ?? branding?.brand_color_primary ?? '#2563eb'
 
   return (
     <div className="space-y-6">

@@ -128,7 +128,7 @@ async def generate_logo_upload_url(
     Requires admin or superadmin role.
     """
     # Validate file type
-    allowed_types = {"image/png", "image/jpeg", "image/svg+xml"}
+    allowed_types = {"image/png", "image/jpeg", "image/svg+xml", "image/webp"}
     if request.file_type not in allowed_types:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
