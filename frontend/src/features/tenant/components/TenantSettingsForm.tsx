@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTenantBranding, useUpdateBranding } from '../api'
+import { usePdfLayouts } from '@/features/pdf-layout/api'
 import { useTenantStore } from '../store'
 import { ColorPicker } from './ColorPicker'
 import { LogoUploader } from './LogoUploader'
@@ -11,6 +12,7 @@ export function TenantSettingsForm() {
   const { data: branding, isLoading, refetch } = useTenantBranding()
   const updateBranding = useUpdateBranding()
   const { setBranding } = useTenantStore()
+  const { data: layoutsData } = usePdfLayouts()
 
   const { register, handleSubmit, setValue, watch } = useForm<UpdateBrandingRequest>()
 
@@ -32,6 +34,7 @@ export function TenantSettingsForm() {
       setValue('contact_email', branding.contact_email)
       setValue('contact_website', branding.contact_website)
       setValue('watermark_text', branding.watermark_text)
+      setValue('default_pdf_layout_id', branding?.default_pdf_layout_id ?? '')
     }
   }, [branding, setValue])
 
@@ -108,6 +111,28 @@ export function TenantSettingsForm() {
             currentConfig={branding?.watermark_config ?? null}
             onSaved={refetch}
           />
+        </div>
+      </section>
+
+      {/* PDF Layout */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Layout do PDF</h2>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Layout Padrao</label>
+          <select
+            {...register('default_pdf_layout_id')}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 bg-white"
+          >
+            <option value="">Classico (padrao)</option>
+            {layoutsData?.layouts.map((layout) => (
+              <option key={layout.id} value={layout.id}>
+                {layout.name} {layout.is_system ? '(Sistema)' : '(Custom)'}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            Selecione o layout padrao para os relatorios em PDF deste tenant.
+          </p>
         </div>
       </section>
 

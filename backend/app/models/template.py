@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import TenantBase
@@ -31,6 +31,11 @@ class Template(TenantBase):
 
     # Status
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # PDF Layout override
+    pdf_layout_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("pdf_layouts.id", ondelete="SET NULL"), nullable=True
+    )
 
     # Relationships - order_by deferred to query time since using forward refs
     sections: Mapped[list["TemplateSection"]] = relationship(

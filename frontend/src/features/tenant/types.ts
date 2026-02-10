@@ -23,6 +23,7 @@ export interface Tenant {
   contact_website: string | null
   watermark_text: string | null
   watermark_config: WatermarkConfig | null
+  default_pdf_layout_id: string | null
   created_at: string
   updated_at: string
 }
@@ -52,6 +53,7 @@ export interface UpdateBrandingRequest {
   contact_website?: string | null
   watermark_text?: string | null
   watermark_config?: WatermarkConfig | null
+  default_pdf_layout_id?: string | null
 }
 
 export interface LogoUploadUrlRequest {

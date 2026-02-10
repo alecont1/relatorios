@@ -60,7 +60,6 @@ def _serialize_template_snapshot(template: Template) -> dict:
                 "id": str(f.id),
                 "label": f.label,
                 "field_type": f.field_type,
-                "placeholder": f.placeholder,
                 "required": f.required,
                 "order": f.order,
             }
@@ -617,6 +616,7 @@ async def download_report_pdf(
     from app.models.tenant import Tenant
     from app.models.calibration_certificate import CalibrationCertificate
     from app.models.report_certificate import ReportCertificate
+    from app.models.pdf_layout import PdfLayout
     from app.services.pdf_service import pdf_service
     from app.services.pdf_merger import merge_report_with_certificates
     from app.services.storage import get_storage_service, StorageError
@@ -657,6 +657,29 @@ async def download_report_pdf(
             detail="Tenant nao encontrado",
         )
 
+    # Resolve PDF layout: template override -> tenant default -> system default
+    layout_config = None
+
+    # Try template-level layout override first
+    template_result = await db.execute(
+        select(Template).where(Template.id == report.template_id)
+    )
+    template = template_result.scalar_one_or_none()
+
+    layout_id = None
+    if template and template.pdf_layout_id:
+        layout_id = template.pdf_layout_id
+    elif tenant.default_pdf_layout_id:
+        layout_id = tenant.default_pdf_layout_id
+
+    if layout_id:
+        layout_result = await db.execute(
+            select(PdfLayout).where(PdfLayout.id == layout_id, PdfLayout.is_active == True)
+        )
+        layout = layout_result.scalar_one_or_none()
+        if layout:
+            layout_config = layout.config_json
+
     # Load linked certificates
     certificates = []
     cert_pdf_files = []
@@ -685,7 +708,8 @@ async def download_report_pdf(
     # Generate PDF
     try:
         pdf_bytes = pdf_service.generate_report_pdf(
-            report, tenant, certificates=certificates or None
+            report, tenant, certificates=certificates or None,
+            layout_config=layout_config,
         )
     except Exception as e:
         raise HTTPException(

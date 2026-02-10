@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, func
+from sqlalchemy import ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -42,6 +42,11 @@ class Tenant(Base):
 
     # Watermark configuration (JSONB)
     watermark_config: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+
+    # PDF Layout preference
+    default_pdf_layout_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("pdf_layouts.id", ondelete="SET NULL"), nullable=True
+    )
 
     # Relationships
     config: Mapped[Optional["TenantConfig"]] = relationship(

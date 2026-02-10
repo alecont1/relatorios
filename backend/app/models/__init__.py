@@ -34,6 +34,7 @@ from app.models.report_info_value import ReportInfoValue
 from app.models.report_checklist_response import ReportChecklistResponse
 from app.models.report_signature import ReportSignature
 from app.models.calibration_certificate import CalibrationCertificate
+from app.models.pdf_layout import PdfLayout
 from app.models.report_certificate import ReportCertificate
 from app.models.report import Report
 from app.models.report_photo import ReportPhoto
@@ -60,5 +61,6 @@ __all__ = [
     "ReportSignature",
     "ReportPhoto",
     "CalibrationCertificate",
+    "PdfLayout",
     "ReportCertificate",
 ]
