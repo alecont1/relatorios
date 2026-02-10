@@ -122,6 +122,10 @@ class TenantProvisioningService:
         db.add(audit)
         await db.flush()
 
+        # Eagerly load the plan relationship so callers can access config.plan
+        # without triggering lazy loading outside the async session context
+        await db.refresh(config, ["plan"])
+
         return {
             "tenant": tenant,
             "config": config,
