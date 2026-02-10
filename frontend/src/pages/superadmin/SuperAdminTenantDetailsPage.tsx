@@ -19,12 +19,11 @@ import {
 } from '@/features/superadmin/components'
 import type { TenantLimits, TenantFeatures } from '@/features/superadmin/types'
 
-type TabKey = 'overview' | 'config' | 'users' | 'audit'
+type TabKey = 'overview' | 'config' | 'audit'
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'overview', label: 'Visao Geral' },
   { key: 'config', label: 'Configuracao' },
-  { key: 'users', label: 'Usuarios' },
   { key: 'audit', label: 'Auditoria' },
 ]
 
@@ -274,17 +273,6 @@ export function SuperAdminTenantDetailsPage() {
               )}
             </div>
           )}
-        </div>
-      )}
-
-      {activeTab === 'users' && (
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-4 text-base font-semibold text-gray-900">
-            Usuarios do Tenant
-          </h2>
-          <p className="text-sm text-gray-500">
-            Visualizacao de usuarios sera implementada na proxima fase.
-          </p>
         </div>
       )}
 

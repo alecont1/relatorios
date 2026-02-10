@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, ClipboardList, FileText, Settings, User, FolderKanban, Building2, Award, Shield } from 'lucide-react'
+import { Home, ClipboardList, FileText, Settings, Building2, Award, Shield } from 'lucide-react'
 import { useAuthStore } from '@/features/auth'
 
 /**
@@ -18,11 +18,9 @@ export function MobileNav() {
   // Permission checks based on new role hierarchy
   const isSuperadmin = user?.role === 'superadmin'
   const isTenantAdmin = user?.role === 'tenant_admin'
-  const isProjectManager = user?.role === 'project_manager'
 
   const canManageTemplates = isSuperadmin || isTenantAdmin
   const canAccessSettings = isSuperadmin || isTenantAdmin
-  const canManageProjects = isSuperadmin || isTenantAdmin || isProjectManager
   const canAccessTenants = isSuperadmin
 
   return (
@@ -30,11 +28,6 @@ export function MobileNav() {
       <div className="flex items-center justify-around h-16">
         <NavItem to="/" icon={Home} label="Inicio" />
         <NavItem to="/reports" icon={ClipboardList} label="Relatorios" />
-
-        {/* Show projects for project managers and above */}
-        {canManageProjects && (
-          <NavItem to="/projects" icon={FolderKanban} label="Projetos" />
-        )}
 
         {/* Show templates for tenant admins and superadmins */}
         {canManageTemplates && (
@@ -61,8 +54,6 @@ export function MobileNav() {
           <NavItem to="/settings" icon={Settings} label="Empresa" />
         )}
 
-        {/* Profile is always visible */}
-        <NavItem to="/profile" icon={User} label="Perfil" />
       </div>
     </nav>
   )

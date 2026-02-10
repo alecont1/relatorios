@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban, Award, Shield, CreditCard } from 'lucide-react'
+import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, Award, Shield, CreditCard } from 'lucide-react'
 import { useAuthStore, useLogout } from '@/features/auth'
 import { MobileNav } from './MobileNav'
 import { usePWA } from '@/hooks/usePWA'
@@ -98,17 +98,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                   >
                     <Users className="h-4 w-4" />
                     Usuarios
-                  </Link>
-                )}
-
-                {/* Projects - project_manager, tenant_admin, superadmin */}
-                {canManageProjects && (
-                  <Link
-                    to="/projects"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                  >
-                    <FolderKanban className="h-4 w-4" />
-                    Projetos
                   </Link>
                 )}
 

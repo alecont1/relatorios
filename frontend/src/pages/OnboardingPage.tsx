@@ -9,7 +9,6 @@ import {
   BrandingStep,
   TemplateStep,
   CertificateStep,
-  UsersStep,
   FirstReportStep,
   STEP_KEYS,
 } from '@/features/onboarding'
@@ -131,8 +130,7 @@ export function OnboardingPage() {
           {activeStep === 0 && <BrandingStep onComplete={handleStepComplete} />}
           {activeStep === 1 && <TemplateStep onComplete={handleStepComplete} />}
           {activeStep === 2 && <CertificateStep onComplete={handleStepComplete} />}
-          {activeStep === 3 && <UsersStep onComplete={handleStepComplete} />}
-          {activeStep === 4 && <FirstReportStep onComplete={handleStepComplete} />}
+          {activeStep === 3 && <FirstReportStep onComplete={handleStepComplete} />}
         </div>
 
         {/* Navigation */}

@@ -6,11 +6,8 @@ import {
   Pencil,
   Trash2,
   Upload,
-  Calendar,
-  Building2,
-  Wrench,
   Hash,
-  FlaskConical,
+  FileText,
 } from 'lucide-react'
 import { type Certificate } from '../api/certificateApi'
 import { useCertificates, useDeleteCertificate } from '../hooks/useCertificates'
@@ -22,11 +19,9 @@ interface CertificateListProps {
 
 export function CertificateList({ onEdit, onUpload }: CertificateListProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('')
 
   const { data, isLoading, error } = useCertificates({
     search: searchTerm || undefined,
-    status: statusFilter || undefined,
     limit: 100,
   })
 
@@ -37,33 +32,6 @@ export function CertificateList({ onEdit, onUpload }: CertificateListProps) {
       return
     }
     await deleteMutation.mutateAsync(id)
-  }
-
-  const getStatusBadge = (status: Certificate['status']) => {
-    switch (status) {
-      case 'valid':
-        return (
-          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-            Valido
-          </span>
-        )
-      case 'expiring':
-        return (
-          <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
-            Vencendo
-          </span>
-        )
-      case 'expired':
-        return (
-          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
-            Vencido
-          </span>
-        )
-    }
-  }
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')
   }
 
   if (isLoading) {
@@ -86,31 +54,16 @@ export function CertificateList({ onEdit, onUpload }: CertificateListProps) {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex gap-4">
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por equipamento, numero ou fabricante..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        {/* Status Filter */}
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">Todos</option>
-          <option value="valid">Valido</option>
-          <option value="expiring">Vencendo</option>
-          <option value="expired">Vencido</option>
-        </select>
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Buscar por equipamento ou numero de serie..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
 
       {/* Certificate Cards */}
@@ -126,66 +79,31 @@ export function CertificateList({ onEdit, onUpload }: CertificateListProps) {
               key={cert.id}
               className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition-all"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 {/* Certificate Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-3">
                     <Award className="h-5 w-5 text-blue-600 flex-shrink-0" />
                     <span className="font-semibold text-gray-900">
-                      {cert.certificate_number}
+                      {cert.equipment_name}
                     </span>
-                    {getStatusBadge(cert.status)}
-                    {cert.file_key && (
-                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                    {cert.file_key ? (
+                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full flex items-center gap-1">
+                        <FileText className="h-3 w-3" />
                         PDF
                       </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Wrench className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-gray-500">Equipamento</p>
-                        <p className="font-medium text-gray-900">{cert.equipment_name}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-gray-500">Fabricante/Modelo</p>
-                        <p className="font-medium text-gray-900">
-                          {cert.manufacturer || '-'} {cert.model || ''}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-gray-500">Validade</p>
-                        <p className="font-medium text-gray-900">
-                          {formatDate(cert.calibration_date)} - {formatDate(cert.expiry_date)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                    {cert.serial_number && (
-                      <span className="flex items-center gap-1">
-                        <Hash className="h-3 w-3" />
-                        S/N: {cert.serial_number}
-                      </span>
-                    )}
-                    {cert.laboratory && (
-                      <span className="flex items-center gap-1">
-                        <FlaskConical className="h-3 w-3" />
-                        Lab: {cert.laboratory}
+                    ) : (
+                      <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-500 rounded-full">
+                        Sem PDF
                       </span>
                     )}
                   </div>
+                  {cert.serial_number && (
+                    <div className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                      <Hash className="h-3.5 w-3.5" />
+                      S/N: {cert.serial_number}
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}

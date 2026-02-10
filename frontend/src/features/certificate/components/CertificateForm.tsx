@@ -1,21 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { X, Loader2 } from 'lucide-react'
+import { X, Loader2, Upload, FileText, CheckCircle } from 'lucide-react'
 import { type Certificate } from '../api/certificateApi'
-import { useCreateCertificate, useUpdateCertificate } from '../hooks/useCertificates'
+import { useCreateCertificate, useUpdateCertificate, useUploadCertificateFile } from '../hooks/useCertificates'
 
 const certificateSchema = z.object({
   equipment_name: z.string().min(1, 'Nome do equipamento e obrigatorio'),
-  certificate_number: z.string().min(1, 'Numero do certificado e obrigatorio'),
-  manufacturer: z.string().optional(),
-  model: z.string().optional(),
-  serial_number: z.string().optional(),
-  laboratory: z.string().optional(),
-  calibration_date: z.string().min(1, 'Data de calibracao e obrigatoria'),
-  expiry_date: z.string().min(1, 'Data de validade e obrigatoria'),
-  status: z.enum(['valid', 'expiring', 'expired']).optional(),
+  serial_number: z.string().min(1, 'Numero de serie e obrigatorio'),
 })
 
 type CertificateFormData = z.infer<typeof certificateSchema>
@@ -29,6 +22,11 @@ interface CertificateFormProps {
 export function CertificateForm({ isOpen, onClose, certificate }: CertificateFormProps) {
   const createMutation = useCreateCertificate()
   const updateMutation = useUpdateCertificate()
+  const uploadMutation = useUploadCertificateFile()
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   const isEditing = !!certificate
 
@@ -42,55 +40,61 @@ export function CertificateForm({ isOpen, onClose, certificate }: CertificateFor
     resolver: zodResolver(certificateSchema),
     defaultValues: {
       equipment_name: '',
-      certificate_number: '',
-      manufacturer: '',
-      model: '',
       serial_number: '',
-      laboratory: '',
-      calibration_date: '',
-      expiry_date: '',
-      status: 'valid',
     },
   })
 
   // Reset form when certificate changes or modal opens
   useEffect(() => {
     if (isOpen) {
+      setSelectedFile(null)
+      setUploadSuccess(false)
       if (certificate) {
         reset({
           equipment_name: certificate.equipment_name,
-          certificate_number: certificate.certificate_number,
-          manufacturer: certificate.manufacturer || '',
-          model: certificate.model || '',
           serial_number: certificate.serial_number || '',
-          laboratory: certificate.laboratory || '',
-          calibration_date: certificate.calibration_date,
-          expiry_date: certificate.expiry_date,
-          status: certificate.status,
         })
       } else {
         reset({
           equipment_name: '',
-          certificate_number: '',
-          manufacturer: '',
-          model: '',
           serial_number: '',
-          laboratory: '',
-          calibration_date: '',
-          expiry_date: '',
-          status: 'valid',
         })
       }
     }
   }, [isOpen, certificate, reset])
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        setError('root', { message: 'Apenas arquivos PDF sao aceitos.' })
+        return
+      }
+      setSelectedFile(file)
+    }
+  }
+
   const onSubmit = async (data: CertificateFormData) => {
     try {
+      let cert: Certificate
       if (isEditing && certificate) {
-        await updateMutation.mutateAsync({ id: certificate.id, data })
+        cert = await updateMutation.mutateAsync({ id: certificate.id, data })
       } else {
-        await createMutation.mutateAsync(data)
+        // Send minimal data; backend auto-generates certificate_number and sets defaults
+        cert = await createMutation.mutateAsync({
+          ...data,
+          certificate_number: `CERT-${Date.now()}`,
+          calibration_date: new Date().toISOString().split('T')[0],
+          expiry_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        })
       }
+
+      // Upload PDF if selected
+      if (selectedFile) {
+        await uploadMutation.mutateAsync({ id: cert.id, file: selectedFile })
+        setUploadSuccess(true)
+      }
+
       onClose()
     } catch (error: unknown) {
       const axiosError = error as {
@@ -104,7 +108,7 @@ export function CertificateForm({ isOpen, onClose, certificate }: CertificateFor
 
   if (!isOpen) return null
 
-  const isPending = isSubmitting || createMutation.isPending || updateMutation.isPending
+  const isPending = isSubmitting || createMutation.isPending || updateMutation.isPending || uploadMutation.isPending
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -154,157 +158,81 @@ export function CertificateForm({ isOpen, onClose, certificate }: CertificateFor
               )}
             </div>
 
-            {/* Certificate Number */}
-            <div>
-              <label
-                htmlFor="certificate_number"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Numero do Certificado *
-              </label>
-              <input
-                {...register('certificate_number')}
-                type="text"
-                id="certificate_number"
-                placeholder="Ex: CAL-2024-001"
-                className={`block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${errors.certificate_number ? 'border-red-500' : ''}`}
-              />
-              {errors.certificate_number && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.certificate_number.message}
-                </p>
-              )}
-            </div>
-
-            {/* Manufacturer & Model */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="manufacturer"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Fabricante
-                </label>
-                <input
-                  {...register('manufacturer')}
-                  type="text"
-                  id="manufacturer"
-                  placeholder="Ex: Fluke"
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="model"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Modelo
-                </label>
-                <input
-                  {...register('model')}
-                  type="text"
-                  id="model"
-                  placeholder="Ex: 87V"
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-              </div>
-            </div>
-
             {/* Serial Number */}
             <div>
               <label
                 htmlFor="serial_number"
                 className="mb-1 block text-sm font-medium text-gray-700"
               >
-                Numero de Serie
+                Numero de Serie *
               </label>
               <input
                 {...register('serial_number')}
                 type="text"
                 id="serial_number"
                 placeholder="Ex: SN-12345678"
-                className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className={`block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${errors.serial_number ? 'border-red-500' : ''}`}
               />
+              {errors.serial_number && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.serial_number.message}
+                </p>
+              )}
             </div>
 
-            {/* Laboratory */}
+            {/* PDF Upload inline */}
             <div>
-              <label
-                htmlFor="laboratory"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Laboratorio
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Certificado PDF
               </label>
+              {certificate?.file_key && !selectedFile && (
+                <div className="mb-2 flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm text-green-700">PDF ja enviado</span>
+                </div>
+              )}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
+              >
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">
+                  Clique para selecionar o PDF do certificado
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Apenas arquivos PDF
+                </p>
+              </div>
               <input
-                {...register('laboratory')}
-                type="text"
-                id="laboratory"
-                placeholder="Ex: Laboratorio ABC Calibracoes"
-                className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                onChange={handleFileChange}
+                className="hidden"
               />
-            </div>
-
-            {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="calibration_date"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Data de Calibracao *
-                </label>
-                <input
-                  {...register('calibration_date')}
-                  type="date"
-                  id="calibration_date"
-                  className={`block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${errors.calibration_date ? 'border-red-500' : ''}`}
-                />
-                {errors.calibration_date && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.calibration_date.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="expiry_date"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Data de Validade *
-                </label>
-                <input
-                  {...register('expiry_date')}
-                  type="date"
-                  id="expiry_date"
-                  className={`block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${errors.expiry_date ? 'border-red-500' : ''}`}
-                />
-                {errors.expiry_date && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.expiry_date.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Status
-              </label>
-              <select
-                {...register('status')}
-                id="status"
-                className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="valid">Valido</option>
-                <option value="expiring">Vencendo</option>
-                <option value="expired">Vencido</option>
-              </select>
+              {selectedFile && (
+                <div className="mt-2 flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <FileText className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFile(null)
+                      if (fileInputRef.current) fileInputRef.current.value = ''
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Root error */}

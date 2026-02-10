@@ -1,6 +1,6 @@
 export type StepStatus = 'pending' | 'completed' | 'skipped'
 
-export const STEP_KEYS = ['branding', 'template', 'certificate', 'users', 'first_report'] as const
+export const STEP_KEYS = ['branding', 'template', 'certificate', 'first_report'] as const
 export type StepKey = typeof STEP_KEYS[number]
 
 export interface OnboardingStep {

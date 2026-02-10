@@ -9,6 +9,7 @@ import {
   SignatureFieldsConfigurator,
   ChecklistSectionsView,
   FieldConfigModal,
+  PdfCoverPreview,
 } from '@/features/template/components'
 
 export function TemplateConfigPage() {
@@ -157,6 +158,18 @@ export function TemplateConfigPage() {
             templateId={templateId!}
             initialFields={signatureFieldsData?.signature_fields || []}
             onUpdate={() => refetchSignatureFields()}
+          />
+        </AccordionSection>
+
+        {/* PDF Preview */}
+        <AccordionSection
+          title="Preview PDF"
+          badge="Visual"
+        >
+          <PdfCoverPreview
+            template={template}
+            infoFields={infoFieldsData?.info_fields || []}
+            signatureFields={signatureFieldsData?.signature_fields || []}
           />
         </AccordionSection>
       </div>

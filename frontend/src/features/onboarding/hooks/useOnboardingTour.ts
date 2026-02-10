@@ -32,13 +32,6 @@ const TOUR_STEPS: Record<StepKey, Step[]> = {
       disableBeacon: true,
     },
   ],
-  users: [
-    {
-      target: '.onboarding-users-form',
-      content: 'Convide membros da equipe. Voce pode adicionar tecnicos, gerentes e outros administradores.',
-      disableBeacon: true,
-    },
-  ],
   first_report: [
     {
       target: '.onboarding-report-form',
