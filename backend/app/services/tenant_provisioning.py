@@ -5,6 +5,7 @@ Provides transactional operations for creating, suspending, activating,
 and configuring tenants with full audit logging.
 """
 
+import asyncio
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -83,12 +84,13 @@ class TenantProvisioningService:
         )
         db.add(config)
 
-        # 4. Create admin user
+        # 4. Create admin user (hash_password is CPU-intensive, run in threadpool)
+        hashed = await asyncio.to_thread(hash_password, admin_password)
         admin_user = User(
             id=uuid.uuid4(),
             tenant_id=tenant.id,
             email=admin_email,
-            password_hash=hash_password(admin_password),
+            password_hash=hashed,
             full_name=admin_full_name,
             role="tenant_admin",
             is_active=True,
