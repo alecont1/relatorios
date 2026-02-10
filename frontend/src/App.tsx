@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage, CertificatesPage, OnboardingPage, SuperAdminTenantsPage, CreateTenantWizard, SuperAdminTenantDetailsPage, SuperAdminPlansPage } from '@/pages';
+import { DashboardPage, LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage, CertificatesPage, OnboardingPage, SuperAdminTenantsPage, CreateTenantWizard, SuperAdminTenantDetailsPage, SuperAdminPlansPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -11,7 +11,6 @@ import {
 import { useTheme, useBrandingLoader } from '@/features/tenant';
 import { AppLayout } from '@/components/layout';
 import { OfflineIndicator } from '@/components/ui';
-import { OnboardingBanner, useOnboardingGuard } from '@/features/onboarding';
 
 /**
  * Auth initializer component.
@@ -34,29 +33,6 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, accessToken, isLoading, refresh]);
 
   return <>{children}</>;
-}
-
-/**
- * Dashboard page.
- */
-function DashboardPage() {
-  const { user } = useAuthStore();
-  useOnboardingGuard();
-
-  return (
-    <div className="space-y-6">
-      <OnboardingBanner />
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <div className="bg-white rounded-lg border p-6">
-        <p className="text-gray-600">
-          Bem-vindo, <span className="font-semibold">{user?.full_name}</span>!
-        </p>
-        <p className="text-sm text-gray-500 mt-1">
-          Cargo: {user?.role}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 function App() {

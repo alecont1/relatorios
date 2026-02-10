@@ -138,7 +138,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     to="/settings"
                     className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
                   >
-                    <Settings className="h-4 w-4" />
+                    {isSuperadmin ? <Settings className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
                     {isSuperadmin ? 'Configuracoes' : 'Empresa'}
                   </Link>
                 )}
