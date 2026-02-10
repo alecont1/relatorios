@@ -2,7 +2,7 @@
 Onboarding service - manages tenant onboarding wizard progress.
 
 Provides operations for tracking step completion, cloning demo templates,
-and managing the onboarding lifecycle.
+and managing the 3-step onboarding lifecycle (Sua Marca, Seu Template, Teste Real).
 """
 
 import uuid
@@ -18,14 +18,13 @@ from app.models.template_section import TemplateSection
 from app.models.tenant_onboarding import TenantOnboarding
 
 
-# Ordered step keys matching the wizard flow
-STEP_KEYS = ["branding", "template", "certificate", "first_report"]
+# Ordered step keys matching the wizard flow (3-step onboarding)
+STEP_KEYS = ["branding", "template", "first_report"]
 
 STEP_LABELS = {
-    "branding": "Identidade Visual",
-    "template": "Template de Relatorio",
-    "certificate": "Certificados de Calibracao",
-    "first_report": "Primeiro Relatorio",
+    "branding": "Sua Marca",
+    "template": "Seu Template",
+    "first_report": "Teste Real",
 }
 
 

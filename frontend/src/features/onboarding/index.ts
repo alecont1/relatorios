@@ -1,5 +1,5 @@
 // API hooks
-export { useOnboardingStatus, useUpdateStep, useCloneDemoTemplate } from './api'
+export { useOnboardingStatus, useUpdateStep, useCloneDemoTemplate, useReportPdfBlob } from './api'
 
 // Hooks
 export { useOnboardingGuard } from './hooks/useOnboardingGuard'
@@ -10,7 +10,6 @@ export {
   OnboardingProgress,
   BrandingStep,
   TemplateStep,
-  CertificateStep,
   FirstReportStep,
   OnboardingBanner,
 } from './components'

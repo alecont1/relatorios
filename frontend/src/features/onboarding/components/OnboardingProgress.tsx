@@ -2,10 +2,9 @@ import { Check } from 'lucide-react'
 import type { OnboardingStep, StepKey } from '../types'
 
 const STEP_LABELS: Record<StepKey, string> = {
-  branding: 'Identidade Visual',
-  template: 'Template',
-  certificate: 'Certificados',
-  first_report: 'Primeiro Relatorio',
+  branding: 'Sua Marca',
+  template: 'Seu Template',
+  first_report: 'Teste Real',
 }
 
 interface OnboardingProgressProps {

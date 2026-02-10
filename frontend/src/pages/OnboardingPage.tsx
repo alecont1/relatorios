@@ -8,7 +8,6 @@ import {
   OnboardingProgress,
   BrandingStep,
   TemplateStep,
-  CertificateStep,
   FirstReportStep,
   STEP_KEYS,
 } from '@/features/onboarding'
@@ -109,12 +108,12 @@ export function OnboardingPage() {
 
       {/* Header */}
       <div className="border-b bg-white">
-        <div className="mx-auto max-w-4xl px-4 py-6">
+        <div className="mx-auto max-w-5xl px-4 py-6">
           <h1 className="text-2xl font-bold text-gray-900">
             Configuracao Inicial
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Siga os passos abaixo para configurar sua empresa no SmartHand
+            Personalize sua empresa no SmartHand e veja o resultado em tempo real
           </p>
 
           {/* Progress */}
@@ -125,12 +124,11 @@ export function OnboardingPage() {
       </div>
 
       {/* Step content */}
-      <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-8">
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           {activeStep === 0 && <BrandingStep onComplete={handleStepComplete} />}
           {activeStep === 1 && <TemplateStep onComplete={handleStepComplete} />}
-          {activeStep === 2 && <CertificateStep onComplete={handleStepComplete} />}
-          {activeStep === 3 && <FirstReportStep onComplete={handleStepComplete} />}
+          {activeStep === 2 && <FirstReportStep onComplete={handleStepComplete} />}
         </div>
 
         {/* Navigation */}

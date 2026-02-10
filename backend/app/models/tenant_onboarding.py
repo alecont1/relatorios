@@ -1,7 +1,8 @@
 """
 TenantOnboarding model - tracks guided onboarding progress per tenant.
 
-Stores step completion status for the 4-step onboarding wizard.
+Stores step completion status for the 3-step onboarding wizard
+(Sua Marca, Seu Template, Teste Real).
 Not tenant-scoped via TenantBase (it references tenant_id as FK directly).
 """
 
@@ -21,7 +22,7 @@ class TenantOnboarding(Base):
     Tenant onboarding progress model.
 
     One-to-one relationship with Tenant. Tracks completion of the
-    4-step guided onboarding wizard for new tenants.
+    3-step guided onboarding wizard for new tenants.
 
     Step status values: "pending" | "completed" | "skipped"
     """
@@ -40,10 +41,9 @@ class TenantOnboarding(Base):
     # Step statuses
     step_branding: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
     step_template: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
-    step_certificate: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
     step_first_report: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
 
-    # Current step index (0-3) for recovery
+    # Current step index (0-2) for recovery
     current_step: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     # Metadata (stores demo_template_id, first_report_id, etc.)
