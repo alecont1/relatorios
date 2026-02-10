@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban } from 'lucide-react'
+import { LogOut, Users, Home, Building2, Settings, FileText, ClipboardList, Download, FolderKanban, Award } from 'lucide-react'
 import { useAuthStore, useLogout } from '@/features/auth'
 import { MobileNav } from './MobileNav'
 import { usePWA } from '@/hooks/usePWA'
@@ -100,6 +100,17 @@ export function AppLayout({ children }: AppLayoutProps) {
                   >
                     <FileText className="h-4 w-4" />
                     Templates
+                  </Link>
+                )}
+
+                {/* Certificados - tenant_admin and superadmin */}
+                {canManageTemplates && (
+                  <Link
+                    to="/certificates"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                  >
+                    <Award className="h-4 w-4" />
+                    Certificados
                   </Link>
                 )}
 

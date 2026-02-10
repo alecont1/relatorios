@@ -35,45 +35,30 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     # Step 1: Delete all data in correct order (respecting foreign keys)
-    # Use text() for raw SQL execution
-    # First, check if tables exist before deleting
-
-    # Delete report-related data if tables exist
+    # These tables all exist from prior migrations (001-007)
     tables_to_clean = [
         'report_signatures',
         'report_checklist_responses',
         'report_info_values',
-        'report_photos',
         'reports',
         'users'
     ]
 
     for table in tables_to_clean:
-        try:
-            conn.execute(text(f"DELETE FROM {table}"))
-        except Exception:
-            # Table might not exist, that's OK
-            pass
+        conn.execute(text(f"DELETE FROM {table}"))
 
     # Step 2: Make tenant_id nullable (for superadmin users)
-    # Check if already nullable
-    try:
-        op.alter_column(
-            'users',
-            'tenant_id',
-            existing_type=sa.UUID(),
-            nullable=True,
-        )
-    except Exception:
-        # Might already be nullable
-        pass
+    op.alter_column(
+        'users',
+        'tenant_id',
+        existing_type=sa.UUID(),
+        nullable=True,
+    )
 
     # Step 3: Drop existing constraint if it exists (in case of partial previous run)
-    try:
-        op.drop_constraint('ck_user_role_tenant_consistency', 'users', type_='check')
-    except Exception:
-        # Constraint might not exist
-        pass
+    conn.execute(text(
+        "ALTER TABLE users DROP CONSTRAINT IF EXISTS ck_user_role_tenant_consistency"
+    ))
 
     # Step 4: Add CHECK constraint for role/tenant_id consistency
     op.create_check_constraint(

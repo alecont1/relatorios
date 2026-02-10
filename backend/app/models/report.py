@@ -64,6 +64,11 @@ class Report(TenantBase):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
+    certificates: Mapped[list["ReportCertificate"]] = relationship(
+        "ReportCertificate",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return f"<Report(id={self.id}, title={self.title}, status={self.status})>"

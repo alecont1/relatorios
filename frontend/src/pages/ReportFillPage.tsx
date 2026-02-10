@@ -648,6 +648,7 @@ export function ReportFillPage() {
         isOpen={showCertificateModal}
         onClose={() => setShowCertificateModal(false)}
         onConfirm={handleComplete}
+        reportId={reportId!}
         isLoading={completeMutation.isPending}
       />
     </div>

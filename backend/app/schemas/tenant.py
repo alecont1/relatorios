@@ -30,6 +30,16 @@ class TenantUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 
+class WatermarkConfig(BaseModel):
+    """Configuration for which fields appear in photo watermarks."""
+    logo: bool = True
+    gps: bool = True
+    datetime: bool = True
+    company_name: bool = True
+    report_number: bool = False
+    technician_name: bool = True
+
+
 class TenantBrandingUpdate(BaseModel):
     """Schema for updating tenant branding and contact information."""
 
@@ -46,8 +56,9 @@ class TenantBrandingUpdate(BaseModel):
     contact_email: Optional[str] = Field(None, max_length=255, description="Contact email address")
     contact_website: Optional[str] = Field(None, max_length=255, description="Website URL")
 
-    # Watermark field
+    # Watermark fields
     watermark_text: Optional[str] = Field(None, max_length=255, description="Watermark text for reports")
+    watermark_config: Optional[dict] = Field(None, description="Watermark field configuration")
 
     @field_validator("brand_color_primary", "brand_color_secondary", "brand_color_accent")
     @classmethod
@@ -82,8 +93,9 @@ class TenantResponse(TenantBase):
     contact_email: Optional[str] = None
     contact_website: Optional[str] = None
 
-    # Watermark field
+    # Watermark fields
     watermark_text: Optional[str] = None
+    watermark_config: Optional[dict] = None
 
     class Config:
         from_attributes = True

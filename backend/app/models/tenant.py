@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import String, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -38,6 +39,9 @@ class Tenant(Base):
 
     # Watermark field (for report branding)
     watermark_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    # Watermark configuration (JSONB)
+    watermark_config: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
     def __repr__(self) -> str:
         return f"<Tenant(id={self.id}, slug={self.slug}, name={self.name})>"

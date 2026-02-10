@@ -4,6 +4,7 @@ import { useTenantBranding, useUpdateBranding } from '../api'
 import { useTenantStore } from '../store'
 import { ColorPicker } from './ColorPicker'
 import { LogoUploader } from './LogoUploader'
+import { WatermarkConfigPanel } from './WatermarkConfigPanel'
 import type { UpdateBrandingRequest } from '../types'
 
 export function TenantSettingsForm() {
@@ -99,6 +100,14 @@ export function TenantSettingsForm() {
           <p className="mt-1 text-xs text-gray-500">
             Este texto sera aplicado como marca d'agua nos relatorios e fotos gerados.
           </p>
+        </div>
+
+        {/* Watermark field toggles */}
+        <div className="mt-6">
+          <WatermarkConfigPanel
+            currentConfig={branding?.watermark_config ?? null}
+            onSaved={refetch}
+          />
         </div>
       </section>
 

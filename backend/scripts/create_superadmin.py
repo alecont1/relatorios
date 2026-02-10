@@ -22,7 +22,7 @@ from getpass import getpass
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import select
-from app.core.database import AsyncSessionLocal
+from app.core.database import async_session as AsyncSessionLocal
 from app.core.security import hash_password
 from app.models.user import User
 
@@ -101,5 +101,11 @@ async def create_superadmin():
 
 
 if __name__ == "__main__":
-    success = asyncio.run(create_superadmin())
+    import selectors
+    selector = selectors.SelectSelector()
+    loop = asyncio.SelectorEventLoop(selector)
+    try:
+        success = loop.run_until_complete(create_superadmin())
+    finally:
+        loop.close()
     sys.exit(0 if success else 1)

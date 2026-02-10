@@ -612,9 +612,14 @@ async def download_report_pdf(
 
     The report should be completed for full PDF generation,
     but drafts can also be downloaded for preview.
+    Includes calibration certificates as attachments if linked.
     """
     from app.models.tenant import Tenant
+    from app.models.calibration_certificate import CalibrationCertificate
+    from app.models.report_certificate import ReportCertificate
     from app.services.pdf_service import pdf_service
+    from app.services.pdf_merger import merge_report_with_certificates
+    from app.services.storage import get_storage_service, StorageError
 
     # Build conditions - superadmin can access any report
     conditions = [Report.id == report_id]
@@ -628,6 +633,7 @@ async def download_report_pdf(
             selectinload(Report.info_values),
             selectinload(Report.checklist_responses),
             selectinload(Report.signatures),
+            selectinload(Report.certificates),
         )
         .where(and_(*conditions))
     )
@@ -651,14 +657,48 @@ async def download_report_pdf(
             detail="Tenant nao encontrado",
         )
 
+    # Load linked certificates
+    certificates = []
+    cert_pdf_files = []
+    if report.certificates:
+        cert_ids = [rc.certificate_id for rc in report.certificates]
+        if cert_ids:
+            cert_result = await db.execute(
+                select(CalibrationCertificate)
+                .where(
+                    CalibrationCertificate.id.in_(cert_ids),
+                    CalibrationCertificate.is_active == True,
+                )
+            )
+            certificates = list(cert_result.scalars().all())
+
+            # Download certificate PDF files from storage
+            storage = get_storage_service()
+            for cert in certificates:
+                if cert.file_key:
+                    try:
+                        cert_bytes = storage.download_file(cert.file_key)
+                        cert_pdf_files.append(cert_bytes)
+                    except (StorageError, Exception):
+                        pass  # Skip if download fails
+
     # Generate PDF
     try:
-        pdf_bytes = pdf_service.generate_report_pdf(report, tenant)
+        pdf_bytes = pdf_service.generate_report_pdf(
+            report, tenant, certificates=certificates or None
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro ao gerar PDF: {str(e)}",
         )
+
+    # Merge with certificate PDFs if any
+    if cert_pdf_files:
+        try:
+            pdf_bytes = merge_report_with_certificates(pdf_bytes, cert_pdf_files)
+        except Exception:
+            pass  # If merge fails, return report PDF without attachments
 
     # Build filename
     safe_title = "".join(c for c in report.title if c.isalnum() or c in (' ', '-', '_')).strip()

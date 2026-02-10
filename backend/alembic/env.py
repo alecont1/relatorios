@@ -34,6 +34,8 @@ from app.models import (  # noqa: F401
     ReportChecklistResponse,
     ReportSignature,
     ReportPhoto,
+    CalibrationCertificate,
+    ReportCertificate,
 )
 
 # this is the Alembic Config object, which provides

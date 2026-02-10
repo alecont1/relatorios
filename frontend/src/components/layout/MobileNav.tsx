@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, ClipboardList, FileText, Settings, User, FolderKanban, Building2 } from 'lucide-react'
+import { Home, ClipboardList, FileText, Settings, User, FolderKanban, Building2, Award } from 'lucide-react'
 import { useAuthStore } from '@/features/auth'
 
 /**
@@ -39,6 +39,11 @@ export function MobileNav() {
         {/* Show templates for tenant admins and superadmins */}
         {canManageTemplates && (
           <NavItem to="/templates" icon={FileText} label="Templates" />
+        )}
+
+        {/* Show certificates for tenant admins and superadmins */}
+        {canManageTemplates && (
+          <NavItem to="/certificates" icon={Award} label="Certificados" />
         )}
 
         {/* Show tenants only for superadmin */}

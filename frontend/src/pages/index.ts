@@ -7,3 +7,4 @@ export { TemplatesPage } from './TemplatesPage';
 export { TemplateConfigPage } from './TemplateConfigPage';
 export { ReportsPage } from './ReportsPage';
 export { ReportFillPage } from './ReportFillPage';
+export { CertificatesPage } from './CertificatesPage';

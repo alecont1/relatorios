@@ -179,6 +179,35 @@ class StorageService:
             except FileNotFoundError:
                 return False
 
+    def download_file(self, object_key: str) -> bytes:
+        """
+        Download a file from storage.
+
+        Args:
+            object_key: The storage key for the file
+
+        Returns:
+            File contents as bytes
+
+        Raises:
+            StorageError: If download fails
+        """
+        if self._use_r2:
+            try:
+                response = self._client.get_object(
+                    Bucket=self._bucket,
+                    Key=object_key,
+                )
+                return response["Body"].read()
+            except ClientError as e:
+                raise StorageError(f"Failed to download from R2: {e}")
+        else:
+            # Local storage
+            full_path = self._local_storage_path / object_key
+            if not full_path.exists():
+                raise StorageError(f"File not found: {object_key}")
+            return full_path.read_bytes()
+
     def list_objects(
         self,
         prefix: str,

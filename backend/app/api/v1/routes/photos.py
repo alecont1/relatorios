@@ -4,6 +4,7 @@ Photo management API endpoints.
 Handles photo uploads, deletion, and listing for report checklist responses.
 """
 from datetime import datetime
+from io import BytesIO
 from typing import Optional
 from uuid import UUID
 import uuid
@@ -17,7 +18,9 @@ from app.core.deps import get_current_user, get_db
 from app.models.user import User
 from app.models.report import Report
 from app.models.report_checklist_response import ReportChecklistResponse
+from app.models.tenant import Tenant
 from app.services.storage import get_storage_service, StorageError
+from app.services.watermark_service import watermark_service
 from app.schemas.photo import (
     PhotoMetadata,
     GPSCoordinates,
@@ -110,6 +113,11 @@ async def upload_photo(
             detail=f"Maximum {max_photos} photos allowed for this field"
         )
 
+    # Read original file bytes before uploading (needed for watermarking)
+    file.file.seek(0)
+    original_bytes = file.file.read()
+    file.file.seek(0)
+
     # Upload to storage - use report's tenant_id for proper isolation
     storage = get_storage_service()
     try:
@@ -126,6 +134,44 @@ async def upload_photo(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
+    # Apply server-side watermark
+    tenant_result = await db.execute(
+        select(Tenant).where(Tenant.id == report.tenant_id)
+    )
+    tenant = tenant_result.scalar_one_or_none()
+
+    watermarked = False
+    if tenant:
+        watermark_config = tenant.watermark_config  # JSONB or None
+
+        # Build context for watermark
+        wm_context: dict = {
+            "company_name": tenant.name,
+            "technician_name": current_user.full_name,
+            "report_number": report.title,
+            "datetime": datetime.utcnow().strftime("%d/%m/%Y %H:%M"),
+        }
+
+        if latitude is not None and longitude is not None:
+            wm_context["gps"] = f"{latitude:.6f}, {longitude:.6f}"
+        if address:
+            wm_context["address"] = address
+
+        try:
+            watermarked_bytes = watermark_service.apply_watermark(
+                original_bytes, watermark_config, wm_context
+            )
+            # Re-upload watermarked version, overwriting the original path
+            if storage.is_cloud_storage:
+                storage._upload_to_r2(BytesIO(watermarked_bytes), storage_path, "image/jpeg")
+            else:
+                storage._upload_to_local(BytesIO(watermarked_bytes), storage_path)
+            watermarked = True
+        except Exception as e:
+            # If watermark fails, keep the original upload (don't break upload flow)
+            import logging
+            logging.getLogger(__name__).warning(f"Watermark failed: {e}")
 
     # Build GPS coordinates if provided
     gps = None
@@ -153,7 +199,7 @@ async def upload_photo(
         captured_at=capture_time,
         gps=gps,
         address=address,
-        watermarked=False,  # Will be set to True when frontend sends watermarked image
+        watermarked=watermarked,
     )
 
     # Update response photos array

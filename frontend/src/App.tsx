@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage } from '@/pages';
+import { LoginPage, UnauthorizedPage, UsersPage, TenantsPage, TenantSettingsPage, TemplatesPage, TemplateConfigPage, ReportsPage, ReportFillPage, CertificatesPage } from '@/pages';
 import {
   ProtectedRoute,
   useRefreshToken,
@@ -126,6 +126,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
                   <AppLayout>
                     <TemplateConfigPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/certificates"
+              element={
+                <ProtectedRoute allowedRoles={['tenant_admin', 'superadmin']}>
+                  <AppLayout>
+                    <CertificatesPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
