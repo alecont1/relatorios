@@ -17,6 +17,22 @@ from app.core.config import settings
 class ReportPDF(FPDF):
     """Custom PDF class for reports."""
 
+    # Unicode chars outside Latin-1 → ASCII replacements
+    _CHAR_MAP = {
+        "\u03a9": "Ohm", "\u2126": "Ohm",  # Ω
+        "\u03bc": "u",    # μ (micro)
+        "\u2103": "C", "\u2109": "F",  # ℃ ℉
+        "\u2264": "<=", "\u2265": ">=",
+    }
+
+    def normalize_text(self, text):
+        """Override to sanitize Unicode chars unsupported by Helvetica."""
+        if text:
+            for char, repl in self._CHAR_MAP.items():
+                text = text.replace(char, repl)
+            text = text.encode("latin-1", errors="replace").decode("latin-1")
+        return super().normalize_text(text)
+
     def __init__(self, tenant: dict, template: dict):
         super().__init__()
         self.tenant = tenant
