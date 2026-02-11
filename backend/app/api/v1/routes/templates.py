@@ -400,6 +400,8 @@ async def update_template(
         template.reference_standards = template_data.reference_standards
     if template_data.planning_requirements is not None:
         template.planning_requirements = template_data.planning_requirements
+    if template_data.pdf_layout_id is not None:
+        template.pdf_layout_id = template_data.pdf_layout_id
 
     await db.commit()
     await db.refresh(template)
