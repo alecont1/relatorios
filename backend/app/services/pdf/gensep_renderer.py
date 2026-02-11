@@ -147,6 +147,28 @@ class GensepPDFRenderer:
         self.secondary = self._hex_to_rgb(self.tenant_info["secondary_color"])
         self.accent = self._hex_to_rgb(self.tenant_info["accent_color"])
 
+    @staticmethod
+    def _clean_value(val: str) -> str:
+        """Clean response_value from possible JSON array artifacts.
+
+        Dropdown values may be stored as '["OK"' or '["APPROVED"]' instead
+        of plain strings. This extracts the actual value.
+        """
+        if not val:
+            return ""
+        val = val.strip()
+        # Handle truncated JSON arrays like '["OK"' or full '["OK"]'
+        if val.startswith('["') or val.startswith("['"):
+            import json
+            try:
+                parsed = json.loads(val if val.endswith("]") else val + '"]')
+                if isinstance(parsed, list) and parsed:
+                    return str(parsed[0])
+            except (json.JSONDecodeError, IndexError):
+                # Strip brackets and quotes manually
+                val = val.lstrip("[").rstrip("]").strip("'\"")
+        return val
+
     def generate(self) -> bytes:
         """Generate the complete PDF and return bytes."""
         template_name = self.snapshot.get("name", "Report")
@@ -382,7 +404,7 @@ class GensepPDFRenderer:
             f1 = fields[i]
             label1 = f1.get("label", "")
             resp1 = f1.get("response", {})
-            val1 = resp1.get("response_value", "") or ""
+            val1 = self._clean_value(resp1.get("response_value", ""))
 
             pdf.set_xy(10, y_start)
             label_w = 40
@@ -400,7 +422,7 @@ class GensepPDFRenderer:
                 f2 = fields[i + 1]
                 label2 = f2.get("label", "")
                 resp2 = f2.get("response", {})
-                val2 = resp2.get("response_value", "") or ""
+                val2 = self._clean_value(resp2.get("response_value", ""))
 
                 pdf.set_font("Helvetica", "B", 7)
                 pdf.cell(label_w, row_h, f" {label2}:", border=1, fill=True)
@@ -438,7 +460,7 @@ class GensepPDFRenderer:
                 field = fields[i + j]
                 label = field.get("label", "")
                 resp = field.get("response", {})
-                value = resp.get("response_value", "") or ""
+                value = self._clean_value(resp.get("response_value", ""))
 
                 label_w = min(col_w * 0.45, 30)
                 val_w = col_w - label_w
@@ -565,7 +587,7 @@ class GensepPDFRenderer:
             for col_name in columns:
                 f = field_by_col.get(col_name)
                 resp = f.get("response", {}) if f else {}
-                value = resp.get("response_value", "") or ""
+                value = self._clean_value(resp.get("response_value", ""))
 
                 pdf.set_xy(x, y_start)
 
@@ -631,7 +653,7 @@ class GensepPDFRenderer:
         for i, field in enumerate(fields):
             label = field.get("label", "")
             resp = field.get("response", {})
-            value = (resp.get("response_value", "") or "").strip()
+            value = (self._clean_value(resp.get("response_value", ""))).strip()
             comment = (resp.get("comment", "") or "").strip()
 
             # Detect special fields
