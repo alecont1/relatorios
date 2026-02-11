@@ -93,6 +93,7 @@ class TemplateUpdate(BaseModel):
     title: str | None = Field(None, max_length=500)
     reference_standards: str | None = None
     planning_requirements: str | None = None
+    pdf_layout_id: UUID | None = None
 
 
 class TemplateResponse(BaseModel):
@@ -110,6 +111,7 @@ class TemplateResponse(BaseModel):
     reference_standards: str | None
     planning_requirements: str | None
     is_active: bool
+    pdf_layout_id: UUID | None = None
     created_at: datetime
     updated_at: datetime
     sections: list[TemplateSectionResponse] | None = None
