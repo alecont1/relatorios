@@ -447,99 +447,129 @@ class GensepPDFRenderer:
     # ── Measured Values (6-column table) ──────────────────────────
 
     def _render_measured_values(self, fields: list):
-        """Render measured values as a table with columns."""
+        """Render measured values as a table: Connection | 30s | 1min | Unit | IA | STATUS.
+
+        Fields follow the pattern: "{ROW_NAME} - {COLUMN_NAME}", e.g.:
+        "POSITIVE X NEGATIVE - 30s", "POSITIVE X NEGATIVE - 1min", etc.
+        """
         pdf = self.pdf
         row_h = 5
-        total_w = 190
+        font_sz = 6.5
 
-        # Try to parse fields as table data
-        # Expected fields: Connection, 30", 1', Unit, IA, STATUS per row
-        # Or just render as 3-column pairs if structure is flat
-
-        # Check if fields have sub-headers pattern
-        header_labels = []
-        data_rows = []
-
-        # Strategy: If we have fields whose labels look like table headers,
-        # render as table. Otherwise fall back to paired layout.
-        # For GENSEP: each row has Connection/30"/1'/Unit/IA/STATUS
-        # But our data model stores each as a separate field.
-        # Group every 6 fields as a row, or detect by pattern.
-
-        # Simple approach: render as 6-column table header + rows
-        # First field labels become the header
-        cols = min(6, len(fields))
-        if cols == 0:
+        if not fields:
             return
 
-        # Try to detect if it's a real table or just a list of fields
-        # For now, use generic 3-column instrument layout as fallback
-        if len(fields) <= 6:
+        # Parse fields into rows by detecting "ROW - COLUMN" pattern
+        from collections import OrderedDict
+        rows: OrderedDict[str, list] = OrderedDict()
+        columns: list[str] = []
+
+        for field in fields:
+            label = field.get("label", "")
+            if " - " in label:
+                row_name, col_name = label.rsplit(" - ", 1)
+                if row_name not in rows:
+                    rows[row_name] = []
+                if col_name not in columns:
+                    columns.append(col_name)
+                rows[row_name].append(field)
+            else:
+                # Fallback: field without pattern
+                if "_ungrouped" not in rows:
+                    rows["_ungrouped"] = []
+                rows["_ungrouped"].append(field)
+
+        # If pattern not detected, fall back to instrument layout
+        if not columns or len(rows) == 0:
             self._render_instrument_data(fields)
             return
 
-        # Attempt table: split into rows of 6
-        col_w = total_w / min(cols, 6)
+        # Remove ungrouped if present
+        ungrouped = rows.pop("_ungrouped", [])
+
+        # Build table: header = ["Connection", col1, col2, ...]
+        num_cols = len(columns) + 1  # +1 for row name column
+        conn_w = 50  # Connection/row name column
+        remaining_w = 140  # remaining width for data columns
+        col_w = remaining_w / max(len(columns), 1)
 
         # Header row
         pdf.set_fill_color(*self.primary)
         pdf.set_text_color(255, 255, 255)
-        pdf.set_font("Helvetica", "B", 6.5)
+        pdf.set_font("Helvetica", "B", font_sz)
 
-        # Use first N field labels as headers
-        header_count = min(6, len(fields))
         x = 10
-        for i in range(header_count):
+        pdf.set_xy(x, pdf.get_y())
+        pdf.cell(conn_w, row_h, "Connection", border=1, fill=True, align="C")
+        x += conn_w
+        for col_name in columns:
             pdf.set_xy(x, pdf.get_y())
-            label = fields[i].get("label", "")
-            # Truncate long headers
-            if len(label) > 15:
-                label = label[:14] + "."
-            pdf.cell(col_w, row_h, label, border=1, fill=True, align="C")
+            # Shorten column headers
+            short = col_name
+            if len(short) > 10:
+                short = short[:9] + "."
+            pdf.cell(col_w, row_h, short, border=1, fill=True, align="C")
             x += col_w
         pdf.set_y(pdf.get_y() + row_h)
 
-        # Data rows (fields after the headers)
-        pdf.set_text_color(0, 0, 0)
-        pdf.set_font("Helvetica", "", 6.5)
-        remaining = fields[header_count:]
-
-        for row_idx in range(0, len(remaining), header_count):
+        # Data rows
+        pdf.set_font("Helvetica", "", font_sz)
+        for row_idx, (row_name, row_fields) in enumerate(rows.items()):
             y_start = pdf.get_y()
             if y_start + row_h > pdf.h - 20:
                 pdf.add_page()
                 y_start = pdf.get_y()
 
-            x = 10
-            bg = (245, 247, 250) if (row_idx // header_count) % 2 == 0 else (255, 255, 255)
+            bg = (245, 247, 250) if row_idx % 2 == 0 else (255, 255, 255)
             pdf.set_fill_color(*bg)
 
-            for j in range(header_count):
-                idx = row_idx + j
-                if idx < len(remaining):
-                    resp = remaining[idx].get("response", {})
-                    value = resp.get("response_value", "") or ""
-                else:
-                    value = ""
+            # Build a lookup from column name to field
+            field_by_col = {}
+            for f in row_fields:
+                lbl = f.get("label", "")
+                if " - " in lbl:
+                    _, cn = lbl.rsplit(" - ", 1)
+                    field_by_col[cn] = f
+
+            x = 10
+            pdf.set_xy(x, y_start)
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_font("Helvetica", "B", font_sz)
+            # Abbreviate row name if too long
+            display_name = row_name
+            if len(display_name) > 25:
+                display_name = display_name[:24] + "."
+            pdf.cell(conn_w, row_h, display_name, border=1, fill=True, align="L")
+            x += conn_w
+
+            pdf.set_font("Helvetica", "", font_sz)
+            for col_name in columns:
+                f = field_by_col.get(col_name)
+                resp = f.get("response", {}) if f else {}
+                value = resp.get("response_value", "") or ""
 
                 pdf.set_xy(x, y_start)
 
-                # Color STATUS field
-                if j == header_count - 1 and value:
+                # Color STATUS column
+                if col_name.lower() == "status" and value:
                     upper_val = value.upper()
                     if upper_val in ("OK", "APPROVED", "PASS", "CONFORME"):
                         pdf.set_text_color(*self.accent)
-                        pdf.set_font("Helvetica", "B", 6.5)
-                    elif upper_val in ("NOK", "FAIL", "REJECTED", "NAO CONFORME"):
+                        pdf.set_font("Helvetica", "B", font_sz)
+                    elif upper_val in ("NOK", "REPROVED", "FAIL", "REJECTED", "NAO CONFORME"):
                         pdf.set_text_color(220, 38, 38)
-                        pdf.set_font("Helvetica", "B", 6.5)
+                        pdf.set_font("Helvetica", "B", font_sz)
 
                 pdf.cell(col_w, row_h, value, border=1, fill=True, align="C")
                 pdf.set_text_color(0, 0, 0)
-                pdf.set_font("Helvetica", "", 6.5)
+                pdf.set_font("Helvetica", "", font_sz)
                 x += col_w
 
             pdf.set_y(y_start + row_h)
+
+        # Render any ungrouped fields below
+        if ungrouped:
+            self._render_instrument_data(ungrouped)
 
         pdf.ln(1)
 
