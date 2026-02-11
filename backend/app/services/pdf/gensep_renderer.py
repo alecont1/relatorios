@@ -104,7 +104,8 @@ class GensepPDF(FPDF):
     def _add_image(self, url: str, x: float, y: float, w: float):
         """Add image from URL or local path."""
         if url.startswith(("http://", "https://")):
-            with urllib.request.urlopen(url, timeout=5) as response:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as response:
                 img_data = response.read()
                 img_io = BytesIO(img_data)
                 self.image(img_io, x, y, w)
@@ -962,83 +963,59 @@ class GensepPDFRenderer:
                 self._render_instrument_data(inst["fields"])
                 pdf.ln(1)
 
-            # Photo grid
+            # Photo grid - render 2 per row
             photos = group["photos"]
             photo_w = 85
             photo_h = 65
-            margin = 10
-            x_start = 10
-            cols = 2
+            gap = 10
+            x_positions = [10, 10 + photo_w + gap]
+            caption_h = 8
 
-            for i, photo_data in enumerate(photos):
-                col = i % cols
-                row_offset = (i // cols) * (photo_h + 18)
-
-                x = x_start + col * (photo_w + margin)
-                y = pdf.get_y() + row_offset
-
-                if y + photo_h + 18 > pdf.h - 20:
+            i = 0
+            while i < len(photos):
+                # Check if we need a new page for this row
+                needed = photo_h + caption_h + 4
+                if pdf.get_y() + needed > pdf.h - 20:
                     pdf.add_page()
-                    pdf.set_y(pdf.get_y())
-                    y = pdf.get_y()
-                    # Reset row counting for new page
-                    remaining_photos = photos[i:]
-                    for ri, rp in enumerate(remaining_photos):
-                        rc = ri % cols
-                        rr = (ri // cols) * (photo_h + 18)
-                        rx = x_start + rc * (photo_w + margin)
-                        ry = pdf.get_y() + rr
 
-                        if ry + photo_h + 18 > pdf.h - 20:
-                            pdf.add_page()
-                            ry = pdf.get_y()
+                row_y = pdf.get_y()
 
-                        photo_url = rp.get("url", "")
-                        if photo_url:
-                            try:
-                                resolved = self._resolve_image_url(photo_url)
-                                pdf._add_image(resolved, rx, ry, photo_w)
-                            except Exception:
-                                pass
+                # Render up to 2 photos in this row
+                for col in range(2):
+                    if i >= len(photos):
+                        break
+                    photo_data = photos[i]
+                    x = x_positions[col]
 
-                        # Caption
-                        pdf.set_xy(rx, ry + photo_h)
-                        pdf.set_font("Helvetica", "", 6)
-                        pdf.set_text_color(100, 100, 100)
-                        caption = rp.get("field", "")
-                        if rp.get("captured_at"):
-                            captured = rp["captured_at"][:16].replace("T", " ")
-                            caption += f" - {captured}"
-                        pdf.multi_cell(photo_w, 3, caption, align="C")
-                        pdf.set_text_color(0, 0, 0)
+                    photo_url = photo_data.get("url", "")
+                    if photo_url:
+                        try:
+                            resolved = self._resolve_image_url(photo_url)
+                            pdf._add_image(resolved, x, row_y, photo_w)
+                        except Exception as e:
+                            # Draw placeholder box with error hint
+                            pdf.set_draw_color(200, 200, 200)
+                            pdf.rect(x, row_y, photo_w, photo_h)
+                            pdf.set_xy(x + 2, row_y + photo_h / 2 - 3)
+                            pdf.set_font("Helvetica", "I", 6)
+                            pdf.set_text_color(180, 180, 180)
+                            pdf.cell(photo_w - 4, 6, "Image unavailable", align="C")
 
-                    break  # Already rendered all remaining
+                    # Caption below photo
+                    pdf.set_xy(x, row_y + photo_h)
+                    pdf.set_font("Helvetica", "", 6)
+                    pdf.set_text_color(100, 100, 100)
+                    caption = photo_data.get("field", "")
+                    if photo_data.get("captured_at"):
+                        captured = photo_data["captured_at"][:16].replace("T", " ")
+                        caption += f" - {captured}"
+                    pdf.multi_cell(photo_w, 3, caption, align="C")
+                    pdf.set_text_color(0, 0, 0)
 
-                photo_url = photo_data.get("url", "")
-                if photo_url:
-                    try:
-                        resolved = self._resolve_image_url(photo_url)
-                        pdf._add_image(resolved, x, y, photo_w)
-                    except Exception:
-                        pass
+                    i += 1
 
-                # Caption
-                pdf.set_xy(x, y + photo_h)
-                pdf.set_font("Helvetica", "", 6)
-                pdf.set_text_color(100, 100, 100)
-                caption = photo_data.get("field", "")
-                if photo_data.get("captured_at"):
-                    captured = photo_data["captured_at"][:16].replace("T", " ")
-                    caption += f" - {captured}"
-                pdf.multi_cell(photo_w, 3, caption, align="C")
-                pdf.set_text_color(0, 0, 0)
-
-            # Move Y past the last row of photos
-            if photos:
-                last_row = (len(photos) - 1) // cols
-                new_y = pdf.get_y() + (last_row) * (photo_h + 18) + photo_h + 20
-                if new_y < pdf.h:
-                    pdf.set_y(new_y)
+                # Advance Y past this row
+                pdf.set_y(row_y + photo_h + caption_h + 4)
 
     # ── Helpers ───────────────────────────────────────────────────
 

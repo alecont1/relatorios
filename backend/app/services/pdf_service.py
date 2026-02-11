@@ -195,7 +195,8 @@ class ReportPDF(FPDF):
         """Add image from URL or local path."""
         try:
             if url.startswith(("http://", "https://")):
-                with urllib.request.urlopen(url, timeout=5) as response:
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=10) as response:
                     img_data = response.read()
                     img_io = BytesIO(img_data)
                     self.image(img_io, x, y, w)
