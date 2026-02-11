@@ -23,12 +23,31 @@ from .layout_config import LayoutConfig
 class GensepPDF(FPDF):
     """Custom FPDF subclass for GENSEP style with header/footer."""
 
+    # Unicode chars outside Latin-1 → ASCII replacements
+    _CHAR_MAP = {
+        "\u03a9": "Ohm", "\u2126": "Ohm",  # Ω
+        "\u03bc": "u",    # μ (micro)
+        "\u03b1": "a", "\u03b2": "b", "\u03b3": "g", "\u03b4": "d",
+        "\u2103": "C", "\u2109": "F",  # ℃ ℉
+        "\u221e": "inf",  # ∞
+        "\u2264": "<=", "\u2265": ">=", "\u2260": "!=",
+    }
+
     def __init__(self, tenant_info: dict, template_name: str, primary_color: tuple):
         super().__init__()
         self._tenant_info = tenant_info
         self._template_name = template_name
         self._primary_color = primary_color
         self._is_cover = False
+
+    def normalize_text(self, text):
+        """Override to sanitize Unicode chars unsupported by Helvetica/Latin-1."""
+        if text:
+            for char, repl in self._CHAR_MAP.items():
+                text = text.replace(char, repl)
+            # Replace any remaining non-Latin-1 chars with '?'
+            text = text.encode("latin-1", errors="replace").decode("latin-1")
+        return super().normalize_text(text)
 
     def header(self):
         if self._is_cover:
