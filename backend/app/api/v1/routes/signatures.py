@@ -52,11 +52,7 @@ async def get_report_with_access(
 
 def _get_signature_url(storage, file_key: str) -> str:
     """Get URL for signature file."""
-    # For local storage, return the file path
-    if hasattr(storage, 'get_download_url'):
-        return storage.get_download_url(file_key)
-    # Default to uploads path
-    return f"/uploads/{file_key}"
+    return storage.generate_download_url(file_key)
 
 
 @router.post("", response_model=SignatureResponse)
@@ -106,23 +102,16 @@ async def upload_signature(
     # Upload to storage - use report's tenant_id for proper isolation
     storage = get_storage_service()
     try:
-        file_key = f"{report.tenant_id}/signatures/{report_id}/{uuid.uuid4()}.png"
+        import io
         content = await file.read()
-
-        if hasattr(storage, 'upload_bytes'):
-            storage.upload_bytes(content, file_key, "image/png")
-        else:
-            # Fallback: use upload_photo method structure
-            import io
-            file.file = io.BytesIO(content)
-            url, file_key = storage.upload_photo(
-                file=file.file,
-                tenant_id=str(report.tenant_id),
-                report_id=str(report_id),
-                response_id="signatures",
-                original_filename=f"{role_name}.png",
-                content_type="image/png",
-            )
+        url, file_key = storage.upload_photo(
+            file=io.BytesIO(content),
+            tenant_id=str(report.tenant_id),
+            report_id=str(report_id),
+            response_id="signatures",
+            original_filename=f"{role_name}_{uuid.uuid4().hex[:8]}.png",
+            content_type="image/png",
+        )
     except (StorageError, Exception) as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
