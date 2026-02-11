@@ -30,6 +30,7 @@ from app.models import (
     TemplateSection,
     User,
 )
+from app.models.project import Project
 from app.schemas.report import (
     ReportCreate,
     ReportUpdate,
@@ -144,6 +145,24 @@ async def create_report(
 
     # Create template snapshot
     template_snapshot = _serialize_template_snapshot(template)
+
+    # Ensure project exists (auto-create default project for tenant if needed)
+    project_result = await db.execute(
+        select(Project).where(Project.id == data.project_id)
+    )
+    project = project_result.scalar_one_or_none()
+    if not project:
+        # Auto-create a default project for this tenant
+        project = Project(
+            id=data.project_id,
+            tenant_id=tenant_id,
+            name="Projeto Padrao",
+            description="Projeto padrao criado automaticamente",
+            client_name="Cliente Geral",
+            is_active=True,
+        )
+        db.add(project)
+        await db.flush()
 
     # Create report
     report = Report(
