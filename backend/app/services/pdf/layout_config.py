@@ -53,6 +53,7 @@ class LayoutConfig(BaseModel):
     All fields have defaults, so partial config_json from the database
     will be filled in automatically.
     """
+    style: str = "default"  # "default" | "gensep" | custom renderer styles
     cover_page: CoverPageConfig = Field(default_factory=CoverPageConfig)
     fonts: FontsConfig = Field(default_factory=FontsConfig)
     margins: MarginsConfig = Field(default_factory=MarginsConfig)
