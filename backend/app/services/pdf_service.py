@@ -231,6 +231,14 @@ class PDFService:
         snapshot = report.template_snapshot
         config = layout_config or {}
 
+        # Route to specialized renderer if style is set
+        if config.get("style") == "gensep":
+            from app.services.pdf.gensep_renderer import GensepPDFRenderer
+            from app.services.pdf.layout_config import LayoutConfig
+            lc = LayoutConfig.from_dict(config)
+            renderer = GensepPDFRenderer(report, tenant, certificates, lc)
+            return renderer.generate()
+
         # Build logo URLs properly
         logo_primary_url = self._resolve_logo_url(tenant.logo_primary_key)
         logo_secondary_url = self._resolve_logo_url(tenant.logo_secondary_key)
