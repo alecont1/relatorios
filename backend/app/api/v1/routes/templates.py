@@ -106,6 +106,7 @@ def _template_to_response(template: Template) -> TemplateResponse:
         reference_standards=template.reference_standards,
         planning_requirements=template.planning_requirements,
         is_active=template.is_active,
+        pdf_layout_id=template.pdf_layout_id,
         created_at=template.created_at,
         updated_at=template.updated_at,
         sections=sections,
