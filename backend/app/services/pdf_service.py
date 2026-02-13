@@ -1,13 +1,18 @@
 """
 PDF generation service using fpdf2.
 """
+import logging
+import time
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional
 import urllib.request
+import urllib.error
 
 from fpdf import FPDF
+
+logger = logging.getLogger(__name__)
 
 from app.models.report import Report
 from app.models.tenant import Tenant
@@ -19,10 +24,41 @@ class ReportPDF(FPDF):
 
     # Unicode chars outside Latin-1 → ASCII replacements
     _CHAR_MAP = {
+        # Greek letters (common in engineering)
         "\u03a9": "Ohm", "\u2126": "Ohm",  # Ω
-        "\u03bc": "u",    # μ (micro)
+        "\u03bc": "u", "\u00b5": "u",       # μ (micro)
+        "\u03b1": "a", "\u03b2": "b", "\u03b3": "g", "\u03b4": "d",
+        "\u03b5": "e", "\u03b6": "z", "\u03b7": "n", "\u03b8": "th",
+        "\u03bb": "l", "\u03c0": "pi", "\u03c3": "s", "\u03c6": "ph",
+        # Temperature & degree
         "\u2103": "C", "\u2109": "F",  # ℃ ℉
-        "\u2264": "<=", "\u2265": ">=",
+        "\u00b0": "o",                  # ° (degree, outside Latin-1 in some encodings)
+        # Math operators
+        "\u2264": "<=", "\u2265": ">=", "\u2260": "!=",
+        "\u00b1": "+/-",                # ±
+        "\u00d7": "x", "\u00f7": "/",  # × ÷
+        "\u221e": "inf",                # ∞
+        "\u2248": "~=",                 # ≈
+        "\u221a": "sqrt",               # √
+        "\u2206": "delta",              # ∆
+        # Superscripts & subscripts
+        "\u00b2": "2", "\u00b3": "3",  # ² ³
+        "\u00b9": "1",                  # ¹
+        "\u2070": "0", "\u2074": "4", "\u2075": "5",
+        "\u2076": "6", "\u2077": "7", "\u2078": "8", "\u2079": "9",
+        "\u2080": "0", "\u2081": "1", "\u2082": "2", "\u2083": "3",
+        # Arrows
+        "\u2190": "<-", "\u2192": "->", "\u2194": "<->",
+        "\u2191": "^", "\u2193": "v",
+        # Units & symbols
+        "\u2030": "permil",             # ‰
+        "\u20ac": "EUR",                # €
+        # Dashes & spaces
+        "\u2013": "-", "\u2014": "--",  # en-dash, em-dash
+        "\u2018": "'", "\u2019": "'",   # smart quotes
+        "\u201c": '"', "\u201d": '"',
+        "\u2022": "*",                  # bullet
+        "\u2026": "...",                # ellipsis
     }
 
     def normalize_text(self, text):
@@ -33,10 +69,11 @@ class ReportPDF(FPDF):
             text = text.encode("latin-1", errors="replace").decode("latin-1")
         return super().normalize_text(text)
 
-    def __init__(self, tenant: dict, template: dict):
+    def __init__(self, tenant: dict, template: dict, revision_number: int = 0):
         super().__init__()
         self.tenant = tenant
         self.template = template
+        self.revision_number = revision_number
         self.primary_color = self._hex_to_rgb(tenant.get("primary_color", "#2563eb"))
         self.secondary_color = self._hex_to_rgb(
             tenant.get("secondary_color", "")
@@ -85,7 +122,10 @@ class ReportPDF(FPDF):
         self.set_font("Helvetica", "", 10)
         self.set_text_color(100, 100, 100)
         self.set_xy(60, 20)
-        self.cell(90, 6, f"Codigo: {self.template.get('code', '')} | Versao: {self.template.get('version', '1')}", align="C")
+        subtitle = f"Codigo: {self.template.get('code', '')} | Versao: {self.template.get('version', '1')}"
+        if self.revision_number > 0:
+            subtitle += f" | Rev. {self.revision_number}"
+        self.cell(90, 6, subtitle, align="C")
 
         # Line
         self.set_draw_color(*self.primary_color)
@@ -191,22 +231,34 @@ class ReportPDF(FPDF):
                 self.set_xy(x_before + w, y_before)
             return actual_height
 
-    def _add_image_from_url(self, url: str, x: float, y: float, w: float):
-        """Add image from URL or local path."""
+    def _add_image_from_url(self, url: str, x: float, y: float, w: float,
+                            max_retries: int = 3):
+        """Add image from URL or local path with retry logic."""
         try:
             if url.startswith(("http://", "https://")):
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    img_data = response.read()
-                    img_io = BytesIO(img_data)
-                    self.image(img_io, x, y, w)
+                img_data = None
+                last_err = None
+                for attempt in range(max_retries):
+                    try:
+                        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=15) as response:
+                            img_data = response.read()
+                        break
+                    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+                        last_err = e
+                        if attempt < max_retries - 1:
+                            time.sleep(0.5 * (2 ** attempt))  # 0.5s, 1s, 2s backoff
+                if img_data:
+                    self.image(BytesIO(img_data), x, y, w)
+                elif last_err:
+                    logger.warning("Failed to download image after %d retries: %s - %s",
+                                   max_retries, url, last_err)
             else:
-                # Local file path
                 local_path = Path(url)
                 if local_path.exists():
                     self.image(str(local_path), x, y, w)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to add image to PDF: %s - %s", url, e)
 
     def _resolve_image_url(self, key_or_url: str) -> str:
         """Resolve an R2 object key or URL to a fetchable URL."""
@@ -225,6 +277,53 @@ class ReportPDF(FPDF):
 
 class PDFService:
     """Service for generating PDF reports."""
+
+    @staticmethod
+    def _validate_snapshot(snapshot: Any) -> dict:
+        """Validate template snapshot structure before rendering.
+
+        Returns a safe dict with required keys, falling back to empty defaults
+        if the snapshot is malformed.
+        """
+        if not isinstance(snapshot, dict):
+            logger.warning("Template snapshot is not a dict, using empty snapshot")
+            return {"name": "Relatorio", "code": "", "version": "1",
+                    "sections": [], "info_fields": [], "signature_fields": []}
+
+        # Ensure required top-level keys exist
+        validated = {
+            "name": snapshot.get("name", "Relatorio"),
+            "code": snapshot.get("code", ""),
+            "version": snapshot.get("version", "1"),
+            "info_fields": snapshot.get("info_fields") or [],
+            "signature_fields": snapshot.get("signature_fields") or [],
+            "sections": [],
+        }
+
+        # Validate each section has proper structure
+        for section in (snapshot.get("sections") or []):
+            if not isinstance(section, dict):
+                continue
+            validated_section = {
+                "name": section.get("name", ""),
+                "order": section.get("order", 0),
+                "fields": [],
+            }
+            for field in (section.get("fields") or []):
+                if not isinstance(field, dict):
+                    continue
+                validated_section["fields"].append({
+                    "id": field.get("id", ""),
+                    "label": field.get("label", ""),
+                    "field_type": field.get("field_type", "text"),
+                    "options": field.get("options"),
+                    "order": field.get("order", 0),
+                    "photo_config": field.get("photo_config") or {},
+                    "comment_config": field.get("comment_config") or {},
+                })
+            validated["sections"].append(validated_section)
+
+        return validated
 
     def generate_report_pdf(
         self,
@@ -245,7 +344,7 @@ class PDFService:
         Returns:
             PDF file as bytes
         """
-        snapshot = report.template_snapshot
+        snapshot = self._validate_snapshot(report.template_snapshot)
         config = layout_config or {}
 
         # Route to specialized renderer if style is set
@@ -281,7 +380,8 @@ class PDFService:
         }
 
         # Create PDF
-        pdf = ReportPDF(tenant_info, template_info)
+        revision_number = getattr(report, 'revision_number', 0) or 0
+        pdf = ReportPDF(tenant_info, template_info, revision_number=revision_number)
         pdf.alias_nb_pages()
 
         # Cover page (if enabled in layout config)
@@ -307,31 +407,47 @@ class PDFService:
 
         # Info fields section
         if report.info_values:
-            pdf.section_title("Informacoes do Projeto")
-            self._add_info_table(pdf, report.info_values)
+            try:
+                pdf.section_title("Informacoes do Projeto")
+                self._add_info_table(pdf, report.info_values)
+            except Exception as e:
+                logger.error("Failed to render info table: %s", e)
+                pdf.ln(5)
 
         # Checklist sections
         sections = self._group_responses_by_section(report, snapshot)
         for section in sections:
-            pdf.section_title(section["name"])
-            self._add_checklist_table(pdf, section["fields"])
+            try:
+                pdf.section_title(section["name"])
+                self._add_checklist_table(pdf, section["fields"])
 
-            # Photos for this section
-            section_photos = self._get_section_photos(section)
-            if section_photos:
-                self._add_photos(pdf, section_photos, config)
+                # Photos for this section
+                section_photos = self._get_section_photos(section)
+                if section_photos:
+                    self._add_photos(pdf, section_photos, config)
 
-            pdf.ln(3)
+                pdf.ln(3)
+            except Exception as e:
+                logger.error("Failed to render section '%s': %s", section.get("name"), e)
+                pdf.ln(5)
 
         # Certificates section (before signatures)
         if certificates:
-            pdf.section_title("Certificados de Calibracao")
-            self._add_certificates_table(pdf, certificates)
+            try:
+                pdf.section_title("Certificados de Calibracao")
+                self._add_certificates_table(pdf, certificates)
+            except Exception as e:
+                logger.error("Failed to render certificates table: %s", e)
+                pdf.ln(5)
 
         # Signatures section
         if report.signatures:
-            pdf.section_title("Assinaturas")
-            self._add_signatures(pdf, report.signatures)
+            try:
+                pdf.section_title("Assinaturas")
+                self._add_signatures(pdf, report.signatures)
+            except Exception as e:
+                logger.error("Failed to render signatures: %s", e)
+                pdf.ln(5)
 
         # Generate PDF bytes
         return bytes(pdf.output())

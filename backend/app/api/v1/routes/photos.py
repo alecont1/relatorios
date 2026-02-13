@@ -76,11 +76,30 @@ async def upload_photo(
     The photo will be stored in cloud storage (R2) or local filesystem.
     Metadata including GPS coordinates and timestamp are stored with the photo.
     """
+    MAX_PHOTO_SIZE = 20 * 1024 * 1024  # 20 MB
+
     # Validate file type
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File must be an image"
+        )
+
+    # Validate file size - read content to check size
+    file.file.seek(0, 2)  # Seek to end
+    file_size = file.file.tell()
+    file.file.seek(0)  # Reset
+
+    if file_size > MAX_PHOTO_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"Photo exceeds maximum size of {MAX_PHOTO_SIZE // (1024*1024)} MB"
+        )
+
+    if file_size == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty"
         )
 
     # Get report and verify access

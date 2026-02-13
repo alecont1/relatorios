@@ -36,7 +36,11 @@ class HeaderRenderer(BaseRenderer):
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(100, 100, 100)
         pdf.set_xy(60, 20)
-        pdf.cell(90, 6, f"Codigo: {template_info.get('code', '')} | Versao: {template_info.get('version', '1')}", align="C")
+        subtitle = f"Codigo: {template_info.get('code', '')} | Versao: {template_info.get('version', '1')}"
+        revision_number = getattr(pdf, 'revision_number', 0) or 0
+        if revision_number > 0:
+            subtitle += f" | Rev. {revision_number}"
+        pdf.cell(90, 6, subtitle, align="C")
 
         # Line
         pdf.set_draw_color(*primary)

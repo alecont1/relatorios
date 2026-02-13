@@ -8,11 +8,16 @@ Generates PDFs matching the GENSEP commissioning protocol layout:
 - Pages 3+: Equipment photos with instrument data repeated above
 """
 
+import logging
+import time
 from io import BytesIO
 from pathlib import Path
 import urllib.request
+import urllib.error
 
 from fpdf import FPDF
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.models.report import Report
@@ -25,19 +30,50 @@ class GensepPDF(FPDF):
 
     # Unicode chars outside Latin-1 → ASCII replacements
     _CHAR_MAP = {
+        # Greek letters (common in engineering)
         "\u03a9": "Ohm", "\u2126": "Ohm",  # Ω
-        "\u03bc": "u",    # μ (micro)
+        "\u03bc": "u", "\u00b5": "u",       # μ (micro)
         "\u03b1": "a", "\u03b2": "b", "\u03b3": "g", "\u03b4": "d",
+        "\u03b5": "e", "\u03b6": "z", "\u03b7": "n", "\u03b8": "th",
+        "\u03bb": "l", "\u03c0": "pi", "\u03c3": "s", "\u03c6": "ph",
+        # Temperature & degree
         "\u2103": "C", "\u2109": "F",  # ℃ ℉
-        "\u221e": "inf",  # ∞
+        "\u00b0": "o",                  # ° (degree)
+        # Math operators
         "\u2264": "<=", "\u2265": ">=", "\u2260": "!=",
+        "\u00b1": "+/-",                # ±
+        "\u00d7": "x", "\u00f7": "/",  # × ÷
+        "\u221e": "inf",                # ∞
+        "\u2248": "~=",                 # ≈
+        "\u221a": "sqrt",               # √
+        "\u2206": "delta",              # ∆
+        # Superscripts & subscripts
+        "\u00b2": "2", "\u00b3": "3",  # ² ³
+        "\u00b9": "1",                  # ¹
+        "\u2070": "0", "\u2074": "4", "\u2075": "5",
+        "\u2076": "6", "\u2077": "7", "\u2078": "8", "\u2079": "9",
+        "\u2080": "0", "\u2081": "1", "\u2082": "2", "\u2083": "3",
+        # Arrows
+        "\u2190": "<-", "\u2192": "->", "\u2194": "<->",
+        "\u2191": "^", "\u2193": "v",
+        # Units & symbols
+        "\u2030": "permil",             # ‰
+        "\u20ac": "EUR",                # €
+        # Dashes & spaces
+        "\u2013": "-", "\u2014": "--",  # en-dash, em-dash
+        "\u2018": "'", "\u2019": "'",   # smart quotes
+        "\u201c": '"', "\u201d": '"',
+        "\u2022": "*",                  # bullet
+        "\u2026": "...",                # ellipsis
     }
 
-    def __init__(self, tenant_info: dict, template_name: str, primary_color: tuple):
+    def __init__(self, tenant_info: dict, template_name: str, primary_color: tuple,
+                 revision_number: int = 0):
         super().__init__()
         self._tenant_info = tenant_info
         self._template_name = template_name
         self._primary_color = primary_color
+        self._revision_number = revision_number
         self._is_cover = False
 
     def normalize_text(self, text):
@@ -67,7 +103,10 @@ class GensepPDF(FPDF):
         self.cell(155, 4, "COMMISSIONING TEST PROTOCOL - LOW VOLTAGE CABLES", align="R")
         self.set_xy(45, 13)
         self.set_font("Helvetica", "", 7)
-        self.cell(155, 4, self._template_name, align="R")
+        template_label = self._template_name
+        if self._revision_number > 0:
+            template_label += f" | Rev. {self._revision_number}"
+        self.cell(155, 4, template_label, align="R")
 
         # Line under header
         self.set_draw_color(*self._primary_color)
@@ -101,14 +140,27 @@ class GensepPDF(FPDF):
         # Page number right
         self.cell(0, 3, f"{self.page_no()}/{{nb}}", align="R")
 
-    def _add_image(self, url: str, x: float, y: float, w: float):
-        """Add image from URL or local path."""
+    def _add_image(self, url: str, x: float, y: float, w: float,
+                    max_retries: int = 3):
+        """Add image from URL or local path with retry logic."""
         if url.startswith(("http://", "https://")):
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as response:
-                img_data = response.read()
-                img_io = BytesIO(img_data)
-                self.image(img_io, x, y, w)
+            img_data = None
+            last_err = None
+            for attempt in range(max_retries):
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=15) as response:
+                        img_data = response.read()
+                    break
+                except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+                    last_err = e
+                    if attempt < max_retries - 1:
+                        time.sleep(0.5 * (2 ** attempt))
+            if img_data:
+                self.image(BytesIO(img_data), x, y, w)
+            elif last_err:
+                logger.warning("Failed to download image after %d retries: %s - %s",
+                               max_retries, url, last_err)
         else:
             local_path = Path(url)
             if local_path.exists():
@@ -172,9 +224,19 @@ class GensepPDFRenderer:
 
     def generate(self) -> bytes:
         """Generate the complete PDF and return bytes."""
-        template_name = self.snapshot.get("name", "Report")
+        # Validate snapshot structure
+        snapshot = self.snapshot
+        if not isinstance(snapshot, dict):
+            logger.warning("GENSEP: Template snapshot is not a dict, using empty snapshot")
+            self.snapshot = {"name": "Report", "code": "", "version": "1",
+                             "sections": [], "info_fields": [], "signature_fields": []}
+            snapshot = self.snapshot
 
-        self.pdf = GensepPDF(self.tenant_info, template_name, self.primary)
+        template_name = snapshot.get("name", "Report")
+        revision_number = getattr(self.report, 'revision_number', 0) or 0
+
+        self.pdf = GensepPDF(self.tenant_info, template_name, self.primary,
+                             revision_number=revision_number)
         self.pdf.alias_nb_pages()
         self.pdf.set_auto_page_break(auto=True, margin=18)
 
@@ -182,10 +244,21 @@ class GensepPDFRenderer:
         self.info_map = self._build_info_map()
         self.sections = self._group_responses_by_section()
 
-        # Render pages
-        self._render_cover_page()
-        self._render_data_page()
-        self._render_photo_pages()
+        # Render pages with error resilience
+        try:
+            self._render_cover_page()
+        except Exception as e:
+            logger.error("GENSEP: Failed to render cover page: %s", e)
+
+        try:
+            self._render_data_page()
+        except Exception as e:
+            logger.error("GENSEP: Failed to render data page: %s", e)
+
+        try:
+            self._render_photo_pages()
+        except Exception as e:
+            logger.error("GENSEP: Failed to render photo pages: %s", e)
 
         return bytes(self.pdf.output())
 

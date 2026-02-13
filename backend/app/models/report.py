@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,6 +15,11 @@ class Report(TenantBase):
 
     Represents a single report filled by a technician.
     Contains structured data based on a template snapshot.
+
+    Revision system:
+    - revision_number: 0 for original, incremented for each revision
+    - parent_report_id: links to the original report being revised
+    - is_latest_revision: only True for the most recent version
     """
 
     __tablename__ = "reports"
@@ -34,6 +40,18 @@ class Report(TenantBase):
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
+    # Revision fields
+    revision_number: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    parent_report_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("reports.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    revision_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_latest_revision: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true"
+    )
+
     # Foreign keys
     template_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("templates.id", ondelete="RESTRICT"), nullable=False, index=True
@@ -46,6 +64,17 @@ class Report(TenantBase):
     )
 
     # Relationships
+    parent_report: Mapped[Optional["Report"]] = relationship(
+        "Report",
+        remote_side="Report.id",
+        back_populates="revisions",
+        foreign_keys=[parent_report_id],
+    )
+    revisions: Mapped[list["Report"]] = relationship(
+        "Report",
+        back_populates="parent_report",
+        foreign_keys=[parent_report_id],
+    )
     info_values: Mapped[list["ReportInfoValue"]] = relationship(
         "ReportInfoValue",
         back_populates="report",
@@ -71,4 +100,4 @@ class Report(TenantBase):
     )
 
     def __repr__(self) -> str:
-        return f"<Report(id={self.id}, title={self.title}, status={self.status})>"
+        return f"<Report(id={self.id}, title={self.title}, status={self.status}, rev={self.revision_number})>"

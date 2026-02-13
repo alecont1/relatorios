@@ -7,7 +7,7 @@ export { TenantSettingsPage } from './TenantSettingsPage';
 export { TemplatesPage } from './TemplatesPage';
 export { TemplateConfigPage } from './TemplateConfigPage';
 export { ReportsPage } from './ReportsPage';
-export { ReportFillPage } from './ReportFillPage';
+export { ReportFillPage } from './report-fill';
 export { CertificatesPage } from './CertificatesPage';
 export { OnboardingPage } from './OnboardingPage';
 export {

@@ -31,6 +31,7 @@ from app.models import (
     User,
 )
 from app.models.project import Project
+from app.models.report_certificate import ReportCertificate
 from app.schemas.report import (
     ReportCreate,
     ReportUpdate,
@@ -40,6 +41,9 @@ from app.schemas.report import (
     ReportStatus,
     InfoValueResponse,
     ChecklistResponseResponse,
+    RevisionCreate,
+    RevisionResponse,
+    RevisionListResponse,
 )
 
 router = APIRouter(prefix="/reports", tags=["reports"])
@@ -327,6 +331,7 @@ async def update_report(
     - Updates info values
     - Updates checklist responses
     - Sets started_at if transitioning from draft
+    - Supports optimistic locking via expected_updated_at
     """
     # Build conditions - superadmin can update any report
     conditions = [Report.id == report_id]
@@ -349,21 +354,44 @@ async def update_report(
             detail="Relatorio nao encontrado",
         )
 
+    # Optimistic locking: reject if report was modified since client last fetched
+    if data.expected_updated_at is not None:
+        # Compare with microsecond tolerance to handle serialization rounding
+        server_ts = report.updated_at.replace(tzinfo=None)
+        client_ts = data.expected_updated_at.replace(tzinfo=None)
+        if abs((server_ts - client_ts).total_seconds()) > 1:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Relatorio foi modificado por outro usuario. Recarregue e tente novamente.",
+            )
+
     if report.status in [ReportStatus.COMPLETED, ReportStatus.ARCHIVED]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Nao e possivel editar um relatorio finalizado ou arquivado",
         )
 
+    # Validate status transitions: only draft->in_progress is allowed via update
+    if data.status is not None:
+        _ALLOWED_TRANSITIONS = {
+            ReportStatus.DRAFT: {ReportStatus.DRAFT, ReportStatus.IN_PROGRESS},
+            ReportStatus.IN_PROGRESS: {ReportStatus.IN_PROGRESS},
+        }
+        allowed = _ALLOWED_TRANSITIONS.get(report.status, set())
+        if data.status not in allowed:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Transicao de status invalida: {report.status} -> {data.status}",
+            )
+        if report.status == ReportStatus.DRAFT and data.status == ReportStatus.IN_PROGRESS:
+            report.started_at = datetime.utcnow()
+        report.status = data.status
+
     # Update basic fields
     if data.title is not None:
         report.title = data.title
     if data.location is not None:
         report.location = data.location
-    if data.status is not None and data.status in [ReportStatus.DRAFT, ReportStatus.IN_PROGRESS]:
-        if report.status == ReportStatus.DRAFT and data.status == ReportStatus.IN_PROGRESS:
-            report.started_at = datetime.utcnow()
-        report.status = data.status
 
     # Update info values
     if data.info_values is not None:
@@ -558,6 +586,9 @@ def _build_list_response(report: Report) -> ReportResponse:
         created_at=report.created_at,
         updated_at=report.updated_at,
         template_name=template_name,
+        revision_number=report.revision_number,
+        parent_report_id=report.parent_report_id,
+        is_latest_revision=report.is_latest_revision,
     )
 
 
@@ -584,6 +615,10 @@ def _build_detail_response(report: Report) -> ReportDetailResponse:
         completed_at=report.completed_at,
         created_at=report.created_at,
         updated_at=report.updated_at,
+        revision_number=report.revision_number,
+        parent_report_id=report.parent_report_id,
+        revision_notes=report.revision_notes,
+        is_latest_revision=report.is_latest_revision,
         info_values=[
             InfoValueResponse(
                 id=iv.id,
@@ -615,6 +650,211 @@ def _build_detail_response(report: Report) -> ReportDetailResponse:
             )
             for cr in checklist_responses
         ],
+    )
+
+
+@router.post("/{report_id}/revise", response_model=ReportDetailResponse, status_code=status.HTTP_201_CREATED)
+async def create_revision(
+    report_id: UUID,
+    data: RevisionCreate | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
+):
+    """
+    Create a new revision of a completed report.
+
+    - Copies template_snapshot, template_id, project_id, user_id, info values,
+      checklist responses, and certificate links from the original
+    - Sets revision_number = original.revision_number + 1
+    - Sets parent_report_id = original.id
+    - Marks original as is_latest_revision = False
+    - New report starts as 'draft'
+    """
+    # Load original report with all relationships
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
+    result = await db.execute(
+        select(Report)
+        .options(
+            selectinload(Report.info_values),
+            selectinload(Report.checklist_responses),
+            selectinload(Report.certificates),
+        )
+        .where(and_(*conditions))
+    )
+    original = result.scalar_one_or_none()
+
+    if not original:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Relatorio nao encontrado",
+        )
+
+    if original.status != ReportStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apenas relatorios finalizados podem ser revisados",
+        )
+
+    revision_notes = data.revision_notes if data else None
+
+    # Create new report as revision
+    new_report = Report(
+        tenant_id=original.tenant_id,
+        template_id=original.template_id,
+        project_id=original.project_id,
+        user_id=current_user.id,
+        title=original.title,
+        location=original.location,
+        status=ReportStatus.DRAFT,
+        template_snapshot=original.template_snapshot,
+        revision_number=original.revision_number + 1,
+        parent_report_id=original.id,
+        revision_notes=revision_notes,
+        is_latest_revision=True,
+    )
+    db.add(new_report)
+    await db.flush()
+
+    # Mark original as no longer the latest revision
+    original.is_latest_revision = False
+
+    # Copy info values
+    for iv in original.info_values:
+        new_iv = ReportInfoValue(
+            report_id=new_report.id,
+            info_field_id=iv.info_field_id,
+            field_label=iv.field_label,
+            field_type=iv.field_type,
+            value=iv.value,
+        )
+        db.add(new_iv)
+
+    # Copy checklist responses
+    for cr in original.checklist_responses:
+        new_cr = ReportChecklistResponse(
+            report_id=new_report.id,
+            section_id=cr.section_id,
+            field_id=cr.field_id,
+            section_name=cr.section_name,
+            section_order=cr.section_order,
+            field_label=cr.field_label,
+            field_order=cr.field_order,
+            field_type=cr.field_type,
+            field_options=cr.field_options,
+            response_value=cr.response_value,
+            comment=cr.comment,
+            photos=cr.photos or [],
+        )
+        db.add(new_cr)
+
+    # Copy certificate links
+    for rc in original.certificates:
+        new_rc = ReportCertificate(
+            report_id=new_report.id,
+            certificate_id=rc.certificate_id,
+        )
+        db.add(new_rc)
+
+    await db.commit()
+    await db.refresh(new_report)
+
+    # Load relationships for response
+    result = await db.execute(
+        select(Report)
+        .options(
+            selectinload(Report.info_values),
+            selectinload(Report.checklist_responses),
+        )
+        .where(Report.id == new_report.id)
+    )
+    new_report = result.scalar_one()
+
+    return _build_detail_response(new_report)
+
+
+@router.get("/{report_id}/revisions", response_model=RevisionListResponse)
+async def list_revisions(
+    report_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID | None = Depends(get_tenant_filter),
+):
+    """
+    List all revisions of a report (including the original).
+
+    Finds the revision chain by traversing parent_report_id links
+    and returns all versions ordered by revision_number.
+    """
+    # First, load the report to verify access
+    conditions = [Report.id == report_id]
+    if tenant_id is not None:
+        conditions.append(Report.tenant_id == tenant_id)
+
+    result = await db.execute(
+        select(Report).where(and_(*conditions))
+    )
+    report = result.scalar_one_or_none()
+
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Relatorio nao encontrado",
+        )
+
+    # Find the root report (original with revision_number=0)
+    root_id = report.id
+    current = report
+    while current.parent_report_id is not None:
+        parent_result = await db.execute(
+            select(Report).where(Report.id == current.parent_report_id)
+        )
+        parent = parent_result.scalar_one_or_none()
+        if parent is None:
+            break
+        root_id = parent.id
+        current = parent
+
+    # Get all reports that are either the root or have root as ancestor
+    # We collect: the root itself + all reports with parent_report_id = root
+    # + all reports with parent_report_id in that set, etc.
+    # For simplicity, use a single query: reports where parent_report_id = root OR id = root
+    # AND recursively: reports whose parent is any report in the chain
+    all_ids = {root_id}
+    new_ids = {root_id}
+    while new_ids:
+        result = await db.execute(
+            select(Report.id).where(Report.parent_report_id.in_(new_ids))
+        )
+        found_ids = {row[0] for row in result.all()}
+        new_ids = found_ids - all_ids
+        all_ids.update(new_ids)
+
+    # Fetch all revisions
+    result = await db.execute(
+        select(Report)
+        .where(Report.id.in_(all_ids))
+        .order_by(Report.revision_number)
+    )
+    revisions = result.scalars().all()
+
+    return RevisionListResponse(
+        revisions=[
+            RevisionResponse(
+                id=r.id,
+                revision_number=r.revision_number,
+                status=r.status,
+                revision_notes=r.revision_notes,
+                parent_report_id=r.parent_report_id,
+                created_at=r.created_at,
+                updated_at=r.updated_at,
+            )
+            for r in revisions
+        ],
+        total=len(revisions),
     )
 
 

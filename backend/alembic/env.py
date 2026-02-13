@@ -36,6 +36,7 @@ from app.models import (  # noqa: F401
     ReportPhoto,
     CalibrationCertificate,
     ReportCertificate,
+    PdfLayout,
 )
 
 # this is the Alembic Config object, which provides

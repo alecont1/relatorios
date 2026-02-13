@@ -43,12 +43,31 @@ export interface Report {
   created_at: string
   updated_at: string
   template_name?: string
+  revision_number: number
+  parent_report_id: string | null
+  is_latest_revision: boolean
 }
 
 export interface ReportDetail extends Report {
   template_snapshot: TemplateSnapshot
   info_values: InfoValue[]
   checklist_responses: ChecklistResponse[]
+  revision_notes: string | null
+}
+
+export interface RevisionEntry {
+  id: string
+  revision_number: number
+  status: ReportStatus
+  revision_notes: string | null
+  parent_report_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface RevisionListResponse {
+  revisions: RevisionEntry[]
+  total: number
 }
 
 export interface TemplateSnapshot {
@@ -199,6 +218,24 @@ export const reportApi = {
    */
   archive: async (id: string): Promise<ReportDetail> => {
     const response = await api.post(`/reports/${id}/archive`)
+    return response.data
+  },
+
+  /**
+   * Create a revision of a completed report
+   */
+  createRevision: async (id: string, revisionNotes?: string): Promise<ReportDetail> => {
+    const response = await api.post(`/reports/${id}/revise`, {
+      revision_notes: revisionNotes || null,
+    })
+    return response.data
+  },
+
+  /**
+   * List all revisions of a report
+   */
+  listRevisions: async (id: string): Promise<RevisionListResponse> => {
+    const response = await api.get(`/reports/${id}/revisions`)
     return response.data
   },
 

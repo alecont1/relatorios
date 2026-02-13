@@ -101,6 +101,11 @@ class ReportUpdate(BaseModel):
     status: str | None = None
     info_values: list[InfoValueCreate] | None = None
     checklist_responses: list[ChecklistResponseCreate] | None = None
+    expected_updated_at: datetime | None = Field(
+        None,
+        description="For optimistic locking: pass the last known updated_at. "
+        "If the report was modified since, a 409 Conflict is returned.",
+    )
 
 
 class ReportResponse(BaseModel):
@@ -120,6 +125,10 @@ class ReportResponse(BaseModel):
     updated_at: datetime
     # Include template name from snapshot for display
     template_name: str | None = None
+    # Revision fields
+    revision_number: int = 0
+    parent_report_id: UUID | None = None
+    is_latest_revision: bool = True
 
     model_config = {"from_attributes": True}
 
@@ -142,6 +151,11 @@ class ReportDetailResponse(BaseModel):
     updated_at: datetime
     info_values: list[InfoValueResponse]
     checklist_responses: list[ChecklistResponseResponse]
+    # Revision fields
+    revision_number: int = 0
+    parent_report_id: UUID | None = None
+    revision_notes: str | None = None
+    is_latest_revision: bool = True
 
     model_config = {"from_attributes": True}
 
@@ -150,4 +164,34 @@ class ReportListResponse(BaseModel):
     """Schema for paginated report list."""
 
     reports: list[ReportResponse]
+    total: int
+
+
+# --- Revision Schemas ---
+
+
+class RevisionCreate(BaseModel):
+    """Schema for creating a report revision."""
+
+    revision_notes: str | None = None
+
+
+class RevisionResponse(BaseModel):
+    """Schema for a revision entry in the history list."""
+
+    id: UUID
+    revision_number: int
+    status: str
+    revision_notes: str | None
+    parent_report_id: UUID | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class RevisionListResponse(BaseModel):
+    """Schema for revision history list."""
+
+    revisions: list[RevisionResponse]
     total: int

@@ -4,11 +4,16 @@ PDF generation orchestrator.
 Reads layout config and delegates to individual renderers.
 """
 
+import logging
+from typing import Any
+
 from fpdf import FPDF
 
 from app.models.report import Report
 from app.models.tenant import Tenant
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 from .layout_config import LayoutConfig
 from .cover_renderer import CoverRenderer
@@ -46,6 +51,45 @@ class ComponentReportPDF(FPDF):
 class ComponentPDFService:
     """PDF generation service using componentized renderers."""
 
+    @staticmethod
+    def _validate_snapshot(snapshot: Any) -> dict:
+        """Validate template snapshot structure before rendering."""
+        if not isinstance(snapshot, dict):
+            logger.warning("Template snapshot is not a dict, using empty snapshot")
+            return {"name": "Relatorio", "code": "", "version": "1",
+                    "sections": [], "info_fields": [], "signature_fields": []}
+
+        validated = {
+            "name": snapshot.get("name", "Relatorio"),
+            "code": snapshot.get("code", ""),
+            "version": snapshot.get("version", "1"),
+            "info_fields": snapshot.get("info_fields") or [],
+            "signature_fields": snapshot.get("signature_fields") or [],
+            "sections": [],
+        }
+        for section in (snapshot.get("sections") or []):
+            if not isinstance(section, dict):
+                continue
+            validated_section = {
+                "name": section.get("name", ""),
+                "order": section.get("order", 0),
+                "fields": [],
+            }
+            for field in (section.get("fields") or []):
+                if not isinstance(field, dict):
+                    continue
+                validated_section["fields"].append({
+                    "id": field.get("id", ""),
+                    "label": field.get("label", ""),
+                    "field_type": field.get("field_type", "text"),
+                    "options": field.get("options"),
+                    "order": field.get("order", 0),
+                    "photo_config": field.get("photo_config") or {},
+                    "comment_config": field.get("comment_config") or {},
+                })
+            validated["sections"].append(validated_section)
+        return validated
+
     def generate_report_pdf(
         self,
         report: Report,
@@ -54,7 +98,7 @@ class ComponentPDFService:
         layout_config: dict | None = None,
     ) -> bytes:
         """Generate a PDF using componentized renderers."""
-        snapshot = report.template_snapshot
+        snapshot = self._validate_snapshot(report.template_snapshot)
         config = LayoutConfig.from_dict(layout_config)
 
         # Route to specialized renderer if style is set
@@ -146,29 +190,45 @@ class ComponentPDFService:
 
         # Info fields
         if report.info_values:
-            section_title("Informacoes do Projeto")
-            info_table.render(report.info_values)
+            try:
+                section_title("Informacoes do Projeto")
+                info_table.render(report.info_values)
+            except Exception as e:
+                logger.error("Failed to render info table: %s", e)
+                pdf.ln(5)
 
         # Checklist sections
         sections = self._group_responses_by_section(report, snapshot)
         for section in sections:
-            section_title(section["name"])
-            checklist.render(section["fields"])
+            try:
+                section_title(section["name"])
+                checklist.render(section["fields"])
 
-            section_photos = self._get_section_photos(section)
-            if section_photos:
-                photo.render(section_photos)
-            pdf.ln(3)
+                section_photos = self._get_section_photos(section)
+                if section_photos:
+                    photo.render(section_photos)
+                pdf.ln(3)
+            except Exception as e:
+                logger.error("Failed to render section '%s': %s", section.get("name"), e)
+                pdf.ln(5)
 
         # Certificates
         if certificates:
-            section_title("Certificados de Calibracao")
-            cert_renderer.render(certificates)
+            try:
+                section_title("Certificados de Calibracao")
+                cert_renderer.render(certificates)
+            except Exception as e:
+                logger.error("Failed to render certificates table: %s", e)
+                pdf.ln(5)
 
         # Signatures
         if report.signatures:
-            section_title("Assinaturas")
-            sig_renderer.render(report.signatures)
+            try:
+                section_title("Assinaturas")
+                sig_renderer.render(report.signatures)
+            except Exception as e:
+                logger.error("Failed to render signatures: %s", e)
+                pdf.ln(5)
 
         return bytes(pdf.output())
 

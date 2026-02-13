@@ -2,13 +2,18 @@
 Base renderer with shared PDF utilities.
 """
 
+import logging
+import time
 from abc import ABC, abstractmethod
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 import urllib.request
+import urllib.error
 
 from fpdf import FPDF
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from .layout_config import LayoutConfig
@@ -76,21 +81,34 @@ class BaseRenderer(ABC):
                 pdf.set_xy(x_before + w, y_before)
             return actual_height
 
-    def add_image_from_url(self, url: str, x: float, y: float, w: float):
-        """Add image from URL or local path."""
+    def add_image_from_url(self, url: str, x: float, y: float, w: float,
+                           max_retries: int = 3):
+        """Add image from URL or local path with retry logic."""
         try:
             if url.startswith(("http://", "https://")):
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    img_data = response.read()
-                    img_io = BytesIO(img_data)
-                    self.pdf.image(img_io, x, y, w)
+                img_data = None
+                last_err = None
+                for attempt in range(max_retries):
+                    try:
+                        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=15) as response:
+                            img_data = response.read()
+                        break
+                    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+                        last_err = e
+                        if attempt < max_retries - 1:
+                            time.sleep(0.5 * (2 ** attempt))
+                if img_data:
+                    self.pdf.image(BytesIO(img_data), x, y, w)
+                elif last_err:
+                    logger.warning("Failed to download image after %d retries: %s - %s",
+                                   max_retries, url, last_err)
             else:
                 local_path = Path(url)
                 if local_path.exists():
                     self.pdf.image(str(local_path), x, y, w)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to add image to PDF: %s - %s", url, e)
 
     def resolve_image_url(self, key_or_url: str) -> str:
         """Resolve an R2 object key or URL to a fetchable URL."""

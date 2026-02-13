@@ -71,6 +71,7 @@ from app.api.v1.routes.report_certificates import router as report_certificates_
 from app.api.v1.routes.superadmin import router as superadmin_router
 from app.api.v1.routes.onboarding import router as onboarding_router
 from app.api.v1.routes.pdf_layouts import router as pdf_layouts_router
+from app.api.v1.routes.dashboard import router as dashboard_router
 
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
@@ -89,6 +90,7 @@ app.include_router(report_certificates_router, prefix="/api/v1")
 app.include_router(superadmin_router, prefix="/api/v1")
 app.include_router(onboarding_router, prefix="/api/v1")
 app.include_router(pdf_layouts_router, prefix="/api/v1")
+app.include_router(dashboard_router, prefix="/api/v1")
 
 # Mount static files for local photo storage (development)
 uploads_path = Path("uploads")
